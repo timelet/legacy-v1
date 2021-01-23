@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "../../_snowpack/pkg/react.js";
 import {DatabaseProvider} from "../contexts/DatabaseContext.js";
 import {initializeDatabase} from "../database.js";
-import {Entries} from "./Entries.js";
-export default function App({}) {
+import Entries from "./Entries.js";
+export default function App() {
   const [database, setDatabase] = useState();
   useEffect(() => {
     async function initialize() {
