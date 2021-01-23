@@ -1,5 +1,10 @@
-import { c as createCommonjsModule, a as commonjsGlobal, b as commonjsRequire } from './common/_commonjsHelpers-1405211c.js';
-import { k as require$$0, s as sparkMd5, n as clone$1, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once$1, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise } from './common/index.es-4944cb66.js';
+import { c as createCommonjsModule, a as commonjsGlobal, d as commonjsRequire } from './common/_commonjsHelpers-f5d70792.js';
+import { k as require$$0, s as sparkMd5, n as clone$1, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once$1, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise } from './common/index.es-5017494a.js';
+import { i as interopRequireDefault } from './common/interopRequireDefault-be3aec80.js';
+
+var global = (typeof global !== "undefined" ? global :
+  typeof self !== "undefined" ? self :
+  typeof window !== "undefined" ? window : {});
 
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
@@ -3254,10 +3259,6 @@ void function(root){
 
 }();
 });
-
-var global = (typeof global !== "undefined" ? global :
-  typeof self !== "undefined" ? self :
-  typeof window !== "undefined" ? window : {});
 
 var lookup = [];
 var revLookup = [];
@@ -18392,16 +18393,6 @@ function microSeconds() {
 
 var isNode = Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]';
 exports.isNode = isNode;
-});
-
-var interopRequireDefault = createCommonjsModule(function (module) {
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {
-    "default": obj
-  };
-}
-
-module.exports = _interopRequireDefault;
 });
 
 var native_1 = createCommonjsModule(function (module, exports) {
