@@ -4852,6 +4852,12 @@ IntlContext.Consumer; var IntlProvider = IntlContext.Provider;
 var Provider = IntlProvider;
 var Context = IntlContext;
 
+function useIntl() {
+    var intl = react.useContext(Context);
+    invariantIntlContext(intl);
+    return intl;
+}
+
 function shallowEqualObjects(objA, objB) {
   if (objA === objB) {
     return true;
@@ -5021,4 +5027,4 @@ var FormattedMessage = /** @class */ (function (_super) {
     return FormattedMessage;
 }(react.Component));
 
-export { FormattedMessage, IntlProvider$1 as IntlProvider };
+export { FormattedMessage, IntlProvider$1 as IntlProvider, useIntl };

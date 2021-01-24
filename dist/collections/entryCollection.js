@@ -19,7 +19,7 @@ export const entrySchema = {
       type: "number"
     }
   },
-  required: ["description", "startedAt", "endedAt"]
+  required: ["description", "startedAt"]
 };
 export function configureEntryCollection(collection) {
   collection.preInsert((data) => {

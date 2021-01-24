@@ -2,7 +2,6 @@ import { _ as _extends } from './extends-7477639a.js';
 import { r as react } from './index-8f144fe1.js';
 import { c as createCommonjsModule } from './_commonjsHelpers-f5d70792.js';
 import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fd576625.js';
-import { r as reactDom } from './index-821eef78.js';
 
 var common = {
   black: '#000',
@@ -234,7 +233,7 @@ var factoryWithThrowingShims = function() {
   return ReactPropTypes;
 };
 
-createCommonjsModule(function (module) {
+var propTypes = createCommonjsModule(function (module) {
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
@@ -4865,6 +4864,39 @@ var defaultOptions = {
 };
 var StylesContext = react.createContext(defaultOptions);
 
+var injectFirstNode;
+function StylesProvider(props) {
+  var children = props.children,
+      _props$injectFirst = props.injectFirst,
+      injectFirst = _props$injectFirst === void 0 ? false : _props$injectFirst,
+      _props$disableGenerat = props.disableGeneration,
+      disableGeneration = _props$disableGenerat === void 0 ? false : _props$disableGenerat,
+      localOptions = _objectWithoutProperties(props, ["children", "injectFirst", "disableGeneration"]);
+
+  var outerOptions = react.useContext(StylesContext);
+
+  var context = _extends({}, outerOptions, {
+    disableGeneration: disableGeneration
+  }, localOptions);
+
+  if (!context.jss.options.insertionPoint && injectFirst && typeof window !== 'undefined') {
+    if (!injectFirstNode) {
+      var head = document.head;
+      injectFirstNode = document.createComment('mui-inject-first');
+      head.insertBefore(injectFirstNode, head.firstChild);
+    }
+
+    context.jss = create({
+      plugins: jssPreset().plugins,
+      insertionPoint: injectFirstNode
+    });
+  }
+
+  return /*#__PURE__*/react.createElement(StylesContext.Provider, {
+    value: context
+  }, children);
+}
+
 /* eslint-disable import/prefer-default-export */
 // Global index counter to preserve source order.
 // We create the style sheet during the creation of the component,
@@ -5286,190 +5318,107 @@ function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// TODO v5: consider to make it private
-function setRef(ref, value) {
-  if (typeof ref === 'function') {
-    ref(value);
-  } else if (ref) {
-    ref.current = value;
-  }
-}
-
-var useEnhancedEffect = typeof window !== 'undefined' ? react.useLayoutEffect : react.useEffect;
-/**
- * https://github.com/facebook/react/issues/14099#issuecomment-440013892
- *
- * @param {function} fn
- */
-
-function useEventCallback(fn) {
-  var ref = react.useRef(fn);
-  useEnhancedEffect(function () {
-    ref.current = fn;
-  });
-  return react.useCallback(function () {
-    return (ref.current).apply(void 0, arguments);
-  }, []);
-}
-
-function useForkRef(refA, refB) {
-  /**
-   * This will create a new function if the ref props change and are defined.
-   * This means react will call the old forkRef with `null` and the new forkRef
-   * with the ref. Cleanup naturally emerges from this behavior
-   */
-  return react.useMemo(function () {
-    if (refA == null && refB == null) {
-      return null;
-    }
-
-    return function (refValue) {
-      setRef(refA, refValue);
-      setRef(refB, refValue);
-    };
-  }, [refA, refB]);
-}
-
-// based on https://github.com/WICG/focus-visible/blob/v4.1.5/src/focus-visible.js
-var hadKeyboardEvent = true;
-var hadFocusVisibleRecently = false;
-var hadFocusVisibleRecentlyTimeout = null;
-var inputTypesWhitelist = {
-  text: true,
-  search: true,
-  url: true,
-  tel: true,
-  email: true,
-  password: true,
-  number: true,
-  date: true,
-  month: true,
-  week: true,
-  time: true,
-  datetime: true,
-  'datetime-local': true
-};
-/**
- * Computes whether the given element should automatically trigger the
- * `focus-visible` class being added, i.e. whether it should always match
- * `:focus-visible` when focused.
- * @param {Element} node
- * @return {boolean}
- */
-
-function focusTriggersKeyboardModality(node) {
-  var type = node.type,
-      tagName = node.tagName;
-
-  if (tagName === 'INPUT' && inputTypesWhitelist[type] && !node.readOnly) {
-    return true;
-  }
-
-  if (tagName === 'TEXTAREA' && !node.readOnly) {
-    return true;
-  }
-
-  if (node.isContentEditable) {
-    return true;
-  }
-
-  return false;
-}
-/**
- * Keep track of our keyboard modality state with `hadKeyboardEvent`.
- * If the most recent user interaction was via the keyboard;
- * and the key press did not include a meta, alt/option, or control key;
- * then the modality is keyboard. Otherwise, the modality is not keyboard.
- * @param {KeyboardEvent} event
- */
-
-
-function handleKeyDown(event) {
-  if (event.metaKey || event.altKey || event.ctrlKey) {
-    return;
-  }
-
-  hadKeyboardEvent = true;
-}
-/**
- * If at any point a user clicks with a pointing device, ensure that we change
- * the modality away from keyboard.
- * This avoids the situation where a user presses a key on an already focused
- * element, and then clicks on a different element, focusing it with a
- * pointing device, while we still think we're in keyboard modality.
- */
-
-
-function handlePointerDown() {
-  hadKeyboardEvent = false;
-}
-
-function handleVisibilityChange() {
-  if (this.visibilityState === 'hidden') {
-    // If the tab becomes active again, the browser will handle calling focus
-    // on the element (Safari actually calls it twice).
-    // If this tab change caused a blur on an element with focus-visible,
-    // re-apply the class when the user switches back to the tab.
-    if (hadFocusVisibleRecently) {
-      hadKeyboardEvent = true;
-    }
-  }
-}
-
-function prepare(doc) {
-  doc.addEventListener('keydown', handleKeyDown, true);
-  doc.addEventListener('mousedown', handlePointerDown, true);
-  doc.addEventListener('pointerdown', handlePointerDown, true);
-  doc.addEventListener('touchstart', handlePointerDown, true);
-  doc.addEventListener('visibilitychange', handleVisibilityChange, true);
-}
-
-function isFocusVisible(event) {
-  var target = event.target;
-
-  try {
-    return target.matches(':focus-visible');
-  } catch (error) {} // browsers not implementing :focus-visible will throw a SyntaxError
-  // we use our own heuristic for those browsers
-  // rethrow might be better if it's not the expected error but do we really
-  // want to crash if focus-visible malfunctioned?
-  // no need for validFocusTarget check. the user does that by attaching it to
-  // focusable events only
-
-
-  return hadKeyboardEvent || focusTriggersKeyboardModality(target);
-}
-/**
- * Should be called if a blur event is fired on a focus-visible element
- */
-
-
-function handleBlurVisible() {
-  // To detect a tab/window switch, we look for a blur event followed
-  // rapidly by a visibility change.
-  // If we don't see a visibility change within 100ms, it's probably a
-  // regular focus change.
-  hadFocusVisibleRecently = true;
-  window.clearTimeout(hadFocusVisibleRecentlyTimeout);
-  hadFocusVisibleRecentlyTimeout = window.setTimeout(function () {
-    hadFocusVisibleRecently = false;
-  }, 100);
-}
-
-function useIsFocusVisible() {
-  var ref = react.useCallback(function (instance) {
-    var node = reactDom.findDOMNode(instance);
-
-    if (node != null) {
-      prepare(node.ownerDocument);
-    }
-  }, []);
-
+var styles = function styles(theme) {
   return {
-    isFocusVisible: isFocusVisible,
-    onBlurVisible: handleBlurVisible,
-    ref: ref
+    /* Styles applied to the root element. */
+    root: {
+      userSelect: 'none',
+      width: '1em',
+      height: '1em',
+      display: 'inline-block',
+      fill: 'currentColor',
+      flexShrink: 0,
+      fontSize: theme.typography.pxToRem(24),
+      transition: theme.transitions.create('fill', {
+        duration: theme.transitions.duration.shorter
+      })
+    },
+
+    /* Styles applied to the root element if `color="primary"`. */
+    colorPrimary: {
+      color: theme.palette.primary.main
+    },
+
+    /* Styles applied to the root element if `color="secondary"`. */
+    colorSecondary: {
+      color: theme.palette.secondary.main
+    },
+
+    /* Styles applied to the root element if `color="action"`. */
+    colorAction: {
+      color: theme.palette.action.active
+    },
+
+    /* Styles applied to the root element if `color="error"`. */
+    colorError: {
+      color: theme.palette.error.main
+    },
+
+    /* Styles applied to the root element if `color="disabled"`. */
+    colorDisabled: {
+      color: theme.palette.action.disabled
+    },
+
+    /* Styles applied to the root element if `fontSize="inherit"`. */
+    fontSizeInherit: {
+      fontSize: 'inherit'
+    },
+
+    /* Styles applied to the root element if `fontSize="small"`. */
+    fontSizeSmall: {
+      fontSize: theme.typography.pxToRem(20)
+    },
+
+    /* Styles applied to the root element if `fontSize="large"`. */
+    fontSizeLarge: {
+      fontSize: theme.typography.pxToRem(35)
+    }
   };
+};
+var SvgIcon = /*#__PURE__*/react.forwardRef(function SvgIcon(props, ref) {
+  var children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$color = props.color,
+      color = _props$color === void 0 ? 'inherit' : _props$color,
+      _props$component = props.component,
+      Component = _props$component === void 0 ? 'svg' : _props$component,
+      _props$fontSize = props.fontSize,
+      fontSize = _props$fontSize === void 0 ? 'default' : _props$fontSize,
+      htmlColor = props.htmlColor,
+      titleAccess = props.titleAccess,
+      _props$viewBox = props.viewBox,
+      viewBox = _props$viewBox === void 0 ? '0 0 24 24' : _props$viewBox,
+      other = _objectWithoutProperties(props, ["children", "classes", "className", "color", "component", "fontSize", "htmlColor", "titleAccess", "viewBox"]);
+
+  return /*#__PURE__*/react.createElement(Component, _extends({
+    className: clsx(classes.root, className, color !== 'inherit' && classes["color".concat(capitalize(color))], fontSize !== 'default' && classes["fontSize".concat(capitalize(fontSize))]),
+    focusable: "false",
+    viewBox: viewBox,
+    color: htmlColor,
+    "aria-hidden": titleAccess ? undefined : true,
+    role: titleAccess ? 'img' : undefined,
+    ref: ref
+  }, other), children, titleAccess ? /*#__PURE__*/react.createElement("title", null, titleAccess) : null);
+});
+SvgIcon.muiName = 'SvgIcon';
+var SvgIcon$1 = withStyles$1(styles, {
+  name: 'MuiSvgIcon'
+})(SvgIcon);
+
+/**
+ * Private module reserved for @material-ui/x packages.
+ */
+
+function createSvgIcon(path, displayName) {
+  var Component = function Component(props, ref) {
+    return /*#__PURE__*/react.createElement(SvgIcon$1, _extends({
+      ref: ref
+    }, props), path);
+  };
+
+  Component.muiName = SvgIcon$1.muiName;
+  return /*#__PURE__*/react.memo( /*#__PURE__*/react.forwardRef(Component));
 }
 
-export { _inheritsLoose as _, _assertThisInitialized as a, _objectWithoutPropertiesLoose as b, _objectWithoutProperties as c, clsx as d, _toConsumableArray as e, useIsFocusVisible as f, useForkRef as g, fade as h, capitalize as i, _defineProperty as j, setRef as s, useEventCallback as u, withStyles$1 as w };
+export { StylesProvider as S, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, _unsupportedIterableToArray as d, defaultTheme as e, _inheritsLoose as f, _objectWithoutPropertiesLoose as g, _assertThisInitialized as h, _toConsumableArray as i, fade as j, _createClass as k, getThemeProps as l, formatMuiErrorMessage as m, createSvgIcon as n, _typeof as o, mergeClasses as p, makeStyles as q, duration as r, SvgIcon$1 as s, propTypes as t, useTheme as u, withStyles$1 as w, zIndex as z };
