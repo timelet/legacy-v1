@@ -1,5 +1,5 @@
 import { c as createCommonjsModule } from '../common/_commonjsHelpers-f5d70792.js';
-import { r as react } from '../common/index-1d708ac1.js';
+import { r as react } from '../common/index-8f144fe1.js';
 import { _ as _extends } from '../common/extends-7477639a.js';
 
 createCommonjsModule(function (module) {

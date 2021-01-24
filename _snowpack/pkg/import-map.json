@@ -6,6 +6,7 @@
     "pouchdb-adapter-indexeddb": "./pouchdb-adapter-indexeddb.js",
     "react": "./react.js",
     "react-dom": "./react-dom.js",
+    "react-intl": "./react-intl.js",
     "rxdb": "./rxdb.js",
     "uuid": "./uuid.js"
   }
