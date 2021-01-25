@@ -1,13 +1,82 @@
-import { w as withStyles, _ as _objectWithoutProperties, c as clsx, a as capitalize, b as _defineProperty } from '../common/createSvgIcon-c588ee5e.js';
-export { S as StylesProvider } from '../common/createSvgIcon-c588ee5e.js';
-import { P as Paper } from '../common/TextField-87b325c1.js';
-export { I as IconButton, T as TextField, a as Toolbar, b as Typography } from '../common/TextField-87b325c1.js';
+import { u as useTheme, n as nested, T as ThemeContext, _ as _objectWithoutProperties, d as defaultTheme, w as withStyles, c as clsx, a as capitalize, b as _defineProperty } from '../common/createSvgIcon-a7558b59.js';
+export { S as StylesProvider, e as createMuiTheme } from '../common/createSvgIcon-a7558b59.js';
 import { _ as _extends } from '../common/extends-7477639a.js';
 import { r as react } from '../common/index-8f144fe1.js';
+import { h as hoistNonReactStatics_cjs } from '../common/hoist-non-react-statics.cjs-fd576625.js';
+import { P as Paper } from '../common/TextField-e0c8af5b.js';
+export { I as IconButton, P as Paper, T as TextField, a as Toolbar, b as Typography } from '../common/TextField-e0c8af5b.js';
 import '../common/_commonjsHelpers-f5d70792.js';
-import '../common/hoist-non-react-statics.cjs-fd576625.js';
+import '../common/red-359464ee.js';
 import '../common/index-821eef78.js';
 import '../common/useIsFocusVisible-8a3525cd.js';
+
+function mergeOuterLocalTheme(outerTheme, localTheme) {
+  if (typeof localTheme === 'function') {
+    var mergedTheme = localTheme(outerTheme);
+
+    return mergedTheme;
+  }
+
+  return _extends({}, outerTheme, localTheme);
+}
+/**
+ * This component takes a `theme` prop.
+ * It makes the `theme` available down the React tree thanks to React context.
+ * This component should preferably be used at **the root of your component tree**.
+ */
+
+
+function ThemeProvider(props) {
+  var children = props.children,
+      localTheme = props.theme;
+  var outerTheme = useTheme();
+
+  var theme = react.useMemo(function () {
+    var output = outerTheme === null ? localTheme : mergeOuterLocalTheme(outerTheme, localTheme);
+
+    if (output != null) {
+      output[nested] = outerTheme !== null;
+    }
+
+    return output;
+  }, [localTheme, outerTheme]);
+  return /*#__PURE__*/react.createElement(ThemeContext.Provider, {
+    value: theme
+  }, children);
+}
+
+function withThemeCreator() {
+  var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var defaultTheme = options.defaultTheme;
+
+  var withTheme = function withTheme(Component) {
+
+    var WithTheme = /*#__PURE__*/react.forwardRef(function WithTheme(props, ref) {
+      var innerRef = props.innerRef,
+          other = _objectWithoutProperties(props, ["innerRef"]);
+
+      var theme = useTheme() || defaultTheme;
+      return /*#__PURE__*/react.createElement(Component, _extends({
+        theme: theme,
+        ref: innerRef || ref
+      }, other));
+    });
+
+    hoistNonReactStatics_cjs(WithTheme, Component);
+
+    return WithTheme;
+  };
+
+  return withTheme;
+} // Provide the theme object as a prop to the input component.
+// It's an alternative API to useTheme().
+// We encourage the usage of useTheme() where possible.
+
+withThemeCreator();
+
+var withTheme = withThemeCreator({
+  defaultTheme: defaultTheme
+});
 
 var styles = function styles(theme) {
   var backgroundColorDefault = theme.palette.type === 'light' ? theme.palette.grey[100] : theme.palette.grey[900];
@@ -196,4 +265,4 @@ var Container$1 = withStyles(styles$1, {
   name: 'MuiContainer'
 })(Container);
 
-export { AppBar$1 as AppBar, Container$1 as Container };
+export { AppBar$1 as AppBar, Container$1 as Container, ThemeProvider, withTheme };

@@ -1,9 +1,11 @@
 import { c as createCommonjsModule, g as getDefaultExportFromCjs } from '../../common/_commonjsHelpers-f5d70792.js';
 import { i as interopRequireDefault } from '../../common/interopRequireDefault-be3aec80.js';
 import { r as react } from '../../common/index-8f144fe1.js';
-import { a as capitalize, n as createSvgIcon$1 } from '../../common/createSvgIcon-c588ee5e.js';
+import { a as capitalize, p as createSvgIcon$1 } from '../../common/createSvgIcon-a7558b59.js';
 import { d as createChainedFunction, e as debounce, i as isMuiElement, o as ownerDocument, c as ownerWindow, s as setRef, f as useControlled, u as useEventCallback, b as useForkRef, a as useIsFocusVisible } from '../../common/useIsFocusVisible-8a3525cd.js';
+import { u as useId } from '../../common/unstable_useId-cb546235.js';
 import '../../common/extends-7477639a.js';
+import '../../common/red-359464ee.js';
 import '../../common/hoist-non-react-statics.cjs-fd576625.js';
 import '../../common/index-821eef78.js';
 
@@ -27,27 +29,6 @@ function unsupportedProp(props, propName, componentName, location, propFullName)
   {
     return null;
   }
-}
-
-/**
- * Private module reserved for @material-ui/x packages.
- */
-
-function useId(idOverride) {
-  var _React$useState = react.useState(idOverride),
-      defaultId = _React$useState[0],
-      setDefaultId = _React$useState[1];
-
-  var id = idOverride || defaultId;
-  react.useEffect(function () {
-    if (defaultId == null) {
-      // Fallback to this default id when possible.
-      // Use the random value for client-side rendering only.
-      // We can't use it server-side.
-      setDefaultId("mui-".concat(Math.round(Math.random() * 1e5)));
-    }
-  }, [defaultId]);
-  return id;
 }
 
 var utils = /*#__PURE__*/Object.freeze({

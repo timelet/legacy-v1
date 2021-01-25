@@ -1,28 +1,12 @@
 import { _ as _extends } from './extends-7477639a.js';
 import { r as react } from './index-8f144fe1.js';
 import { c as createCommonjsModule } from './_commonjsHelpers-f5d70792.js';
+import { r as red } from './red-359464ee.js';
 import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fd576625.js';
 
 var common = {
   black: '#000',
   white: '#fff'
-};
-
-var red = {
-  50: '#ffebee',
-  100: '#ffcdd2',
-  200: '#ef9a9a',
-  300: '#e57373',
-  400: '#ef5350',
-  500: '#f44336',
-  600: '#e53935',
-  700: '#d32f2f',
-  800: '#c62828',
-  900: '#b71c1c',
-  A100: '#ff8a80',
-  A200: '#ff5252',
-  A400: '#ff1744',
-  A700: '#d50000'
 };
 
 var pink = {
@@ -5421,4 +5405,4 @@ function createSvgIcon(path, displayName) {
   return /*#__PURE__*/react.memo( /*#__PURE__*/react.forwardRef(Component));
 }
 
-export { StylesProvider as S, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, _unsupportedIterableToArray as d, defaultTheme as e, _inheritsLoose as f, _objectWithoutPropertiesLoose as g, _assertThisInitialized as h, _toConsumableArray as i, fade as j, _createClass as k, getThemeProps as l, formatMuiErrorMessage as m, createSvgIcon as n, _typeof as o, mergeClasses as p, makeStyles as q, duration as r, SvgIcon$1 as s, propTypes as t, useTheme as u, withStyles$1 as w, zIndex as z };
+export { duration as A, SvgIcon$1 as B, StylesProvider as S, ThemeContext as T, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, defaultTheme as d, createMuiTheme as e, _unsupportedIterableToArray as f, _inheritsLoose as g, _objectWithoutPropertiesLoose as h, _assertThisInitialized as i, _toConsumableArray as j, fade as k, _createClass as l, getThemeProps as m, nested as n, formatMuiErrorMessage as o, createSvgIcon as p, _typeof as q, mergeClasses as r, lighten as s, darken as t, useTheme as u, deepmerge as v, withStyles$1 as w, propTypes as x, makeStyles as y, zIndex as z };

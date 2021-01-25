@@ -1,10 +1,7 @@
 import { c as createCommonjsModule, a as commonjsGlobal, d as commonjsRequire } from './common/_commonjsHelpers-f5d70792.js';
-import { k as require$$0, s as sparkMd5, n as clone$1, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once$1, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise } from './common/index.es-5017494a.js';
+import { p as process, g as global } from './common/process-e3699881.js';
+import { k as require$$0, s as sparkMd5, n as clone$1, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise } from './common/index.es-5017494a.js';
 import { i as interopRequireDefault } from './common/interopRequireDefault-be3aec80.js';
-
-var global = (typeof global !== "undefined" ? global :
-  typeof self !== "undefined" ? self :
-  typeof window !== "undefined" ? window : {});
 
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
@@ -1614,233 +1611,6 @@ var whichCollection = function whichCollection(value) {
 		}
 	}
 	return false;
-};
-
-/* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-var cachedSetTimeout = defaultSetTimout;
-var cachedClearTimeout = defaultClearTimeout;
-var globalContext;
-if (typeof window !== 'undefined') {
-    globalContext = window;
-} else if (typeof self !== 'undefined') {
-    globalContext = self;
-} else {
-    globalContext = {};
-}
-if (typeof globalContext.setTimeout === 'function') {
-    cachedSetTimeout = setTimeout;
-}
-if (typeof globalContext.clearTimeout === 'function') {
-    cachedClearTimeout = clearTimeout;
-}
-
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-function nextTick(fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-}
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-var title = 'browser';
-var platform = 'browser';
-var browser = true;
-var argv = [];
-var version = ''; // empty string to avoid regexp issues
-var versions = {};
-var release = {};
-var config = {};
-
-function noop() {}
-
-var on = noop;
-var addListener = noop;
-var once = noop;
-var off = noop;
-var removeListener = noop;
-var removeAllListeners = noop;
-var emit = noop;
-
-function binding(name) {
-    throw new Error('process.binding is not supported');
-}
-
-function cwd () { return '/' }
-function chdir (dir) {
-    throw new Error('process.chdir is not supported');
-}function umask() { return 0; }
-
-// from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
-var performance = globalContext.performance || {};
-var performanceNow =
-  performance.now        ||
-  performance.mozNow     ||
-  performance.msNow      ||
-  performance.oNow       ||
-  performance.webkitNow  ||
-  function(){ return (new Date()).getTime() };
-
-// generate timestamp or delta
-// see http://nodejs.org/api/process.html#process_process_hrtime
-function hrtime(previousTimestamp){
-  var clocktime = performanceNow.call(performance)*1e-3;
-  var seconds = Math.floor(clocktime);
-  var nanoseconds = Math.floor((clocktime%1)*1e9);
-  if (previousTimestamp) {
-    seconds = seconds - previousTimestamp[0];
-    nanoseconds = nanoseconds - previousTimestamp[1];
-    if (nanoseconds<0) {
-      seconds--;
-      nanoseconds += 1e9;
-    }
-  }
-  return [seconds,nanoseconds]
-}
-
-var startTime = new Date();
-function uptime() {
-  var currentTime = new Date();
-  var dif = currentTime - startTime;
-  return dif / 1000;
-}
-
-var process = {
-  nextTick: nextTick,
-  title: title,
-  browser: browser,
-  env: {"NODE_ENV":"production"},
-  argv: argv,
-  version: version,
-  versions: versions,
-  on: on,
-  addListener: addListener,
-  once: once,
-  off: off,
-  removeListener: removeListener,
-  removeAllListeners: removeAllListeners,
-  emit: emit,
-  binding: binding,
-  cwd: cwd,
-  chdir: chdir,
-  umask: umask,
-  hrtime: hrtime,
-  platform: platform,
-  release: release,
-  config: config,
-  uptime: uptime
 };
 
 var toString$1 = {}.toString;
@@ -5569,7 +5339,7 @@ function now() {
  * returns a promise that resolves on the next tick
  */
 
-function nextTick$1() {
+function nextTick() {
   return new Promise(function (res) {
     return setTimeout(res, 0);
   });
@@ -6918,7 +6688,7 @@ function isFunction$1(x) {
 
 /** PURE_IMPORTS_START  PURE_IMPORTS_END */
 var _enable_super_gross_mode_that_will_cause_bad_things = false;
-var config$1 = {
+var config = {
     Promise: undefined,
     set useDeprecatedSynchronousErrorHandling(value) {
         if (value) {
@@ -6942,7 +6712,7 @@ var empty = {
     closed: true,
     next: function (value) { },
     error: function (err) {
-        if (config$1.useDeprecatedSynchronousErrorHandling) {
+        if (config.useDeprecatedSynchronousErrorHandling) {
             throw err;
         }
         else {
@@ -7237,7 +7007,7 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
     SafeSubscriber.prototype.next = function (value) {
         if (!this.isStopped && this._next) {
             var _parentSubscriber = this._parentSubscriber;
-            if (!config$1.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
+            if (!config.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
                 this.__tryOrUnsub(this._next, value);
             }
             else if (this.__tryOrSetError(_parentSubscriber, this._next, value)) {
@@ -7248,7 +7018,7 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
     SafeSubscriber.prototype.error = function (err) {
         if (!this.isStopped) {
             var _parentSubscriber = this._parentSubscriber;
-            var useDeprecatedSynchronousErrorHandling = config$1.useDeprecatedSynchronousErrorHandling;
+            var useDeprecatedSynchronousErrorHandling = config.useDeprecatedSynchronousErrorHandling;
             if (this._error) {
                 if (!useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
                     this.__tryOrUnsub(this._error, err);
@@ -7284,7 +7054,7 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
             var _parentSubscriber = this._parentSubscriber;
             if (this._complete) {
                 var wrappedComplete = function () { return _this._complete.call(_this._context); };
-                if (!config$1.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
+                if (!config.useDeprecatedSynchronousErrorHandling || !_parentSubscriber.syncErrorThrowable) {
                     this.__tryOrUnsub(wrappedComplete);
                     this.unsubscribe();
                 }
@@ -7304,7 +7074,7 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
         }
         catch (err) {
             this.unsubscribe();
-            if (config$1.useDeprecatedSynchronousErrorHandling) {
+            if (config.useDeprecatedSynchronousErrorHandling) {
                 throw err;
             }
             else {
@@ -7313,14 +7083,14 @@ var SafeSubscriber = /*@__PURE__*/ (function (_super) {
         }
     };
     SafeSubscriber.prototype.__tryOrSetError = function (parent, fn, value) {
-        if (!config$1.useDeprecatedSynchronousErrorHandling) {
+        if (!config.useDeprecatedSynchronousErrorHandling) {
             throw new Error('bad call');
         }
         try {
             fn.call(this._context, value);
         }
         catch (err) {
-            if (config$1.useDeprecatedSynchronousErrorHandling) {
+            if (config.useDeprecatedSynchronousErrorHandling) {
                 parent.syncErrorValue = err;
                 parent.syncErrorThrown = true;
                 return true;
@@ -7416,11 +7186,11 @@ var Observable = /*@__PURE__*/ (function () {
             sink.add(operator.call(sink, this.source));
         }
         else {
-            sink.add(this.source || (config$1.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
+            sink.add(this.source || (config.useDeprecatedSynchronousErrorHandling && !sink.syncErrorThrowable) ?
                 this._subscribe(sink) :
                 this._trySubscribe(sink));
         }
-        if (config$1.useDeprecatedSynchronousErrorHandling) {
+        if (config.useDeprecatedSynchronousErrorHandling) {
             if (sink.syncErrorThrowable) {
                 sink.syncErrorThrowable = false;
                 if (sink.syncErrorThrown) {
@@ -7435,7 +7205,7 @@ var Observable = /*@__PURE__*/ (function () {
             return this._subscribe(sink);
         }
         catch (err) {
-            if (config$1.useDeprecatedSynchronousErrorHandling) {
+            if (config.useDeprecatedSynchronousErrorHandling) {
                 sink.syncErrorThrown = true;
                 sink.syncErrorValue = err;
             }
@@ -7960,7 +7730,7 @@ var QueueScheduler = /*@__PURE__*/ (function (_super) {
 
 /** PURE_IMPORTS_START _QueueAction,_QueueScheduler PURE_IMPORTS_END */
 var queueScheduler = /*@__PURE__*/ new QueueScheduler(QueueAction);
-var queue$1 = queueScheduler;
+var queue = queueScheduler;
 
 /** PURE_IMPORTS_START _Observable PURE_IMPORTS_END */
 var EMPTY = /*@__PURE__*/ new Observable(function (subscriber) { return subscriber.complete(); });
@@ -8233,7 +8003,7 @@ var ReplaySubject = /*@__PURE__*/ (function (_super) {
         return subscription;
     };
     ReplaySubject.prototype._getNow = function () {
-        return (this.scheduler || queue$1).now();
+        return (this.scheduler || queue).now();
     };
     ReplaySubject.prototype._trimBufferThenGetEvents = function () {
         var now = this._getNow();
@@ -8267,7 +8037,7 @@ var ReplayEvent = /*@__PURE__*/ (function () {
 }());
 
 /** PURE_IMPORTS_START  PURE_IMPORTS_END */
-function noop$1() { }
+function noop() { }
 
 /** PURE_IMPORTS_START  PURE_IMPORTS_END */
 var ArgumentOutOfRangeErrorImpl = /*@__PURE__*/ (function () {
@@ -9075,20 +8845,20 @@ var TapSubscriber = /*@__PURE__*/ (function (_super) {
     __extends(TapSubscriber, _super);
     function TapSubscriber(destination, observerOrNext, error, complete) {
         var _this = _super.call(this, destination) || this;
-        _this._tapNext = noop$1;
-        _this._tapError = noop$1;
-        _this._tapComplete = noop$1;
-        _this._tapError = error || noop$1;
-        _this._tapComplete = complete || noop$1;
+        _this._tapNext = noop;
+        _this._tapError = noop;
+        _this._tapComplete = noop;
+        _this._tapError = error || noop;
+        _this._tapComplete = complete || noop;
         if (isFunction$1(observerOrNext)) {
             _this._context = _this;
             _this._tapNext = observerOrNext;
         }
         else if (observerOrNext) {
             _this._context = observerOrNext;
-            _this._tapNext = observerOrNext.next || noop$1;
-            _this._tapError = observerOrNext.error || noop$1;
-            _this._tapComplete = observerOrNext.complete || noop$1;
+            _this._tapNext = observerOrNext.next || noop;
+            _this._tapError = observerOrNext.error || noop;
+            _this._tapComplete = observerOrNext.complete || noop;
         }
         return _this;
     }
@@ -9539,7 +9309,7 @@ var basePrototype = {
                 }
 
                 _context.next = 18;
-                return nextTick$1();
+                return nextTick();
 
               case 18:
                 _context.next = 22;
@@ -12853,7 +12623,7 @@ function Changes(db, opts, callback) {
   var self = this;
   this.db = db;
   opts = opts ? clone$1(opts) : {};
-  var complete = opts.complete = once$1(function (err, resp) {
+  var complete = opts.complete = once(function (err, resp) {
     if (err) {
       if (listenerCount(self, 'error') > 0) {
         self.emit('error', err);
@@ -14258,12 +14028,12 @@ PouchDB.fetch = function (url, opts) {
 };
 
 // managed automatically by set-version.js
-var version$1 = "7.2.2";
+var version = "7.2.2";
 
 // TODO: remove from pouchdb-core (breaking)
 PouchDB.plugin(applyChangesFilterPlugin);
 
-PouchDB.version = version$1;
+PouchDB.version = version;
 
 function QueryParseError(message) {
   this.status = 400;
@@ -17453,7 +17223,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
     }).then(function (wasInserted) {
       if (!wasInserted.inserted) {
         return _atomicUpsertUpdate(wasInserted.doc, json).then(function () {
-          return nextTick$1();
+          return nextTick();
         }) // tick here so the event can propagate
         .then(function () {
           return wasInserted.doc;

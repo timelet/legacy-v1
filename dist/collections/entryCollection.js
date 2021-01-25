@@ -2,7 +2,7 @@ import {v4} from "../../_snowpack/pkg/uuid.js";
 export const entrySchema = {
   title: "entry schema",
   description: "describes time entries",
-  version: 0,
+  version: 1,
   type: "object",
   properties: {
     entryId: {

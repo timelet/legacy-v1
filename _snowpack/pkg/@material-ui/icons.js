@@ -1,7 +1,8 @@
 import { r as react } from '../common/index-8f144fe1.js';
-import { n as createSvgIcon } from '../common/createSvgIcon-c588ee5e.js';
+import { p as createSvgIcon } from '../common/createSvgIcon-a7558b59.js';
 import '../common/_commonjsHelpers-f5d70792.js';
 import '../common/extends-7477639a.js';
+import '../common/red-359464ee.js';
 import '../common/hoist-non-react-statics.cjs-fd576625.js';
 
 var PlayCircleFilled = createSvgIcon( /*#__PURE__*/react.createElement("path", {

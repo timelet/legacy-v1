@@ -9,7 +9,12 @@ export async function initializeDatabase() {
   });
   await database.addCollections({
     entries: {
-      schema: entrySchema
+      schema: entrySchema,
+      migrationStrategies: {
+        1(previous) {
+          return previous;
+        }
+      }
     }
   });
   configureEntryCollection(database.entries);
