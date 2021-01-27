@@ -2307,6 +2307,40 @@ function guardedConsole(method) {
   }
 }
 
+function randomNumber(min, max) {
+  var maxTimeout = 600000; // Hard-coded default of 10 minutes
+  min = parseInt(min, 10) || 0;
+  max = parseInt(max, 10);
+  if (max !== max || max <= min) {
+    max = (min || 1) << 1; //doubling
+  } else {
+    max = max + 1;
+  }
+  // In order to not exceed maxTimeout, pick a random value between half of maxTimeout and maxTimeout
+  if (max > maxTimeout) {
+    min = maxTimeout >> 1; // divide by two
+    max = maxTimeout;
+  }
+  var ratio = Math.random();
+  var range = max - min;
+
+  return ~~(range * ratio + min); // ~~ coerces to an int, but fast.
+}
+
+function defaultBackOff(min) {
+  var max = 0;
+  if (!min) {
+    max = 2000;
+  }
+  return randomNumber(min, max);
+}
+
+// designed to give info to browser users, who are disturbed
+// when they see http errors in the console
+function explainError(status, str) {
+  guardedConsole('info', 'The above ' + status + ' is totally normal. ' + str);
+}
+
 var assign;
 {
   if (typeof Object.assign === 'function') {
@@ -2943,4 +2977,4 @@ function latest(rev, metadata) {
   throw new Error('Unable to resolve latest revision for id ' + metadata.id + ', rev ' + rev);
 }
 
-export { MISSING_BULK_DOCS as $, once as A, BAD_ARG as B, Changes as C, DOC_VALIDATION as D, EventEmitter as E, guardedConsole as F, argsarray as G, adapterFun as H, INVALID_REV as I, assign$1 as J, listenerCount$1 as K, collectLeaves as L, MISSING_DOC as M, isDeleted as N, isLocalId as O, ExportedMap as P, bulkGet as Q, REV_CONFLICT as R, upsert as S, rootToLeaf as T, UNKNOWN_ERROR as U, QUERY_PARSE_ERROR as V, hasLocalStorage as W, pick as X, lib as Y, NOT_AN_OBJECT as Z, INVALID_ID as _, IDB_ERROR as a, ExportedSet as a0, stringMd5 as a1, flatten as a2, b64ToBluffer as a3, toPromise as a4, readAsBinaryString as b, createError as c, thisBtoa as d, MISSING_STUB as e, filterChange as f, binStringToBluffer as g, binaryMd5 as h, invalidIdError as i, collectConflicts as j, require$$0 as k, latest as l, merge as m, clone as n, normalizeDesignDocFunctionName as o, isRemote as p, BAD_REQUEST as q, rev as r, sparkMd5 as s, traverseRevTree as t, uuid as u, parseDesignDocFunctionName as v, winningRev as w, generateErrorFromResponse as x, scopeEval as y, inherits_browser as z };
+export { MISSING_BULK_DOCS as $, once as A, BAD_ARG as B, Changes as C, DOC_VALIDATION as D, EventEmitter as E, guardedConsole as F, argsarray as G, adapterFun as H, INVALID_REV as I, assign$1 as J, listenerCount$1 as K, collectLeaves as L, MISSING_DOC as M, isDeleted as N, isLocalId as O, ExportedMap as P, bulkGet as Q, REV_CONFLICT as R, upsert as S, rootToLeaf as T, UNKNOWN_ERROR as U, QUERY_PARSE_ERROR as V, hasLocalStorage as W, pick as X, lib as Y, NOT_AN_OBJECT as Z, INVALID_ID as _, IDB_ERROR as a, ExportedSet as a0, stringMd5 as a1, flatten as a2, b64ToBluffer as a3, toPromise as a4, explainError as a5, defaultBackOff as a6, readAsBinaryString as b, createError as c, thisBtoa as d, MISSING_STUB as e, filterChange as f, binStringToBluffer as g, binaryMd5 as h, invalidIdError as i, collectConflicts as j, require$$0 as k, latest as l, merge as m, clone as n, normalizeDesignDocFunctionName as o, isRemote as p, BAD_REQUEST as q, rev as r, sparkMd5 as s, traverseRevTree as t, uuid as u, parseDesignDocFunctionName as v, winningRev as w, generateErrorFromResponse as x, scopeEval as y, inherits_browser as z };

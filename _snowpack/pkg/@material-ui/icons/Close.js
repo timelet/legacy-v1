@@ -11,7 +11,7 @@ import '../../common/useIsFocusVisible-4c435ae6.js';
 import '../../common/index-821eef78.js';
 import '../../common/unstable_useId-cb546235.js';
 
-var Menu = createCommonjsModule(function (module, exports) {
+var Close = createCommonjsModule(function (module, exports) {
 
 
 
@@ -27,12 +27,12 @@ var React = interopRequireWildcard(react);
 var _createSvgIcon = interopRequireDefault(createSvgIcon);
 
 var _default = (0, _createSvgIcon.default)( /*#__PURE__*/React.createElement("path", {
-  d: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
-}), 'Menu');
+  d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+}), 'Close');
 
 exports.default = _default;
 });
 
-var __pika_web_default_export_for_treeshaking__ = /*@__PURE__*/getDefaultExportFromCjs(Menu);
+var __pika_web_default_export_for_treeshaking__ = /*@__PURE__*/getDefaultExportFromCjs(Close);
 
 export default __pika_web_default_export_for_treeshaking__;

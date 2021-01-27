@@ -283,4 +283,4 @@ function useIsFocusVisible() {
   };
 }
 
-export { useIsFocusVisible as a, useForkRef as b, ownerWindow as c, createChainedFunction as d, debounce as e, useControlled as f, isMuiElement as i, ownerDocument as o, setRef as s, useEventCallback as u };
+export { useIsFocusVisible as a, useEventCallback as b, ownerWindow as c, debounce as d, createChainedFunction as e, useControlled as f, isMuiElement as i, ownerDocument as o, setRef as s, useForkRef as u };

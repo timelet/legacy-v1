@@ -1,7 +1,8 @@
 import { r as react } from '../common/index-8f144fe1.js';
-import { p as createSvgIcon } from '../common/createSvgIcon-a7558b59.js';
+import { q as createSvgIcon } from '../common/createSvgIcon-a7ae7e83.js';
 import '../common/_commonjsHelpers-f5d70792.js';
 import '../common/extends-7477639a.js';
+import '../common/index-4bda1d4e.js';
 import '../common/red-359464ee.js';
 import '../common/hoist-non-react-statics.cjs-fd576625.js';
 

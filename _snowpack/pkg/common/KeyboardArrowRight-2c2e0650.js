@@ -1,7 +1,26 @@
 import { _ as _extends } from './extends-7477639a.js';
-import { y as makeStyles$1, d as defaultTheme, w as withStyles, k as fade, _ as _objectWithoutProperties, c as clsx, a as capitalize, p as createSvgIcon } from './createSvgIcon-a7558b59.js';
+import { y as makeStyles$1, h as defaultTheme, w as withStyles, f as fade, _ as _objectWithoutProperties, c as clsx, a as capitalize, q as createSvgIcon } from './createSvgIcon-a7ae7e83.js';
 import { r as react } from './index-8f144fe1.js';
-import { B as ButtonBase } from './TextField-e0c8af5b.js';
+import './index-4bda1d4e.js';
+import { B as ButtonBase } from './TextField-411530ab.js';
+
+function createStyles(styles) {
+  return styles;
+}
+
+// To remove in v5
+
+function createStyles$1(styles) {
+  // warning(
+  //   warnOnce,
+  //   [
+  //     'Material-UI: createStyles from @material-ui/core/styles is deprecated.',
+  //     'Please use @material-ui/styles/createStyles',
+  //   ].join('\n'),
+  // );
+  // warnOnce = true;
+  return createStyles(styles);
+}
 
 function makeStyles(stylesOrCreator) {
   var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -521,4 +540,4 @@ var KeyboardArrowRight = createSvgIcon( /*#__PURE__*/react.createElement("path",
   d: "M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"
 }));
 
-export { Button$1 as B, CircularProgress$1 as C, KeyboardArrowRight as K, KeyboardArrowLeft as a, makeStyles as m };
+export { Button$1 as B, CircularProgress$1 as C, KeyboardArrowRight as K, KeyboardArrowLeft as a, createStyles$1 as c, makeStyles as m };

@@ -11,7 +11,7 @@ import '../../common/useIsFocusVisible-4c435ae6.js';
 import '../../common/index-821eef78.js';
 import '../../common/unstable_useId-cb546235.js';
 
-var Menu = createCommonjsModule(function (module, exports) {
+var Category = createCommonjsModule(function (module, exports) {
 
 
 
@@ -26,13 +26,19 @@ var React = interopRequireWildcard(react);
 
 var _createSvgIcon = interopRequireDefault(createSvgIcon);
 
-var _default = (0, _createSvgIcon.default)( /*#__PURE__*/React.createElement("path", {
-  d: "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"
-}), 'Menu');
+var _default = (0, _createSvgIcon.default)( /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("path", {
+  d: "M12 2l-5.5 9h11z"
+}), /*#__PURE__*/React.createElement("circle", {
+  cx: "17.5",
+  cy: "17.5",
+  r: "4.5"
+}), /*#__PURE__*/React.createElement("path", {
+  d: "M3 13.5h8v8H3z"
+})), 'Category');
 
 exports.default = _default;
 });
 
-var __pika_web_default_export_for_treeshaking__ = /*@__PURE__*/getDefaultExportFromCjs(Menu);
+var __pika_web_default_export_for_treeshaking__ = /*@__PURE__*/getDefaultExportFromCjs(Category);
 
 export default __pika_web_default_export_for_treeshaking__;

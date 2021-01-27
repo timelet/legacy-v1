@@ -1,6 +1,6 @@
 import { c as createCommonjsModule, a as commonjsGlobal, d as commonjsRequire } from './common/_commonjsHelpers-f5d70792.js';
 import { p as process, g as global } from './common/process-e3699881.js';
-import { k as require$$0, s as sparkMd5, n as clone$1, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise } from './common/index.es-5017494a.js';
+import { k as require$$0, s as sparkMd5, n as clone$2, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise$1, h as binaryMd5, a5 as explainError, u as uuid, a6 as defaultBackOff, f as filterChange } from './common/index.es-b75fa26d.js';
 import { i as interopRequireDefault } from './common/interopRequireDefault-be3aec80.js';
 
 function _defineProperties(target, props) {
@@ -5350,6 +5350,14 @@ function promiseWait() {
     return setTimeout(res, ms);
   });
 }
+function toPromise(maybePromise) {
+  if (maybePromise && typeof maybePromise.then === 'function') {
+    // is promise
+    return maybePromise;
+  } else {
+    return Promise.resolve(maybePromise);
+  }
+}
 /**
  * like Promise.all() but runs in series instead of parallel
  * @link https://github.com/egoist/promise.series/blob/master/index.js
@@ -5360,6 +5368,15 @@ function promiseSeries(tasks, initial) {
   return tasks.reduce(function (current, next) {
     return current.then(next);
   }, Promise.resolve(initial));
+}
+/**
+ * run the callback if requestIdleCallback available
+ * do nothing if not
+ * @link https://developer.mozilla.org/de/docs/Web/API/Window/requestIdleCallback
+ */
+
+function requestIdleCallbackIfAvailable(fun) {
+  if (typeof window === 'object' && window['requestIdleCallback']) window['requestIdleCallback'](fun);
 }
 /**
  * uppercase first char
@@ -5432,6 +5449,22 @@ function stringifyFilter(key, value) {
   return value;
 }
 /**
+ * get a random string which can be used with couchdb
+ * @link http://stackoverflow.com/a/1349426/3443137
+ */
+
+function randomCouchString() {
+  var length = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+  var text = '';
+  var possible = 'abcdefghijklmnopqrstuvwxyz';
+
+  for (var i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+
+  return text;
+}
+/**
  * transforms the given adapter into a pouch-compatible object
  */
 
@@ -5464,7 +5497,32 @@ var clone = recursiveDeepCopy;
 function flatClone(obj) {
   return Object.assign({}, obj);
 }
-isElectron_1();
+var isElectronRenderer = isElectron_1();
+/**
+ * returns a flattened object
+ * @link https://gist.github.com/penguinboy/762197
+ */
+
+function flattenObject(ob) {
+  var toReturn = {};
+
+  for (var i in ob) {
+    if (!ob.hasOwnProperty(i)) continue;
+
+    if (typeof ob[i] === 'object') {
+      var flatObject = flattenObject(ob[i]);
+
+      for (var _x in flatObject) {
+        if (!flatObject.hasOwnProperty(_x)) continue;
+        toReturn[i + '.' + _x] = flatObject[_x];
+      }
+    } else {
+      toReturn[i] = ob[i];
+    }
+  }
+
+  return toReturn;
+}
 function getHeightOfRevision(revString) {
   var first = revString.split('-')[0];
   return parseInt(first, 10);
@@ -8036,6 +8094,10 @@ var ReplayEvent = /*@__PURE__*/ (function () {
     return ReplayEvent;
 }());
 
+/** PURE_IMPORTS_START _AsyncAction,_AsyncScheduler PURE_IMPORTS_END */
+var asyncScheduler = /*@__PURE__*/ new AsyncScheduler(AsyncAction);
+var async = asyncScheduler;
+
 /** PURE_IMPORTS_START  PURE_IMPORTS_END */
 function noop() { }
 
@@ -8488,6 +8550,64 @@ function concat$1() {
     return concatAll()(of.apply(void 0, observables));
 }
 
+/** PURE_IMPORTS_START _Observable,_util_isArray,_util_isFunction,_operators_map PURE_IMPORTS_END */
+function fromEvent(target, eventName, options, resultSelector) {
+    if (isFunction$1(options)) {
+        resultSelector = options;
+        options = undefined;
+    }
+    if (resultSelector) {
+        return fromEvent(target, eventName, options).pipe(map(function (args) { return isArray$2(args) ? resultSelector.apply(void 0, args) : resultSelector(args); }));
+    }
+    return new Observable(function (subscriber) {
+        function handler(e) {
+            if (arguments.length > 1) {
+                subscriber.next(Array.prototype.slice.call(arguments));
+            }
+            else {
+                subscriber.next(e);
+            }
+        }
+        setupSubscription(target, eventName, handler, subscriber, options);
+    });
+}
+function setupSubscription(sourceObj, eventName, handler, subscriber, options) {
+    var unsubscribe;
+    if (isEventTarget(sourceObj)) {
+        var source_1 = sourceObj;
+        sourceObj.addEventListener(eventName, handler, options);
+        unsubscribe = function () { return source_1.removeEventListener(eventName, handler, options); };
+    }
+    else if (isJQueryStyleEventEmitter(sourceObj)) {
+        var source_2 = sourceObj;
+        sourceObj.on(eventName, handler);
+        unsubscribe = function () { return source_2.off(eventName, handler); };
+    }
+    else if (isNodeStyleEventEmitter(sourceObj)) {
+        var source_3 = sourceObj;
+        sourceObj.addListener(eventName, handler);
+        unsubscribe = function () { return source_3.removeListener(eventName, handler); };
+    }
+    else if (sourceObj && sourceObj.length) {
+        for (var i = 0, len = sourceObj.length; i < len; i++) {
+            setupSubscription(sourceObj[i], eventName, handler, subscriber, options);
+        }
+    }
+    else {
+        throw new TypeError('Invalid event target');
+    }
+    subscriber.add(unsubscribe);
+}
+function isNodeStyleEventEmitter(sourceObj) {
+    return sourceObj && typeof sourceObj.addListener === 'function' && typeof sourceObj.removeListener === 'function';
+}
+function isJQueryStyleEventEmitter(sourceObj) {
+    return sourceObj && typeof sourceObj.on === 'function' && typeof sourceObj.off === 'function';
+}
+function isEventTarget(sourceObj) {
+    return sourceObj && typeof sourceObj.addEventListener === 'function' && typeof sourceObj.removeEventListener === 'function';
+}
+
 /** PURE_IMPORTS_START _Observable,_util_isScheduler,_operators_mergeAll,_fromArray PURE_IMPORTS_END */
 function merge() {
     var observables = [];
@@ -8589,6 +8709,99 @@ var DefaultIfEmptySubscriber = /*@__PURE__*/ (function (_super) {
     };
     return DefaultIfEmptySubscriber;
 }(Subscriber));
+
+/** PURE_IMPORTS_START  PURE_IMPORTS_END */
+function isDate$1(value) {
+    return value instanceof Date && !isNaN(+value);
+}
+
+/** PURE_IMPORTS_START tslib,_scheduler_async,_util_isDate,_Subscriber,_Notification PURE_IMPORTS_END */
+function delay(delay, scheduler) {
+    if (scheduler === void 0) {
+        scheduler = async;
+    }
+    var absoluteDelay = isDate$1(delay);
+    var delayFor = absoluteDelay ? (+delay - scheduler.now()) : Math.abs(delay);
+    return function (source) { return source.lift(new DelayOperator(delayFor, scheduler)); };
+}
+var DelayOperator = /*@__PURE__*/ (function () {
+    function DelayOperator(delay, scheduler) {
+        this.delay = delay;
+        this.scheduler = scheduler;
+    }
+    DelayOperator.prototype.call = function (subscriber, source) {
+        return source.subscribe(new DelaySubscriber(subscriber, this.delay, this.scheduler));
+    };
+    return DelayOperator;
+}());
+var DelaySubscriber = /*@__PURE__*/ (function (_super) {
+    __extends(DelaySubscriber, _super);
+    function DelaySubscriber(destination, delay, scheduler) {
+        var _this = _super.call(this, destination) || this;
+        _this.delay = delay;
+        _this.scheduler = scheduler;
+        _this.queue = [];
+        _this.active = false;
+        _this.errored = false;
+        return _this;
+    }
+    DelaySubscriber.dispatch = function (state) {
+        var source = state.source;
+        var queue = source.queue;
+        var scheduler = state.scheduler;
+        var destination = state.destination;
+        while (queue.length > 0 && (queue[0].time - scheduler.now()) <= 0) {
+            queue.shift().notification.observe(destination);
+        }
+        if (queue.length > 0) {
+            var delay_1 = Math.max(0, queue[0].time - scheduler.now());
+            this.schedule(state, delay_1);
+        }
+        else {
+            this.unsubscribe();
+            source.active = false;
+        }
+    };
+    DelaySubscriber.prototype._schedule = function (scheduler) {
+        this.active = true;
+        var destination = this.destination;
+        destination.add(scheduler.schedule(DelaySubscriber.dispatch, this.delay, {
+            source: this, destination: this.destination, scheduler: scheduler
+        }));
+    };
+    DelaySubscriber.prototype.scheduleNotification = function (notification) {
+        if (this.errored === true) {
+            return;
+        }
+        var scheduler = this.scheduler;
+        var message = new DelayMessage(scheduler.now() + this.delay, notification);
+        this.queue.push(message);
+        if (this.active === false) {
+            this._schedule(scheduler);
+        }
+    };
+    DelaySubscriber.prototype._next = function (value) {
+        this.scheduleNotification(Notification.createNext(value));
+    };
+    DelaySubscriber.prototype._error = function (err) {
+        this.errored = true;
+        this.queue = [];
+        this.destination.error(err);
+        this.unsubscribe();
+    };
+    DelaySubscriber.prototype._complete = function () {
+        this.scheduleNotification(Notification.createComplete());
+        this.unsubscribe();
+    };
+    return DelaySubscriber;
+}(Subscriber));
+var DelayMessage = /*@__PURE__*/ (function () {
+    function DelayMessage(time, notification) {
+        this.time = time;
+        this.notification = notification;
+    }
+    return DelayMessage;
+}());
 
 /** PURE_IMPORTS_START tslib,_Subscriber PURE_IMPORTS_END */
 function distinctUntilChanged(compare, keySelector) {
@@ -8808,6 +9021,50 @@ function shareReplayOperator(_a) {
     };
 }
 
+/** PURE_IMPORTS_START tslib,_innerSubscribe PURE_IMPORTS_END */
+function skipUntil(notifier) {
+    return function (source) { return source.lift(new SkipUntilOperator(notifier)); };
+}
+var SkipUntilOperator = /*@__PURE__*/ (function () {
+    function SkipUntilOperator(notifier) {
+        this.notifier = notifier;
+    }
+    SkipUntilOperator.prototype.call = function (destination, source) {
+        return source.subscribe(new SkipUntilSubscriber(destination, this.notifier));
+    };
+    return SkipUntilOperator;
+}());
+var SkipUntilSubscriber = /*@__PURE__*/ (function (_super) {
+    __extends(SkipUntilSubscriber, _super);
+    function SkipUntilSubscriber(destination, notifier) {
+        var _this = _super.call(this, destination) || this;
+        _this.hasValue = false;
+        var innerSubscriber = new SimpleInnerSubscriber(_this);
+        _this.add(innerSubscriber);
+        _this.innerSubscription = innerSubscriber;
+        var innerSubscription = innerSubscribe(notifier, innerSubscriber);
+        if (innerSubscription !== innerSubscriber) {
+            _this.add(innerSubscription);
+            _this.innerSubscription = innerSubscription;
+        }
+        return _this;
+    }
+    SkipUntilSubscriber.prototype._next = function (value) {
+        if (this.hasValue) {
+            _super.prototype._next.call(this, value);
+        }
+    };
+    SkipUntilSubscriber.prototype.notifyNext = function () {
+        this.hasValue = true;
+        if (this.innerSubscription) {
+            this.innerSubscription.unsubscribe();
+        }
+    };
+    SkipUntilSubscriber.prototype.notifyComplete = function () {
+    };
+    return SkipUntilSubscriber;
+}(SimpleOuterSubscriber));
+
 /** PURE_IMPORTS_START _observable_concat,_util_isScheduler PURE_IMPORTS_END */
 function startWith() {
     var array = [];
@@ -8968,6 +9225,21 @@ var RxChangeEvent = /*#__PURE__*/function () {
 
   return RxChangeEvent;
 }();
+function changeEventfromPouchChange(changeDoc, collection, startTime, // time when the event was streamed out of pouchdb
+endTime) {
+  var operation = changeDoc._rev.startsWith('1-') ? 'INSERT' : 'UPDATE';
+
+  if (changeDoc._deleted) {
+    operation = 'DELETE';
+  } // decompress / primarySwap
+
+
+  var doc = collection._handleFromPouch(changeDoc);
+
+  var documentId = doc[collection.schema.primaryPath];
+  var cE = new RxChangeEvent(operation, documentId, doc, collection.database.token, collection.name, false, startTime, endTime);
+  return cE;
+}
 function createInsertEvent(collection, docData, startTime, endTime, doc) {
   var ret = new RxChangeEvent('INSERT', docData[collection.schema.primaryPath], docData, collection.database.token, collection.name, false, startTime, endTime, null, doc);
   return ret;
@@ -9774,6 +10046,17 @@ function getPrimary(jsonSchema) {
   if (!ret) return '_id';else return ret;
 }
 /**
+ * array with previous version-numbers
+ */
+
+function getPreviousVersions(schema) {
+  var version = schema.version ? schema.version : 0;
+  var c = 0;
+  return new Array(version).fill(0).map(function () {
+    return c++;
+  });
+}
+/**
  * returns the final-fields of the schema
  * @return field-names of the final-fields
  */
@@ -10521,7 +10804,7 @@ function isAndInSelector(obj, isAnd) {
 // normalize the selector
 //
 function massageSelector(input) {
-  var result = clone$1(input);
+  var result = clone$2(input);
   var wasAnded = false;
     //#7458: if $and is present in selector (at any level) merge nested $and
     if (isAndInSelector(result, false)) {
@@ -12622,7 +12905,7 @@ function Changes(db, opts, callback) {
   EventEmitter.call(this);
   var self = this;
   this.db = db;
-  opts = opts ? clone$1(opts) : {};
+  opts = opts ? clone$2(opts) : {};
   var complete = opts.complete = once(function (err, resp) {
     if (err) {
       if (listenerCount(self, 'error') > 0) {
@@ -12739,7 +13022,7 @@ Changes.prototype.doChanges = function (opts) {
   var self = this;
   var callback = opts.complete;
 
-  opts = clone$1(opts);
+  opts = clone$2(opts);
   if ('live' in opts && !('continuous' in opts)) {
     opts.continuous = opts.live;
   }
@@ -13863,7 +14146,7 @@ function PouchDB(name, opts) {
     opts.deterministic_revs = true;
   }
 
-  this.__opts = opts = clone$1(opts);
+  this.__opts = opts = clone$2(opts);
 
   self.auto_compaction = opts.auto_compaction;
   self.prefix = PouchDB.prefix;
@@ -15197,7 +15480,7 @@ function createAbstractMapReduce(localDocName, mapper, reducer, ddocValidator) {
 // to be liberal with what we accept in order to prevent mental
 // breakdowns in our users
 function massageCreateIndexRequest(requestDef) {
-  requestDef = clone$1(requestDef);
+  requestDef = clone$2(requestDef);
 
   if (!requestDef.index) {
     requestDef.index = {};
@@ -15649,7 +15932,7 @@ function filterInclusiveStart(rows, targetValue, index) {
 }
 
 function reverseOptions(opts) {
-  var newOpts = clone$1(opts);
+  var newOpts = clone$2(opts);
   delete newOpts.startkey;
   delete newOpts.endkey;
   delete newOpts.inclusive_start;
@@ -15759,7 +16042,7 @@ function getUserFields(selector, sort) {
 
 function createIndex$1(db, requestDef) {
   requestDef = massageCreateIndexRequest(requestDef);
-  var originalIndexDef = clone$1(requestDef.index);
+  var originalIndexDef = clone$2(requestDef.index);
   requestDef.index = massageIndexDef(requestDef.index);
 
   validateIndex(requestDef.index);
@@ -16359,7 +16642,7 @@ function indexToSignature(index) {
 }
 
 function doAllDocs(db, originalOpts) {
-  var opts = clone$1(originalOpts);
+  var opts = clone$2(originalOpts);
 
   // CouchDB responds in weird ways when you provide a non-string to _id;
   // we mimic the behavior for consistency. See issue66 tests for details.
@@ -16573,7 +16856,7 @@ var getIndexesAsCallback = callbackify$1(getIndexes$1$1);
 var deleteIndexAsCallback = callbackify$1(deleteIndex$1);
 
 var plugin = {};
-plugin.createIndex = toPromise(function (requestDef, callback) {
+plugin.createIndex = toPromise$1(function (requestDef, callback) {
 
   if (typeof requestDef !== 'object') {
     return callback(new Error('you must provide an index to create'));
@@ -16584,7 +16867,7 @@ plugin.createIndex = toPromise(function (requestDef, callback) {
   createIndex$$1(this, requestDef, callback);
 });
 
-plugin.find = toPromise(function (requestDef, callback) {
+plugin.find = toPromise$1(function (requestDef, callback) {
 
   if (typeof callback === 'undefined') {
     callback = requestDef;
@@ -16599,7 +16882,7 @@ plugin.find = toPromise(function (requestDef, callback) {
   find$$1(this, requestDef, callback);
 });
 
-plugin.explain = toPromise(function (requestDef, callback) {
+plugin.explain = toPromise$1(function (requestDef, callback) {
 
   if (typeof callback === 'undefined') {
     callback = requestDef;
@@ -16614,13 +16897,13 @@ plugin.explain = toPromise(function (requestDef, callback) {
   find$$1(this, requestDef, callback);
 });
 
-plugin.getIndexes = toPromise(function (callback) {
+plugin.getIndexes = toPromise$1(function (callback) {
 
   var getIndexes$$1 = isRemote(this) ? getIndexes$1 : getIndexesAsCallback;
   getIndexes$$1(this, callback);
 });
 
-plugin.deleteIndex = toPromise(function (indexDef, callback) {
+plugin.deleteIndex = toPromise$1(function (indexDef, callback) {
 
   if (typeof indexDef !== 'object') {
     return callback(new Error('you must provide an index to delete'));
@@ -16638,6 +16921,43 @@ plugin.deleteIndex = toPromise(function (indexDef, callback) {
  * @link https://github.com/pouchdb/pouchdb/tree/master/packages/node_modules
  */
 PouchDB.plugin(plugin);
+/**
+ * get the number of all undeleted documents
+ */
+
+function countAllUndeleted(pouchdb) {
+  return pouchdb.allDocs({
+    include_docs: false,
+    attachments: false
+  }).then(function (docs) {
+    return docs.rows.filter(function (row) {
+      return !row.id.startsWith('_design/');
+    }).length;
+  });
+}
+/**
+ * get a batch of documents from the pouch-instance
+ */
+
+function getBatch(pouchdb, limit) {
+  if (limit <= 1) {
+    throw newRxError('P1', {
+      limit: limit
+    });
+  }
+
+  return pouchdb.allDocs({
+    include_docs: true,
+    attachments: false,
+    limit: limit
+  }).then(function (docs) {
+    return docs.rows.map(function (row) {
+      return row.doc;
+    }).filter(function (doc) {
+      return !doc._id.startsWith('_design');
+    });
+  });
+}
 /**
  * check if the given module is a leveldown-adapter
  * throws if not
@@ -16678,6 +16998,41 @@ function validateCouchDBString(name) {
   }
 
   return true;
+}
+/**
+ * get the correct function-name for pouchdb-replication
+ */
+
+function pouchReplicationFunction(pouch, _ref) {
+  var _ref$pull = _ref.pull,
+      pull = _ref$pull === void 0 ? true : _ref$pull,
+      _ref$push = _ref.push,
+      push = _ref$push === void 0 ? true : _ref$push;
+  if (pull && push) return pouch.sync.bind(pouch);
+  if (!pull && push) return pouch.replicate.to.bind(pouch);
+  if (pull && !push) return pouch.replicate.from.bind(pouch);
+
+  if (!pull && !push) {
+    throw newRxError('UT3', {
+      pull: pull,
+      push: push
+    });
+  }
+}
+/**
+ * create the same diggest as an attachment with that data
+ * would have
+ */
+
+function pouchAttachmentBinaryHash(data) {
+  return new Promise(function (res) {
+    binaryMd5(data, function (d) {
+      res('md5-' + d);
+    });
+  });
+}
+function isInstanceOf$3(obj) {
+  return obj instanceof PouchDB;
 }
 var PouchDB$1 = PouchDB;
 
@@ -17135,7 +17490,6 @@ var RxCollectionBase = /*#__PURE__*/function () {
       return _this6.database.lockedRun(function () {
         var startTime = now();
         return _this6.pouch.bulkDocs(insertDocs).then(function (results) {
-          var endTime = now();
           var okResults = results.filter(function (r) {
             return r.ok;
           }); // create documents
@@ -17145,7 +17499,21 @@ var RxCollectionBase = /*#__PURE__*/function () {
             docData._rev = r.rev;
             var doc = createRxDocument(_this6, docData);
             return doc;
-          }); // emit events
+          });
+          return Promise.all(rxDocuments.map(function (doc) {
+            return _this6._runHooks('post', 'insert', docsMap.get(doc.primary), doc);
+          })).then(function () {
+            return {
+              rxDocuments: rxDocuments,
+              errorResults: results.filter(function (r) {
+                return !r.ok;
+              })
+            };
+          });
+        }).then(function (_ref) {
+          var rxDocuments = _ref.rxDocuments,
+              errorResults = _ref.errorResults;
+          var endTime = now(); // emit events
 
           rxDocuments.forEach(function (doc) {
             var emitEvent = createInsertEvent(_this6, doc.toJSON(true), startTime, endTime, doc);
@@ -17154,9 +17522,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
           });
           return {
             success: rxDocuments,
-            error: results.filter(function (r) {
-              return !r.ok;
-            })
+            error: errorResults
           };
         });
       });
@@ -17750,26 +18116,26 @@ function _prepareCreateIndexes(rxCollection, spawnedPouchPromise) {
  */
 
 
-function create(_ref, wasCreatedBefore) {
-  var database = _ref.database,
-      name = _ref.name,
-      schema = _ref.schema,
-      _ref$pouchSettings = _ref.pouchSettings,
-      pouchSettings = _ref$pouchSettings === void 0 ? {} : _ref$pouchSettings,
-      _ref$migrationStrateg = _ref.migrationStrategies,
-      migrationStrategies = _ref$migrationStrateg === void 0 ? {} : _ref$migrationStrateg,
-      _ref$autoMigrate = _ref.autoMigrate,
-      autoMigrate = _ref$autoMigrate === void 0 ? true : _ref$autoMigrate,
-      _ref$statics = _ref.statics,
-      statics = _ref$statics === void 0 ? {} : _ref$statics,
-      _ref$methods = _ref.methods,
-      methods = _ref$methods === void 0 ? {} : _ref$methods,
-      _ref$attachments = _ref.attachments,
-      attachments = _ref$attachments === void 0 ? {} : _ref$attachments,
-      _ref$options = _ref.options,
-      options = _ref$options === void 0 ? {} : _ref$options,
-      _ref$cacheReplacement = _ref.cacheReplacementPolicy,
-      cacheReplacementPolicy = _ref$cacheReplacement === void 0 ? defaultCacheReplacementPolicy : _ref$cacheReplacement;
+function create(_ref2, wasCreatedBefore) {
+  var database = _ref2.database,
+      name = _ref2.name,
+      schema = _ref2.schema,
+      _ref2$pouchSettings = _ref2.pouchSettings,
+      pouchSettings = _ref2$pouchSettings === void 0 ? {} : _ref2$pouchSettings,
+      _ref2$migrationStrate = _ref2.migrationStrategies,
+      migrationStrategies = _ref2$migrationStrate === void 0 ? {} : _ref2$migrationStrate,
+      _ref2$autoMigrate = _ref2.autoMigrate,
+      autoMigrate = _ref2$autoMigrate === void 0 ? true : _ref2$autoMigrate,
+      _ref2$statics = _ref2.statics,
+      statics = _ref2$statics === void 0 ? {} : _ref2$statics,
+      _ref2$methods = _ref2.methods,
+      methods = _ref2$methods === void 0 ? {} : _ref2$methods,
+      _ref2$attachments = _ref2.attachments,
+      attachments = _ref2$attachments === void 0 ? {} : _ref2$attachments,
+      _ref2$options = _ref2.options,
+      options = _ref2$options === void 0 ? {} : _ref2$options,
+      _ref2$cacheReplacemen = _ref2.cacheReplacementPolicy,
+      cacheReplacementPolicy = _ref2$cacheReplacemen === void 0 ? defaultCacheReplacementPolicy : _ref2$cacheReplacemen;
   validateCouchDBString(name); // ensure it is a schema-object
 
   if (!isInstanceOf$2(schema)) {
@@ -17786,9 +18152,9 @@ function create(_ref, wasCreatedBefore) {
   var collection = new RxCollectionBase(database, name, schema, pouchSettings, migrationStrategies, methods, attachments, options, cacheReplacementPolicy, statics);
   return collection.prepare(wasCreatedBefore).then(function () {
     // ORM add statics
-    Object.entries(statics).forEach(function (_ref2) {
-      var funName = _ref2[0],
-          fun = _ref2[1];
+    Object.entries(statics).forEach(function (_ref3) {
+      var funName = _ref3[0],
+          fun = _ref3[1];
       Object.defineProperty(collection, funName, {
         get: function get() {
           return fun.bind(collection);
@@ -17806,6 +18172,9 @@ function create(_ref, wasCreatedBefore) {
     runPluginHooks('createRxCollection', collection);
     return collection;
   });
+}
+function isInstanceOf$4(obj) {
+  return obj instanceof RxCollectionBase;
 }
 
 /**
@@ -20571,6 +20940,9 @@ function removeRxDatabase(databaseName, adapter) {
     });
   });
 }
+function isInstanceOf$5(obj) {
+  return obj instanceof RxDatabaseBase;
+}
 
 /**
  * this handles how plugins are added to rxdb
@@ -20633,5 +21005,10474 @@ function addRxPlugin(plugin) {
     });
   }
 }
+
+/**
+ * this plugin adds the error-messages
+ * without it, only error-codes will be shown
+ * This is mainly because error-string are hard to compress and we need a smaller build
+ */
+var ERROR_MESSAGES = {
+  // util.js
+  UT1: 'given name is no string or empty',
+  UT2: "collection- and database-names must match the regex\n    info: if your database-name specifies a folder, the name must contain the slash-char '/' or '\\'",
+  UT3: 'replication-direction must either be push or pull or both. But not none',
+  UT4: 'given leveldown is no valid adapter',
+  // pouch-db.js
+  P1: 'PouchDB.getBatch: limit must be > 2',
+  // rx-query
+  QU1: 'RxQuery._execOverDatabase(): op not known',
+  // removed in 9.0.0 - QU2: 'limit() must get a number',
+  // removed in 9.0.0 - QU3: 'skip() must get a number',
+  QU4: 'RxQuery.regex(): You cannot use .regex() on the primary field',
+  QU5: 'RxQuery.sort(): does not work because key is not defined in the schema',
+  QU6: 'RxQuery.limit(): cannot be called on .findOne()',
+  QU7: 'query must be an object',
+  QU8: 'query cannot be an array',
+  QU9: 'throwIfMissing can only be used in findOne queries',
+  QU10: 'result empty and throwIfMissing: true',
+  QU11: 'RxQuery: no valid query params given',
+  // mquery.js
+  MQ1: 'path must be a string or object',
+  MQ2: 'Invalid argument',
+  MQ3: 'Invalid sort() argument. Must be a string, object, or array',
+  MQ4: 'Invalid argument. Expected instanceof mquery or plain object',
+  MQ5: 'method must be used after where() when called with these arguments',
+  MQ6: 'Can\'t mix sort syntaxes. Use either array or object | .sort([[\'field\', 1], [\'test\', -1]]) | .sort({ field: 1, test: -1 })',
+  MQ7: 'Invalid sort value',
+  MQ8: 'Can\'t mix sort syntaxes. Use either array or object',
+  // rx-database
+  DB1: 'RxDocument.prepare(): another instance on this adapter has a different password',
+  DB2: 'RxDatabase.collection(): collection-names cannot start with underscore _',
+  DB3: 'RxDatabase.collection(): collection already exists. use myDatabase.[collectionName] to get it',
+  DB4: 'RxDatabase.collection(): schema is missing',
+  DB5: 'RxDatabase.collection(): collection-name not allowed',
+  DB6: 'RxDatabase.collection(): another instance created this collection with a different schema. Read this https://pubkey.github.io/rxdb/questions-answers.html#cant-change-the-schema',
+  DB7: 'RxDatabase.collection(): schema encrypted but no password given',
+  DB8: 'RxDatabase.create(): A RxDatabase with the same name and adapter already exists.\n' + 'Make sure to use this combination only once or set ignoreDuplicate to true if you do this intentional',
+  DB9: 'RxDatabase.create(): Adapter not added. Use RxDB.plugin(require(\'pouchdb-adapter-[adaptername]\');',
+  DB10: 'RxDatabase.create(): To use leveldown-adapters, you have to add the leveldb-plugin. Use RxDB.plugin(require(\'pouchdb-adapter-leveldb\'));',
+  DB11: 'RxDatabase.create(): Invalid db-name, folder-paths must not have an ending slash',
+  // rx-collection
+  COL1: 'RxDocument.insert() You cannot insert an existing document',
+  COL2: 'RxCollection.insert() do not provide ._id when it is not the primary key',
+  COL3: 'RxCollection.upsert() does not work without primary',
+  COL4: 'RxCollection.atomicUpsert() does not work without primary',
+  COL5: 'RxCollection.find() if you want to search by _id, use .findOne(_id)',
+  COL6: 'RxCollection.findOne() needs a queryObject or string',
+  COL7: 'hook must be a function',
+  COL8: 'hooks-when not known',
+  COL9: 'RxCollection.addHook() hook-name not known',
+  COL10: 'RxCollection .postCreate-hooks cannot be async',
+  COL11: 'migrationStrategies must be an object',
+  COL12: 'A migrationStrategy is missing or too much',
+  COL13: 'migrationStrategy must be a function',
+  COL14: 'given static method-name is not a string',
+  COL15: 'static method-names cannot start with underscore _',
+  COL16: 'given static method is not a function',
+  COL17: 'RxCollection.ORM: statics-name not allowed',
+  COL18: 'collection-method not allowed because fieldname is in the schema',
+  COL19: 'Pouchdb document update conflict',
+  // rx-document.js
+  DOC1: 'RxDocument.get$ cannot get observable of in-array fields because order cannot be guessed',
+  DOC2: 'cannot observe primary path',
+  DOC3: 'final fields cannot be observed',
+  DOC4: 'RxDocument.get$ cannot observe a non-existed field',
+  DOC5: 'RxDocument.populate() cannot populate a non-existed field',
+  DOC6: 'RxDocument.populate() cannot populate because path has no ref',
+  DOC7: 'RxDocument.populate() ref-collection not in database',
+  DOC8: 'RxDocument.set(): primary-key cannot be modified',
+  DOC9: 'final fields cannot be modified',
+  DOC10: 'RxDocument.set(): cannot set childpath when rootPath not selected',
+  DOC11: 'RxDocument.save(): cant save deleted document',
+  DOC12: 'RxDocument.save(): error',
+  DOC13: 'RxDocument.remove(): Document is already deleted',
+  DOC14: 'RxDocument.destroy() does not exist',
+  DOC15: 'query cannot be an array',
+  DOC16: 'Since version 8.0.0 RxDocument.set() can only be called on temporary RxDocuments',
+  DOC17: 'Since version 8.0.0 RxDocument.save() can only be called on non-temporary documents',
+  // data-migrator.js
+  DM1: 'migrate() Migration has already run',
+  DM2: 'migration of document failed final document does not match final schema',
+  DM3: 'migration already running',
+  // plugins/attachments.js
+  AT1: 'to use attachments, please define this in your schema',
+  // plugins/encryption.js
+  EN1: 'password is no string',
+  EN2: 'validatePassword: min-length of password not complied',
+  // plugins/json-dump.js
+  JD1: 'You must create the collections before you can import their data',
+  JD2: 'RxCollection.importDump(): the imported json relies on a different schema',
+  JD3: 'RxCollection.importDump(): json.passwordHash does not match the own',
+  // plugins/leader-election.js
+  // plugins/local-documents.js
+  LD1: 'RxDocument.allAttachments$ cant use attachments on local documents',
+  LD2: 'RxDocument.get(): objPath must be a string',
+  LD3: 'RxDocument.get$ cannot get observable of in-array fields because order cannot be guessed',
+  LD4: 'cannot observe primary path',
+  LD5: 'RxDocument.set() id cannot be modified',
+  LD6: 'LocalDocument: Function is not useable on local documents',
+  LD7: 'Local document already exists',
+  // plugins/replication.js
+  RC1: 'Replication: already added',
+  RC2: 'RxCollection.sync() query must be from the same RxCollection',
+  RC3: 'RxCollection.sync() Do not use a collection\'s pouchdb as remote, use the collection instead',
+  // plugins/dev-mode/check-schema.js
+  SC1: 'fieldnames do not match the regex',
+  SC2: 'SchemaCheck: name \'item\' reserved for array-fields',
+  SC3: 'SchemaCheck: fieldname has a ref-array but items-type is not string',
+  SC4: 'SchemaCheck: fieldname has a ref but is not type string, [string,null] or array<string>',
+  SC6: 'SchemaCheck: primary can only be defined at top-level',
+  SC7: 'SchemaCheck: default-values can only be defined at top-level',
+  SC8: 'SchemaCheck: first level-fields cannot start with underscore _',
+  SC10: 'SchemaCheck: schema defines ._rev, this will be done automatically',
+  SC11: 'SchemaCheck: schema needs a number >=0 as version',
+  SC12: 'SchemaCheck: primary can only be defined once',
+  SC13: 'SchemaCheck: primary is always index, do not declare it as index',
+  SC14: 'SchemaCheck: primary is always unique, do not declare it as index',
+  SC15: 'SchemaCheck: primary cannot be encrypted',
+  SC16: 'SchemaCheck: primary must have type: string',
+  SC17: 'SchemaCheck: top-level fieldname is not allowed',
+  SC18: 'SchemaCheck: indexes must be an array',
+  SC19: 'SchemaCheck: indexes must contain strings or arrays of strings',
+  SC20: 'SchemaCheck: indexes.array must contain strings',
+  SC21: 'SchemaCheck: given index is not defined in schema',
+  SC22: 'SchemaCheck: given indexKey is not type:string',
+  SC23: 'SchemaCheck: fieldname is not allowed',
+  SC24: 'SchemaCheck: required fields must be set via array. See https://spacetelescope.github.io/understanding-json-schema/reference/object.html#required',
+  SC25: 'SchemaCheck: compoundIndexes needs to be specified in the indexes field',
+  SC26: 'SchemaCheck: indexes needs to be specified at collection schema level',
+  SC27: 'SchemaCheck: encrypted fields need to be specified at collection schema level',
+  SC28: 'SchemaCheck: encrypted fields is not defined in the schema',
+  SC29: 'SchemaCheck: missing object key \'properties\'',
+  // plugins/dev-mode
+  DEV1: 'dev-mode added multiple times, ' + 'this is likely because you have mixed up the import from the the plugins/core and the full RxDB',
+  // plugins/validate.js
+  VD1: 'Sub-schema not found, does the schemaPath exists in your schema?',
+  VD2: 'object does not match schema',
+  // plugins/in-memory.js
+  IM1: 'InMemory: Memory-Adapter must be added. Use RxDB.plugin(require(\'pouchdb-adapter-memory\'));',
+  IM2: 'inMemoryCollection.sync(): Do not replicate with the in-memory instance. Replicate with the parent instead',
+  // plugins/server.js
+  S1: 'You cannot create collections after calling RxDatabase.server()' // plugins/replication-graphql.js
+
+};
+
+/**
+ * returns all possible properties of a RxCollection-instance
+ */
+
+var _rxCollectionProperties;
+
+function rxCollectionProperties() {
+  if (!_rxCollectionProperties) {
+    var pseudoInstance = new RxCollectionBase();
+    var ownProperties = Object.getOwnPropertyNames(pseudoInstance);
+    var prototypeProperties = Object.getOwnPropertyNames(Object.getPrototypeOf(pseudoInstance));
+    _rxCollectionProperties = [].concat(ownProperties, prototypeProperties);
+  }
+
+  return _rxCollectionProperties;
+}
+/**
+ * returns all possible properties of a RxDatabase-instance
+ */
+
+var _rxDatabaseProperties;
+
+function rxDatabaseProperties() {
+  if (!_rxDatabaseProperties) {
+    // TODO instead of using the pseudoInstance,
+    // we should get the properties from the prototype of the class
+    var pseudoInstance = new RxDatabaseBase('pseudoInstance', 'memory');
+    var ownProperties = Object.getOwnPropertyNames(pseudoInstance);
+    var prototypeProperties = Object.getOwnPropertyNames(Object.getPrototypeOf(pseudoInstance));
+    _rxDatabaseProperties = [].concat(ownProperties, prototypeProperties);
+    pseudoInstance.destroy();
+  }
+
+  return _rxDatabaseProperties;
+}
+/**
+ * returns all possible properties of a RxDocument
+ */
+
+var pseudoConstructor = createRxDocumentConstructor(basePrototype);
+var pseudoRxDocument = new pseudoConstructor();
+
+var _rxDocumentProperties;
+
+function rxDocumentProperties() {
+  if (!_rxDocumentProperties) {
+    var reserved = ['deleted', 'synced'];
+    var ownProperties = Object.getOwnPropertyNames(pseudoRxDocument);
+    var prototypeProperties = Object.getOwnPropertyNames(basePrototype);
+    _rxDocumentProperties = [].concat(ownProperties, prototypeProperties, reserved);
+  }
+
+  return _rxDocumentProperties;
+}
+
+/**
+ * does additional checks over the schema-json
+ * to ensure nothing is broken or not supported
+ */
+/**
+ * checks if the fieldname is allowed
+ * this makes sure that the fieldnames can be transformed into javascript-vars
+ * and does not conquer the observe$ and populate_ fields
+ * @throws {Error}
+ */
+
+function checkFieldNameRegex(fieldName) {
+  if (fieldName === '') return;
+  if (fieldName === '_id') return;
+
+  if (['properties', 'language'].includes(fieldName)) {
+    throw newRxError('SC23', {
+      fieldName: fieldName
+    });
+  }
+
+  var regexStr = '^[a-zA-Z](?:[[a-zA-Z0-9_]*]?[a-zA-Z0-9])?$';
+  var regex = new RegExp(regexStr);
+
+  if (!fieldName.match(regex)) {
+    throw newRxError('SC1', {
+      regex: regexStr,
+      fieldName: fieldName
+    });
+  }
+}
+/**
+ * validate that all schema-related things are ok
+ */
+
+function validateFieldsDeep(jsonSchema) {
+  function checkField(fieldName, schemaObj, path) {
+    if (typeof fieldName === 'string' && typeof schemaObj === 'object' && !Array.isArray(schemaObj)) checkFieldNameRegex(fieldName); // 'item' only allowed it type=='array'
+
+    if (schemaObj.hasOwnProperty('item') && schemaObj.type !== 'array') {
+      throw newRxError('SC2', {
+        fieldName: fieldName
+      });
+    }
+    /**
+     * required fields cannot be set via 'required: true',
+     * but must be set via required: []
+     */
+
+
+    if (schemaObj.hasOwnProperty('required') && typeof schemaObj.required === 'boolean') {
+      throw newRxError('SC24', {
+        fieldName: fieldName
+      });
+    } // if ref given, must be type=='string', type=='array' with string-items or type==['string','null']
+
+
+    if (schemaObj.hasOwnProperty('ref')) {
+      if (Array.isArray(schemaObj.type)) {
+        if (schemaObj.type.length > 2 || !schemaObj.type.includes('string') || !schemaObj.type.includes('null')) {
+          throw newRxError('SC4', {
+            fieldName: fieldName
+          });
+        }
+      } else {
+        switch (schemaObj.type) {
+          case 'string':
+            break;
+
+          case 'array':
+            if (!schemaObj.items || !schemaObj.items.type || schemaObj.items.type !== 'string') {
+              throw newRxError('SC3', {
+                fieldName: fieldName
+              });
+            }
+
+            break;
+
+          default:
+            throw newRxError('SC4', {
+              fieldName: fieldName
+            });
+        }
+      }
+    }
+
+    var isNested = path.split('.').length >= 2; // nested only
+
+    if (isNested) {
+      if (schemaObj.primary) {
+        throw newRxError('SC6', {
+          path: path,
+          primary: schemaObj.primary
+        });
+      }
+
+      if (schemaObj["default"]) {
+        throw newRxError('SC7', {
+          path: path
+        });
+      }
+    } // first level
+
+
+    if (!isNested) {
+      // check underscore fields
+      if (fieldName.charAt(0) === '_') {
+        if (fieldName === '_id' && schemaObj.primary) {
+          return;
+        }
+
+        throw newRxError('SC8', {
+          fieldName: fieldName
+        });
+      }
+    }
+  }
+
+  function traverse(currentObj, currentPath) {
+    if (typeof currentObj !== 'object') return;
+    Object.keys(currentObj).forEach(function (attributeName) {
+      if (!currentObj.properties) {
+        checkField(attributeName, currentObj[attributeName], currentPath);
+      }
+
+      var nextPath = currentPath;
+      if (attributeName !== 'properties') nextPath = nextPath + '.' + attributeName;
+      traverse(currentObj[attributeName], nextPath);
+    });
+  }
+
+  traverse(jsonSchema, '');
+  return true;
+}
+/**
+ * computes real path of the object path in the collection schema
+ */
+
+function getSchemaPropertyRealPath(shortPath) {
+  var pathParts = shortPath.split('.');
+  var realPath = '';
+
+  for (var i = 0; i < pathParts.length; i += 1) {
+    if (pathParts[i] !== '[]') {
+      realPath = realPath.concat('.properties.'.concat(pathParts[i]));
+    } else {
+      realPath = realPath.concat('.items');
+    }
+  }
+
+  return trimDots(realPath);
+}
+/**
+ * does the checking
+ * @throws {Error} if something is not ok
+ */
+
+
+function checkSchema(jsonSchema) {
+  if (!jsonSchema.hasOwnProperty('properties')) {
+    throw newRxError('SC29', {
+      schema: jsonSchema
+    });
+  } // _rev MUST NOT exist, it is added by RxDB
+
+
+  if (jsonSchema.properties._rev) {
+    throw newRxError('SC10', {
+      schema: jsonSchema
+    });
+  } // check version
+
+
+  if (!jsonSchema.hasOwnProperty('version') || typeof jsonSchema.version !== 'number' || jsonSchema.version < 0) {
+    throw newRxError('SC11', {
+      version: jsonSchema.version
+    });
+  }
+
+  validateFieldsDeep(jsonSchema);
+  var primaryPath;
+  Object.keys(jsonSchema.properties).forEach(function (key) {
+    var value = jsonSchema.properties[key]; // check primary
+
+    if (value.primary) {
+      if (primaryPath) {
+        throw newRxError('SC12', {
+          value: value
+        });
+      }
+
+      primaryPath = key;
+
+      if (value.index) {
+        throw newRxError('SC13', {
+          value: value
+        });
+      }
+
+      if (value.unique) {
+        throw newRxError('SC14', {
+          value: value
+        });
+      }
+
+      if (value.encrypted) {
+        throw newRxError('SC15', {
+          value: value
+        });
+      }
+
+      if (value.type !== 'string') {
+        throw newRxError('SC16', {
+          value: value
+        });
+      }
+    } // check if RxDocument-property
+
+
+    if (rxDocumentProperties().includes(key)) {
+      throw newRxError('SC17', {
+        key: key
+      });
+    }
+  }); // check format of jsonSchema.indexes
+
+  if (jsonSchema.indexes) {
+    // should be an array
+    if (!Array.isArray(jsonSchema.indexes)) {
+      throw newRxError('SC18', {
+        indexes: jsonSchema.indexes
+      });
+    }
+
+    jsonSchema.indexes.forEach(function (index) {
+      // should contain strings or array of strings
+      if (!(typeof index === 'string' || Array.isArray(index))) {
+        throw newRxError('SC19', {
+          index: index
+        });
+      } // if is a compound index it must contain strings
+
+
+      if (Array.isArray(index)) {
+        for (var i = 0; i < index.length; i += 1) {
+          if (typeof index[i] !== 'string') {
+            throw newRxError('SC20', {
+              index: index
+            });
+          }
+        }
+      }
+    });
+  }
+  /**
+   * TODO
+   * this check has to exist only in beta-version, to help developers migrate their schemas
+   */
+  // remove backward-compatibility for compoundIndexes
+
+
+  if (Object.keys(jsonSchema).includes('compoundIndexes')) {
+    throw newRxError('SC25');
+  } // remove backward-compatibility for index: true
+
+
+  Object.keys(flattenObject(jsonSchema)).map(function (key) {
+    // flattenObject returns only ending paths, we need all paths pointing to an object
+    var splitted = key.split('.');
+    splitted.pop(); // all but last
+
+    return splitted.join('.');
+  }).filter(function (key) {
+    return key !== '';
+  }).filter(function (elem, pos, arr) {
+    return arr.indexOf(elem) === pos;
+  }) // unique
+  .filter(function (key) {
+    // check if this path defines an index
+    var value = objectPath.get(jsonSchema, key);
+    return !!value.index;
+  }).forEach(function (key) {
+    // replace inner properties
+    key = key.replace('properties.', ''); // first
+
+    key = key.replace(/\.properties\./g, '.'); // middle
+
+    throw newRxError('SC26', {
+      index: trimDots(key)
+    });
+  });
+  /* check types of the indexes */
+
+  (jsonSchema.indexes || []).reduce(function (indexPaths, currentIndex) {
+    if (Array.isArray(currentIndex)) {
+      indexPaths.concat(currentIndex);
+    } else {
+      indexPaths.push(currentIndex);
+    }
+
+    return indexPaths;
+  }, []).filter(function (elem, pos, arr) {
+    return arr.indexOf(elem) === pos;
+  }) // from now on working only with unique indexes
+  .map(function (indexPath) {
+    var realPath = getSchemaPropertyRealPath(indexPath); // real path in the collection schema
+
+    var schemaObj = objectPath.get(jsonSchema, realPath); // get the schema of the indexed property
+
+    if (!schemaObj || typeof schemaObj !== 'object') {
+      throw newRxError('SC21', {
+        index: indexPath
+      });
+    }
+
+    return {
+      indexPath: indexPath,
+      schemaObj: schemaObj
+    };
+  }).filter(function (index) {
+    return index.schemaObj.type !== 'string' && index.schemaObj.type !== 'integer' && index.schemaObj.type !== 'number';
+  }).forEach(function (index) {
+    throw newRxError('SC22', {
+      key: index.indexPath,
+      type: index.schemaObj.type
+    });
+  });
+  /**
+   * TODO
+   * in 9.0.0 we changed the way encrypted fields are defined
+   * This check ensures people do not oversee the breaking change
+   * Remove this check in the future
+   */
+
+  Object.keys(flattenObject(jsonSchema)).map(function (key) {
+    // flattenObject returns only ending paths, we need all paths pointing to an object
+    var splitted = key.split('.');
+    splitted.pop(); // all but last
+
+    return splitted.join('.');
+  }).filter(function (key) {
+    return key !== '' && key !== 'attachments';
+  }).filter(function (elem, pos, arr) {
+    return arr.indexOf(elem) === pos;
+  }) // unique
+  .filter(function (key) {
+    // check if this path defines an encrypted field
+    var value = objectPath.get(jsonSchema, key);
+    return !!value.encrypted;
+  }).forEach(function (key) {
+    // replace inner properties
+    key = key.replace('properties.', ''); // first
+
+    key = key.replace(/\.properties\./g, '.'); // middle
+
+    throw newRxError('SC27', {
+      index: trimDots(key)
+    });
+  });
+  /* ensure encrypted fields exist in the schema */
+
+  if (jsonSchema.encrypted) {
+    jsonSchema.encrypted.forEach(function (propPath) {
+      // real path in the collection schema
+      var realPath = getSchemaPropertyRealPath(propPath); // get the schema of the indexed property
+
+      var schemaObj = objectPath.get(jsonSchema, realPath);
+
+      if (!schemaObj || typeof schemaObj !== 'object') {
+        throw newRxError('SC28', {
+          field: propPath
+        });
+      }
+    });
+  }
+}
+
+/**
+ * checks if the given static methods are allowed
+ * @throws if not allowed
+ */
+
+function checkOrmMethods(statics) {
+  if (!statics) {
+    return;
+  }
+
+  Object.entries(statics).forEach(function (_ref) {
+    var k = _ref[0],
+        v = _ref[1];
+
+    if (typeof k !== 'string') {
+      throw newRxTypeError('COL14', {
+        name: k
+      });
+    }
+
+    if (k.startsWith('_')) {
+      throw newRxTypeError('COL15', {
+        name: k
+      });
+    }
+
+    if (typeof v !== 'function') {
+      throw newRxTypeError('COL16', {
+        name: k,
+        type: typeof k
+      });
+    }
+
+    if (rxCollectionProperties().includes(k) || rxDocumentProperties().includes(k)) {
+      throw newRxError('COL17', {
+        name: k
+      });
+    }
+  });
+}
+
+/**
+ * checks if the migrationStrategies are ok, throws if not
+ * @throws {Error|TypeError} if not ok
+ */
+
+function checkMigrationStrategies(schema, migrationStrategies) {
+  // migrationStrategies must be object not array
+  if (typeof migrationStrategies !== 'object' || Array.isArray(migrationStrategies)) {
+    throw newRxTypeError('COL11', {
+      schema: schema
+    });
+  }
+
+  var previousVersions = getPreviousVersions(schema); // for every previousVersion there must be strategy
+
+  if (previousVersions.length !== Object.keys(migrationStrategies).length) {
+    throw newRxError('COL12', {
+      have: Object.keys(migrationStrategies),
+      should: previousVersions
+    });
+  } // every strategy must have number as property and be a function
+
+
+  previousVersions.map(function (vNr) {
+    return {
+      v: vNr,
+      s: migrationStrategies[vNr + 1]
+    };
+  }).filter(function (strat) {
+    return typeof strat.s !== 'function';
+  }).forEach(function (strat) {
+    throw newRxTypeError('COL13', {
+      version: strat.v,
+      type: typeof strat,
+      schema: schema
+    });
+  });
+  return true;
+}
+
+/**
+ * if the name of a collection
+ * clashes with a property of RxDatabase,
+ * we get problems so this function prohibits this
+ */
+
+function ensureCollectionNameValid(args) {
+  if (rxDatabaseProperties().includes(args.name)) {
+    throw newRxError('DB5', {
+      name: args.name
+    });
+  }
+}
+function ensureDatabaseNameIsValid(args) {
+  /**
+   * Not all strings can be used as couchdb collection name
+   * So we only allow couchdb-valid string as databse name
+   * which solves some strange bugs.
+   */
+  validateCouchDBString(args.name);
+  /**
+   * The server-plugin has problems when a path with and ending slash is given
+   * So we do not allow this.
+   * @link https://github.com/pubkey/rxdb/issues/2251
+   */
+
+  if (isFolderPath(args.name)) {
+    if (args.name.endsWith('/') || args.name.endsWith('\\')) {
+      throw newRxError('DB11', {
+        name: args.name
+      });
+    }
+  }
+}
+
+/**
+ * accidentially passing a non-valid object into the query params
+ * is very hard to debug especially when queries are observed
+ * This is why we do some checks here in dev-mode
+ */
+
+function checkQuery(args) {
+  var isPlainObject = Object.prototype.toString.call(args.queryObj) === '[object Object]';
+
+  if (!isPlainObject) {
+    throw newRxTypeError('QU11', {
+      op: args.op,
+      collection: args.collection.name,
+      queryObj: args.queryObj
+    });
+  }
+
+  var validKeys = ['selector', 'limit', 'skip', 'sort'];
+  Object.keys(args.queryObj).forEach(function (key) {
+    if (!validKeys.includes(key)) {
+      throw newRxTypeError('QU11', {
+        op: args.op,
+        collection: args.collection.name,
+        queryObj: args.queryObj,
+        key: key
+      });
+    }
+  });
+}
+
+var DEV_MODE_PLUGIN_NAME = 'dev-mode';
+var RxDBDevModePlugin = {
+  name: DEV_MODE_PLUGIN_NAME,
+  rxdb: true,
+  overwritable: {
+    isDevMode: function isDevMode() {
+      return true;
+    },
+    tunnelErrorMessage: function tunnelErrorMessage(code) {
+      if (!ERROR_MESSAGES[code]) {
+        console.error('RxDB: Error-Code not known: ' + code);
+        throw new Error('Error-Code ' + code + ' not known, contact the maintainer');
+      }
+
+      return ERROR_MESSAGES[code];
+    }
+  },
+  hooks: {
+    preAddRxPlugin: function preAddRxPlugin(args) {
+      /**
+       * throw when dev mode is added multiple times
+       * because there is no way that this was done intentional.
+       * Likely the developer has mixed core and default usage of RxDB.
+       */
+      if (args.plugin.name === DEV_MODE_PLUGIN_NAME) {
+        throw newRxError('DEV1', {
+          plugins: args.plugins
+        });
+      }
+    },
+    preCreateRxSchema: checkSchema,
+    preCreateRxDatabase: function preCreateRxDatabase(args) {
+      ensureDatabaseNameIsValid(args);
+    },
+    preCreateRxCollection: function preCreateRxCollection(args) {
+      ensureCollectionNameValid(args);
+
+      if (args.name.charAt(0) === '_') {
+        throw newRxError('DB2', {
+          name: args.name
+        });
+      }
+
+      if (!args.schema) {
+        throw newRxError('DB4', {
+          name: args.name,
+          args: args
+        });
+      }
+    },
+    preCreateRxQuery: function preCreateRxQuery(args) {
+      checkQuery(args);
+    },
+    createRxCollection: function createRxCollection(args) {
+      // check ORM-methods
+      checkOrmMethods(args.statics);
+      checkOrmMethods(args.methods);
+      checkOrmMethods(args.attachments); // check migration strategies
+
+      if (args.schema && args.migrationStrategies) {
+        checkMigrationStrategies(args.schema, args.migrationStrategies);
+      }
+    }
+  }
+};
+
+function isProperty(str) {
+  return /^[$A-Z\_a-z\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc][$A-Z\_a-z\xaa\xb5\xba\xc0-\xd6\xd8-\xf6\xf8-\u02c1\u02c6-\u02d1\u02e0-\u02e4\u02ec\u02ee\u0370-\u0374\u0376\u0377\u037a-\u037d\u0386\u0388-\u038a\u038c\u038e-\u03a1\u03a3-\u03f5\u03f7-\u0481\u048a-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05d0-\u05ea\u05f0-\u05f2\u0620-\u064a\u066e\u066f\u0671-\u06d3\u06d5\u06e5\u06e6\u06ee\u06ef\u06fa-\u06fc\u06ff\u0710\u0712-\u072f\u074d-\u07a5\u07b1\u07ca-\u07ea\u07f4\u07f5\u07fa\u0800-\u0815\u081a\u0824\u0828\u0840-\u0858\u08a0\u08a2-\u08ac\u0904-\u0939\u093d\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097f\u0985-\u098c\u098f\u0990\u0993-\u09a8\u09aa-\u09b0\u09b2\u09b6-\u09b9\u09bd\u09ce\u09dc\u09dd\u09df-\u09e1\u09f0\u09f1\u0a05-\u0a0a\u0a0f\u0a10\u0a13-\u0a28\u0a2a-\u0a30\u0a32\u0a33\u0a35\u0a36\u0a38\u0a39\u0a59-\u0a5c\u0a5e\u0a72-\u0a74\u0a85-\u0a8d\u0a8f-\u0a91\u0a93-\u0aa8\u0aaa-\u0ab0\u0ab2\u0ab3\u0ab5-\u0ab9\u0abd\u0ad0\u0ae0\u0ae1\u0b05-\u0b0c\u0b0f\u0b10\u0b13-\u0b28\u0b2a-\u0b30\u0b32\u0b33\u0b35-\u0b39\u0b3d\u0b5c\u0b5d\u0b5f-\u0b61\u0b71\u0b83\u0b85-\u0b8a\u0b8e-\u0b90\u0b92-\u0b95\u0b99\u0b9a\u0b9c\u0b9e\u0b9f\u0ba3\u0ba4\u0ba8-\u0baa\u0bae-\u0bb9\u0bd0\u0c05-\u0c0c\u0c0e-\u0c10\u0c12-\u0c28\u0c2a-\u0c33\u0c35-\u0c39\u0c3d\u0c58\u0c59\u0c60\u0c61\u0c85-\u0c8c\u0c8e-\u0c90\u0c92-\u0ca8\u0caa-\u0cb3\u0cb5-\u0cb9\u0cbd\u0cde\u0ce0\u0ce1\u0cf1\u0cf2\u0d05-\u0d0c\u0d0e-\u0d10\u0d12-\u0d3a\u0d3d\u0d4e\u0d60\u0d61\u0d7a-\u0d7f\u0d85-\u0d96\u0d9a-\u0db1\u0db3-\u0dbb\u0dbd\u0dc0-\u0dc6\u0e01-\u0e30\u0e32\u0e33\u0e40-\u0e46\u0e81\u0e82\u0e84\u0e87\u0e88\u0e8a\u0e8d\u0e94-\u0e97\u0e99-\u0e9f\u0ea1-\u0ea3\u0ea5\u0ea7\u0eaa\u0eab\u0ead-\u0eb0\u0eb2\u0eb3\u0ebd\u0ec0-\u0ec4\u0ec6\u0edc-\u0edf\u0f00\u0f40-\u0f47\u0f49-\u0f6c\u0f88-\u0f8c\u1000-\u102a\u103f\u1050-\u1055\u105a-\u105d\u1061\u1065\u1066\u106e-\u1070\u1075-\u1081\u108e\u10a0-\u10c5\u10c7\u10cd\u10d0-\u10fa\u10fc-\u1248\u124a-\u124d\u1250-\u1256\u1258\u125a-\u125d\u1260-\u1288\u128a-\u128d\u1290-\u12b0\u12b2-\u12b5\u12b8-\u12be\u12c0\u12c2-\u12c5\u12c8-\u12d6\u12d8-\u1310\u1312-\u1315\u1318-\u135a\u1380-\u138f\u13a0-\u13f4\u1401-\u166c\u166f-\u167f\u1681-\u169a\u16a0-\u16ea\u16ee-\u16f0\u1700-\u170c\u170e-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176c\u176e-\u1770\u1780-\u17b3\u17d7\u17dc\u1820-\u1877\u1880-\u18a8\u18aa\u18b0-\u18f5\u1900-\u191c\u1950-\u196d\u1970-\u1974\u1980-\u19ab\u19c1-\u19c7\u1a00-\u1a16\u1a20-\u1a54\u1aa7\u1b05-\u1b33\u1b45-\u1b4b\u1b83-\u1ba0\u1bae\u1baf\u1bba-\u1be5\u1c00-\u1c23\u1c4d-\u1c4f\u1c5a-\u1c7d\u1ce9-\u1cec\u1cee-\u1cf1\u1cf5\u1cf6\u1d00-\u1dbf\u1e00-\u1f15\u1f18-\u1f1d\u1f20-\u1f45\u1f48-\u1f4d\u1f50-\u1f57\u1f59\u1f5b\u1f5d\u1f5f-\u1f7d\u1f80-\u1fb4\u1fb6-\u1fbc\u1fbe\u1fc2-\u1fc4\u1fc6-\u1fcc\u1fd0-\u1fd3\u1fd6-\u1fdb\u1fe0-\u1fec\u1ff2-\u1ff4\u1ff6-\u1ffc\u2071\u207f\u2090-\u209c\u2102\u2107\u210a-\u2113\u2115\u2119-\u211d\u2124\u2126\u2128\u212a-\u212d\u212f-\u2139\u213c-\u213f\u2145-\u2149\u214e\u2160-\u2188\u2c00-\u2c2e\u2c30-\u2c5e\u2c60-\u2ce4\u2ceb-\u2cee\u2cf2\u2cf3\u2d00-\u2d25\u2d27\u2d2d\u2d30-\u2d67\u2d6f\u2d80-\u2d96\u2da0-\u2da6\u2da8-\u2dae\u2db0-\u2db6\u2db8-\u2dbe\u2dc0-\u2dc6\u2dc8-\u2dce\u2dd0-\u2dd6\u2dd8-\u2dde\u2e2f\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303c\u3041-\u3096\u309d-\u309f\u30a1-\u30fa\u30fc-\u30ff\u3105-\u312d\u3131-\u318e\u31a0-\u31ba\u31f0-\u31ff\u3400-\u4db5\u4e00-\u9fcc\ua000-\ua48c\ua4d0-\ua4fd\ua500-\ua60c\ua610-\ua61f\ua62a\ua62b\ua640-\ua66e\ua67f-\ua697\ua6a0-\ua6ef\ua717-\ua71f\ua722-\ua788\ua78b-\ua78e\ua790-\ua793\ua7a0-\ua7aa\ua7f8-\ua801\ua803-\ua805\ua807-\ua80a\ua80c-\ua822\ua840-\ua873\ua882-\ua8b3\ua8f2-\ua8f7\ua8fb\ua90a-\ua925\ua930-\ua946\ua960-\ua97c\ua984-\ua9b2\ua9cf\uaa00-\uaa28\uaa40-\uaa42\uaa44-\uaa4b\uaa60-\uaa76\uaa7a\uaa80-\uaaaf\uaab1\uaab5\uaab6\uaab9-\uaabd\uaac0\uaac2\uaadb-\uaadd\uaae0-\uaaea\uaaf2-\uaaf4\uab01-\uab06\uab09-\uab0e\uab11-\uab16\uab20-\uab26\uab28-\uab2e\uabc0-\uabe2\uac00-\ud7a3\ud7b0-\ud7c6\ud7cb-\ud7fb\uf900-\ufa6d\ufa70-\ufad9\ufb00-\ufb06\ufb13-\ufb17\ufb1d\ufb1f-\ufb28\ufb2a-\ufb36\ufb38-\ufb3c\ufb3e\ufb40\ufb41\ufb43\ufb44\ufb46-\ufbb1\ufbd3-\ufd3d\ufd50-\ufd8f\ufd92-\ufdc7\ufdf0-\ufdfb\ufe70-\ufe74\ufe76-\ufefc\uff21-\uff3a\uff41-\uff5a\uff66-\uffbe\uffc2-\uffc7\uffca-\uffcf\uffd2-\uffd7\uffda-\uffdc0-9\u0300-\u036f\u0483-\u0487\u0591-\u05bd\u05bf\u05c1\u05c2\u05c4\u05c5\u05c7\u0610-\u061a\u064b-\u0669\u0670\u06d6-\u06dc\u06df-\u06e4\u06e7\u06e8\u06ea-\u06ed\u06f0-\u06f9\u0711\u0730-\u074a\u07a6-\u07b0\u07c0-\u07c9\u07eb-\u07f3\u0816-\u0819\u081b-\u0823\u0825-\u0827\u0829-\u082d\u0859-\u085b\u08e4-\u08fe\u0900-\u0903\u093a-\u093c\u093e-\u094f\u0951-\u0957\u0962\u0963\u0966-\u096f\u0981-\u0983\u09bc\u09be-\u09c4\u09c7\u09c8\u09cb-\u09cd\u09d7\u09e2\u09e3\u09e6-\u09ef\u0a01-\u0a03\u0a3c\u0a3e-\u0a42\u0a47\u0a48\u0a4b-\u0a4d\u0a51\u0a66-\u0a71\u0a75\u0a81-\u0a83\u0abc\u0abe-\u0ac5\u0ac7-\u0ac9\u0acb-\u0acd\u0ae2\u0ae3\u0ae6-\u0aef\u0b01-\u0b03\u0b3c\u0b3e-\u0b44\u0b47\u0b48\u0b4b-\u0b4d\u0b56\u0b57\u0b62\u0b63\u0b66-\u0b6f\u0b82\u0bbe-\u0bc2\u0bc6-\u0bc8\u0bca-\u0bcd\u0bd7\u0be6-\u0bef\u0c01-\u0c03\u0c3e-\u0c44\u0c46-\u0c48\u0c4a-\u0c4d\u0c55\u0c56\u0c62\u0c63\u0c66-\u0c6f\u0c82\u0c83\u0cbc\u0cbe-\u0cc4\u0cc6-\u0cc8\u0cca-\u0ccd\u0cd5\u0cd6\u0ce2\u0ce3\u0ce6-\u0cef\u0d02\u0d03\u0d3e-\u0d44\u0d46-\u0d48\u0d4a-\u0d4d\u0d57\u0d62\u0d63\u0d66-\u0d6f\u0d82\u0d83\u0dca\u0dcf-\u0dd4\u0dd6\u0dd8-\u0ddf\u0df2\u0df3\u0e31\u0e34-\u0e3a\u0e47-\u0e4e\u0e50-\u0e59\u0eb1\u0eb4-\u0eb9\u0ebb\u0ebc\u0ec8-\u0ecd\u0ed0-\u0ed9\u0f18\u0f19\u0f20-\u0f29\u0f35\u0f37\u0f39\u0f3e\u0f3f\u0f71-\u0f84\u0f86\u0f87\u0f8d-\u0f97\u0f99-\u0fbc\u0fc6\u102b-\u103e\u1040-\u1049\u1056-\u1059\u105e-\u1060\u1062-\u1064\u1067-\u106d\u1071-\u1074\u1082-\u108d\u108f-\u109d\u135d-\u135f\u1712-\u1714\u1732-\u1734\u1752\u1753\u1772\u1773\u17b4-\u17d3\u17dd\u17e0-\u17e9\u180b-\u180d\u1810-\u1819\u18a9\u1920-\u192b\u1930-\u193b\u1946-\u194f\u19b0-\u19c0\u19c8\u19c9\u19d0-\u19d9\u1a17-\u1a1b\u1a55-\u1a5e\u1a60-\u1a7c\u1a7f-\u1a89\u1a90-\u1a99\u1b00-\u1b04\u1b34-\u1b44\u1b50-\u1b59\u1b6b-\u1b73\u1b80-\u1b82\u1ba1-\u1bad\u1bb0-\u1bb9\u1be6-\u1bf3\u1c24-\u1c37\u1c40-\u1c49\u1c50-\u1c59\u1cd0-\u1cd2\u1cd4-\u1ce8\u1ced\u1cf2-\u1cf4\u1dc0-\u1de6\u1dfc-\u1dff\u200c\u200d\u203f\u2040\u2054\u20d0-\u20dc\u20e1\u20e5-\u20f0\u2cef-\u2cf1\u2d7f\u2de0-\u2dff\u302a-\u302f\u3099\u309a\ua620-\ua629\ua66f\ua674-\ua67d\ua69f\ua6f0\ua6f1\ua802\ua806\ua80b\ua823-\ua827\ua880\ua881\ua8b4-\ua8c4\ua8d0-\ua8d9\ua8e0-\ua8f1\ua900-\ua909\ua926-\ua92d\ua947-\ua953\ua980-\ua983\ua9b3-\ua9c0\ua9d0-\ua9d9\uaa29-\uaa36\uaa43\uaa4c\uaa4d\uaa50-\uaa59\uaa7b\uaab0\uaab2-\uaab4\uaab7\uaab8\uaabe\uaabf\uaac1\uaaeb-\uaaef\uaaf5\uaaf6\uabe3-\uabea\uabec\uabed\uabf0-\uabf9\ufb1e\ufe00-\ufe0f\ufe20-\ufe26\ufe33\ufe34\ufe4d-\ufe4f\uff10-\uff19\uff3f]*$/.test(str)
+}
+var isProperty_1 = isProperty;
+
+var gen = function(obj, prop) {
+  return isProperty_1(prop) ? obj+'.'+prop : obj+'['+JSON.stringify(prop)+']'
+};
+
+gen.valid = isProperty_1;
+gen.property = function (prop) {
+ return isProperty_1(prop) ? prop : JSON.stringify(prop)
+};
+
+var generateObjectProperty = gen;
+
+var inherits;
+if (typeof Object.create === 'function'){
+  inherits = function inherits(ctor, superCtor) {
+    // implementation from standard node.js 'util' module
+    ctor.super_ = superCtor;
+    ctor.prototype = Object.create(superCtor.prototype, {
+      constructor: {
+        value: ctor,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+  };
+} else {
+  inherits = function inherits(ctor, superCtor) {
+    ctor.super_ = superCtor;
+    var TempCtor = function () {};
+    TempCtor.prototype = superCtor.prototype;
+    ctor.prototype = new TempCtor();
+    ctor.prototype.constructor = ctor;
+  };
+}
+var inherits$1 = inherits;
+
+var formatRegExp = /%[sdj%]/g;
+function format(f) {
+  if (!isString$2(f)) {
+    var objects = [];
+    for (var i = 0; i < arguments.length; i++) {
+      objects.push(inspect(arguments[i]));
+    }
+    return objects.join(' ');
+  }
+
+  var i = 1;
+  var args = arguments;
+  var len = args.length;
+  var str = String(f).replace(formatRegExp, function(x) {
+    if (x === '%%') return '%';
+    if (i >= len) return x;
+    switch (x) {
+      case '%s': return String(args[i++]);
+      case '%d': return Number(args[i++]);
+      case '%j':
+        try {
+          return JSON.stringify(args[i++]);
+        } catch (_) {
+          return '[Circular]';
+        }
+      default:
+        return x;
+    }
+  });
+  for (var x = args[i]; i < len; x = args[++i]) {
+    if (isNull(x) || !isObject$1(x)) {
+      str += ' ' + x;
+    } else {
+      str += ' ' + inspect(x);
+    }
+  }
+  return str;
+}
+
+// Mark that a method should not be used.
+// Returns a modified function which warns once by default.
+// If --no-deprecation is set, then it is a no-op.
+function deprecate(fn, msg) {
+  // Allow for deprecating things in the process of starting up.
+  if (isUndefined(global.process)) {
+    return function() {
+      return deprecate(fn, msg).apply(this, arguments);
+    };
+  }
+
+  if (process.noDeprecation === true) {
+    return fn;
+  }
+
+  var warned = false;
+  function deprecated() {
+    if (!warned) {
+      if (process.throwDeprecation) {
+        throw new Error(msg);
+      } else if (process.traceDeprecation) {
+        console.trace(msg);
+      } else {
+        console.error(msg);
+      }
+      warned = true;
+    }
+    return fn.apply(this, arguments);
+  }
+
+  return deprecated;
+}
+
+var debugs = {};
+var debugEnviron;
+function debuglog(set) {
+  if (isUndefined(debugEnviron))
+    debugEnviron = process.env.NODE_DEBUG || '';
+  set = set.toUpperCase();
+  if (!debugs[set]) {
+    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+      var pid = 0;
+      debugs[set] = function() {
+        var msg = format.apply(null, arguments);
+        console.error('%s %d: %s', set, pid, msg);
+      };
+    } else {
+      debugs[set] = function() {};
+    }
+  }
+  return debugs[set];
+}
+
+/**
+ * Echos the value of a value. Trys to print the value out
+ * in the best way possible given the different types.
+ *
+ * @param {Object} obj The object to print out.
+ * @param {Object} opts Optional options object that alters the output.
+ */
+/* legacy: obj, showHidden, depth, colors*/
+function inspect(obj, opts) {
+  // default options
+  var ctx = {
+    seen: [],
+    stylize: stylizeNoColor
+  };
+  // legacy...
+  if (arguments.length >= 3) ctx.depth = arguments[2];
+  if (arguments.length >= 4) ctx.colors = arguments[3];
+  if (isBoolean$1(opts)) {
+    // legacy...
+    ctx.showHidden = opts;
+  } else if (opts) {
+    // got an "options" object
+    _extend(ctx, opts);
+  }
+  // set default options
+  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+  if (isUndefined(ctx.depth)) ctx.depth = 2;
+  if (isUndefined(ctx.colors)) ctx.colors = false;
+  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+  if (ctx.colors) ctx.stylize = stylizeWithColor;
+  return formatValue(ctx, obj, ctx.depth);
+}
+
+// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+inspect.colors = {
+  'bold' : [1, 22],
+  'italic' : [3, 23],
+  'underline' : [4, 24],
+  'inverse' : [7, 27],
+  'white' : [37, 39],
+  'grey' : [90, 39],
+  'black' : [30, 39],
+  'blue' : [34, 39],
+  'cyan' : [36, 39],
+  'green' : [32, 39],
+  'magenta' : [35, 39],
+  'red' : [31, 39],
+  'yellow' : [33, 39]
+};
+
+// Don't use 'blue' not visible on cmd.exe
+inspect.styles = {
+  'special': 'cyan',
+  'number': 'yellow',
+  'boolean': 'yellow',
+  'undefined': 'grey',
+  'null': 'bold',
+  'string': 'green',
+  'date': 'magenta',
+  // "name": intentionally not styling
+  'regexp': 'red'
+};
+
+
+function stylizeWithColor(str, styleType) {
+  var style = inspect.styles[styleType];
+
+  if (style) {
+    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+           '\u001b[' + inspect.colors[style][1] + 'm';
+  } else {
+    return str;
+  }
+}
+
+
+function stylizeNoColor(str, styleType) {
+  return str;
+}
+
+
+function arrayToHash(array) {
+  var hash = {};
+
+  array.forEach(function(val, idx) {
+    hash[val] = true;
+  });
+
+  return hash;
+}
+
+
+function formatValue(ctx, value, recurseTimes) {
+  // Provide a hook for user-specified inspect functions.
+  // Check that value is an object with an inspect function on it
+  if (ctx.customInspect &&
+      value &&
+      isFunction$2(value.inspect) &&
+      // Filter out the util module, it's inspect function is special
+      value.inspect !== inspect &&
+      // Also filter out any prototype objects using the circular check.
+      !(value.constructor && value.constructor.prototype === value)) {
+    var ret = value.inspect(recurseTimes, ctx);
+    if (!isString$2(ret)) {
+      ret = formatValue(ctx, ret, recurseTimes);
+    }
+    return ret;
+  }
+
+  // Primitive types cannot have properties
+  var primitive = formatPrimitive(ctx, value);
+  if (primitive) {
+    return primitive;
+  }
+
+  // Look up the keys of the object.
+  var keys = Object.keys(value);
+  var visibleKeys = arrayToHash(keys);
+
+  if (ctx.showHidden) {
+    keys = Object.getOwnPropertyNames(value);
+  }
+
+  // IE doesn't make error fields non-enumerable
+  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+  if (isError$1(value)
+      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    return formatError(value);
+  }
+
+  // Some type of object without properties can be shortcutted.
+  if (keys.length === 0) {
+    if (isFunction$2(value)) {
+      var name = value.name ? ': ' + value.name : '';
+      return ctx.stylize('[Function' + name + ']', 'special');
+    }
+    if (isRegExp$1(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    }
+    if (isDate$2(value)) {
+      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+    }
+    if (isError$1(value)) {
+      return formatError(value);
+    }
+  }
+
+  var base = '', array = false, braces = ['{', '}'];
+
+  // Make Array say that they are Array
+  if (isArray$3(value)) {
+    array = true;
+    braces = ['[', ']'];
+  }
+
+  // Make functions say that they are functions
+  if (isFunction$2(value)) {
+    var n = value.name ? ': ' + value.name : '';
+    base = ' [Function' + n + ']';
+  }
+
+  // Make RegExps say that they are RegExps
+  if (isRegExp$1(value)) {
+    base = ' ' + RegExp.prototype.toString.call(value);
+  }
+
+  // Make dates with properties first say the date
+  if (isDate$2(value)) {
+    base = ' ' + Date.prototype.toUTCString.call(value);
+  }
+
+  // Make error with message first say the error
+  if (isError$1(value)) {
+    base = ' ' + formatError(value);
+  }
+
+  if (keys.length === 0 && (!array || value.length == 0)) {
+    return braces[0] + base + braces[1];
+  }
+
+  if (recurseTimes < 0) {
+    if (isRegExp$1(value)) {
+      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+    } else {
+      return ctx.stylize('[Object]', 'special');
+    }
+  }
+
+  ctx.seen.push(value);
+
+  var output;
+  if (array) {
+    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+  } else {
+    output = keys.map(function(key) {
+      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+    });
+  }
+
+  ctx.seen.pop();
+
+  return reduceToSingleString(output, base, braces);
+}
+
+
+function formatPrimitive(ctx, value) {
+  if (isUndefined(value))
+    return ctx.stylize('undefined', 'undefined');
+  if (isString$2(value)) {
+    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+                                             .replace(/'/g, "\\'")
+                                             .replace(/\\"/g, '"') + '\'';
+    return ctx.stylize(simple, 'string');
+  }
+  if (isNumber$1(value))
+    return ctx.stylize('' + value, 'number');
+  if (isBoolean$1(value))
+    return ctx.stylize('' + value, 'boolean');
+  // For some reason typeof null is "object", so special case here.
+  if (isNull(value))
+    return ctx.stylize('null', 'null');
+}
+
+
+function formatError(value) {
+  return '[' + Error.prototype.toString.call(value) + ']';
+}
+
+
+function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+  var output = [];
+  for (var i = 0, l = value.length; i < l; ++i) {
+    if (hasOwnProperty$1(value, String(i))) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          String(i), true));
+    } else {
+      output.push('');
+    }
+  }
+  keys.forEach(function(key) {
+    if (!key.match(/^\d+$/)) {
+      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+          key, true));
+    }
+  });
+  return output;
+}
+
+
+function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+  var name, str, desc;
+  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+  if (desc.get) {
+    if (desc.set) {
+      str = ctx.stylize('[Getter/Setter]', 'special');
+    } else {
+      str = ctx.stylize('[Getter]', 'special');
+    }
+  } else {
+    if (desc.set) {
+      str = ctx.stylize('[Setter]', 'special');
+    }
+  }
+  if (!hasOwnProperty$1(visibleKeys, key)) {
+    name = '[' + key + ']';
+  }
+  if (!str) {
+    if (ctx.seen.indexOf(desc.value) < 0) {
+      if (isNull(recurseTimes)) {
+        str = formatValue(ctx, desc.value, null);
+      } else {
+        str = formatValue(ctx, desc.value, recurseTimes - 1);
+      }
+      if (str.indexOf('\n') > -1) {
+        if (array) {
+          str = str.split('\n').map(function(line) {
+            return '  ' + line;
+          }).join('\n').substr(2);
+        } else {
+          str = '\n' + str.split('\n').map(function(line) {
+            return '   ' + line;
+          }).join('\n');
+        }
+      }
+    } else {
+      str = ctx.stylize('[Circular]', 'special');
+    }
+  }
+  if (isUndefined(name)) {
+    if (array && key.match(/^\d+$/)) {
+      return str;
+    }
+    name = JSON.stringify('' + key);
+    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      name = name.substr(1, name.length - 2);
+      name = ctx.stylize(name, 'name');
+    } else {
+      name = name.replace(/'/g, "\\'")
+                 .replace(/\\"/g, '"')
+                 .replace(/(^"|"$)/g, "'");
+      name = ctx.stylize(name, 'string');
+    }
+  }
+
+  return name + ': ' + str;
+}
+
+
+function reduceToSingleString(output, base, braces) {
+  var length = output.reduce(function(prev, cur) {
+    if (cur.indexOf('\n') >= 0) ;
+    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+  }, 0);
+
+  if (length > 60) {
+    return braces[0] +
+           (base === '' ? '' : base + '\n ') +
+           ' ' +
+           output.join(',\n  ') +
+           ' ' +
+           braces[1];
+  }
+
+  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+}
+
+
+// NOTE: These type checking functions intentionally don't use `instanceof`
+// because it is fragile and can be easily faked with `Object.create()`.
+function isArray$3(ar) {
+  return Array.isArray(ar);
+}
+
+function isBoolean$1(arg) {
+  return typeof arg === 'boolean';
+}
+
+function isNull(arg) {
+  return arg === null;
+}
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+
+function isNumber$1(arg) {
+  return typeof arg === 'number';
+}
+
+function isString$2(arg) {
+  return typeof arg === 'string';
+}
+
+function isSymbol$2(arg) {
+  return typeof arg === 'symbol';
+}
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+
+function isRegExp$1(re) {
+  return isObject$1(re) && objectToString$1(re) === '[object RegExp]';
+}
+
+function isObject$1(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isDate$2(d) {
+  return isObject$1(d) && objectToString$1(d) === '[object Date]';
+}
+
+function isError$1(e) {
+  return isObject$1(e) &&
+      (objectToString$1(e) === '[object Error]' || e instanceof Error);
+}
+
+function isFunction$2(arg) {
+  return typeof arg === 'function';
+}
+
+function isPrimitive(arg) {
+  return arg === null ||
+         typeof arg === 'boolean' ||
+         typeof arg === 'number' ||
+         typeof arg === 'string' ||
+         typeof arg === 'symbol' ||  // ES6 symbol
+         typeof arg === 'undefined';
+}
+
+function isBuffer$2(maybeBuf) {
+  return Buffer.isBuffer(maybeBuf);
+}
+
+function objectToString$1(o) {
+  return Object.prototype.toString.call(o);
+}
+
+
+function pad$1(n) {
+  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+}
+
+
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+              'Oct', 'Nov', 'Dec'];
+
+// 26 Feb 16:19:34
+function timestamp() {
+  var d = new Date();
+  var time = [pad$1(d.getHours()),
+              pad$1(d.getMinutes()),
+              pad$1(d.getSeconds())].join(':');
+  return [d.getDate(), months[d.getMonth()], time].join(' ');
+}
+
+
+// log is just a thin wrapper to console.log that prepends a timestamp
+function log() {
+  console.log('%s - %s', timestamp(), format.apply(null, arguments));
+}
+
+function _extend(origin, add) {
+  // Don't do anything if add isn't an object
+  if (!add || !isObject$1(add)) return origin;
+
+  var keys = Object.keys(add);
+  var i = keys.length;
+  while (i--) {
+    origin[keys[i]] = add[keys[i]];
+  }
+  return origin;
+}
+function hasOwnProperty$1(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+var polyfillNode_util = {
+  inherits: inherits$1,
+  _extend: _extend,
+  log: log,
+  isBuffer: isBuffer$2,
+  isPrimitive: isPrimitive,
+  isFunction: isFunction$2,
+  isError: isError$1,
+  isDate: isDate$2,
+  isObject: isObject$1,
+  isRegExp: isRegExp$1,
+  isUndefined: isUndefined,
+  isSymbol: isSymbol$2,
+  isString: isString$2,
+  isNumber: isNumber$1,
+  isNullOrUndefined: isNullOrUndefined,
+  isNull: isNull,
+  isBoolean: isBoolean$1,
+  isArray: isArray$3,
+  inspect: inspect,
+  deprecate: deprecate,
+  format: format,
+  debuglog: debuglog
+};
+
+var polyfillNode_util$1 = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  format: format,
+  deprecate: deprecate,
+  debuglog: debuglog,
+  inspect: inspect,
+  isArray: isArray$3,
+  isBoolean: isBoolean$1,
+  isNull: isNull,
+  isNullOrUndefined: isNullOrUndefined,
+  isNumber: isNumber$1,
+  isString: isString$2,
+  isSymbol: isSymbol$2,
+  isUndefined: isUndefined,
+  isRegExp: isRegExp$1,
+  isObject: isObject$1,
+  isDate: isDate$2,
+  isError: isError$1,
+  isFunction: isFunction$2,
+  isPrimitive: isPrimitive,
+  isBuffer: isBuffer$2,
+  log: log,
+  inherits: inherits$1,
+  _extend: _extend,
+  'default': polyfillNode_util
+});
+
+var INDENT_START = /[\{\[]/;
+var INDENT_END = /[\}\]]/;
+
+// from https://mathiasbynens.be/notes/reserved-keywords
+var RESERVED = [
+  'do',
+  'if',
+  'in',
+  'for',
+  'let',
+  'new',
+  'try',
+  'var',
+  'case',
+  'else',
+  'enum',
+  'eval',
+  'null',
+  'this',
+  'true',
+  'void',
+  'with',
+  'await',
+  'break',
+  'catch',
+  'class',
+  'const',
+  'false',
+  'super',
+  'throw',
+  'while',
+  'yield',
+  'delete',
+  'export',
+  'import',
+  'public',
+  'return',
+  'static',
+  'switch',
+  'typeof',
+  'default',
+  'extends',
+  'finally',
+  'package',
+  'private',
+  'continue',
+  'debugger',
+  'function',
+  'arguments',
+  'interface',
+  'protected',
+  'implements',
+  'instanceof',
+  'NaN',
+  'undefined'
+];
+
+var RESERVED_MAP = {};
+
+for (var i = 0; i < RESERVED.length; i++) {
+  RESERVED_MAP[RESERVED[i]] = true;
+}
+
+var isVariable = function (name) {
+  return isProperty_1(name) && !RESERVED_MAP.hasOwnProperty(name)
+};
+
+var formats = {
+  s: function(s) {
+    return '' + s
+  },
+  d: function(d) {
+    return '' + Number(d)
+  },
+  o: function(o) {
+    return JSON.stringify(o)
+  }
+};
+
+var genfun = function() {
+  var lines = [];
+  var indent = 0;
+  var vars = {};
+
+  var push = function(str) {
+    var spaces = '';
+    while (spaces.length < indent*2) spaces += '  ';
+    lines.push(spaces+str);
+  };
+
+  var pushLine = function(line) {
+    if (INDENT_END.test(line.trim()[0]) && INDENT_START.test(line[line.length-1])) {
+      indent--;
+      push(line);
+      indent++;
+      return
+    }
+    if (INDENT_START.test(line[line.length-1])) {
+      push(line);
+      indent++;
+      return
+    }
+    if (INDENT_END.test(line.trim()[0])) {
+      indent--;
+      push(line);
+      return
+    }
+
+    push(line);
+  };
+
+  var line = function(fmt) {
+    if (!fmt) return line
+
+    if (arguments.length === 1 && fmt.indexOf('\n') > -1) {
+      var lines = fmt.trim().split('\n');
+      for (var i = 0; i < lines.length; i++) {
+        pushLine(lines[i].trim());
+      }
+    } else {
+      pushLine(polyfillNode_util$1.format.apply(polyfillNode_util$1, arguments));
+    }
+
+    return line
+  };
+
+  line.scope = {};
+  line.formats = formats;
+
+  line.sym = function(name) {
+    if (!name || !isVariable(name)) name = 'tmp';
+    if (!vars[name]) vars[name] = 0;
+    return name + (vars[name]++ || '')
+  };
+
+  line.property = function(obj, name) {
+    if (arguments.length === 1) {
+      name = obj;
+      obj = '';
+    }
+
+    name = name + '';
+
+    if (isProperty_1(name)) return (obj ? obj + '.' + name : name)
+    return obj ? obj + '[' + JSON.stringify(name) + ']' : JSON.stringify(name)
+  };
+
+  line.toString = function() {
+    return lines.join('\n')
+  };
+
+  line.toFunction = function(scope) {
+    if (!scope) scope = {};
+
+    var src = 'return ('+line.toString()+')';
+
+    Object.keys(line.scope).forEach(function (key) {
+      if (!scope[key]) scope[key] = line.scope[key];
+    });
+
+    var keys = Object.keys(scope).map(function(key) {
+      return key
+    });
+
+    var vals = keys.map(function(key) {
+      return scope[key]
+    });
+
+    return Function.apply(null, keys.concat(src)).apply(null, vals)
+  };
+
+  if (arguments.length) line.apply(null, arguments);
+
+  return line
+};
+
+genfun.formats = formats;
+var generateFunction = genfun;
+
+var hasExcape = /~/;
+var escapeMatcher = /~[01]/g;
+function escapeReplacer (m) {
+  switch (m) {
+    case '~1': return '/'
+    case '~0': return '~'
+  }
+  throw new Error('Invalid tilde escape: ' + m)
+}
+
+function untilde (str) {
+  if (!hasExcape.test(str)) return str
+  return str.replace(escapeMatcher, escapeReplacer)
+}
+
+function setter (obj, pointer, value) {
+  var part;
+  var hasNextPart;
+
+  if (pointer[1] === 'constructor' && pointer[2] === 'prototype') return obj
+  if (pointer[1] === '__proto__') return obj
+
+  for (var p = 1, len = pointer.length; p < len;) {
+    part = untilde(pointer[p++]);
+    hasNextPart = len > p;
+
+    if (typeof obj[part] === 'undefined') {
+      // support setting of /-
+      if (Array.isArray(obj) && part === '-') {
+        part = obj.length;
+      }
+
+      // support nested objects/array when setting values
+      if (hasNextPart) {
+        if ((pointer[p] !== '' && pointer[p] < Infinity) || pointer[p] === '-') obj[part] = [];
+        else obj[part] = {};
+      }
+    }
+
+    if (!hasNextPart) break
+    obj = obj[part];
+  }
+
+  var oldValue = obj[part];
+  if (value === undefined) delete obj[part];
+  else obj[part] = value;
+  return oldValue
+}
+
+function compilePointer (pointer) {
+  if (typeof pointer === 'string') {
+    pointer = pointer.split('/');
+    if (pointer[0] === '') return pointer
+    throw new Error('Invalid JSON pointer.')
+  } else if (Array.isArray(pointer)) {
+    return pointer
+  }
+
+  throw new Error('Invalid JSON pointer.')
+}
+
+function get (obj, pointer) {
+  if (typeof obj !== 'object') throw new Error('Invalid input object.')
+  pointer = compilePointer(pointer);
+  var len = pointer.length;
+  if (len === 1) return obj
+
+  for (var p = 1; p < len;) {
+    obj = obj[untilde(pointer[p++])];
+    if (len === p) return obj
+    if (typeof obj !== 'object') return undefined
+  }
+}
+
+function set (obj, pointer, value) {
+  if (typeof obj !== 'object') throw new Error('Invalid input object.')
+  pointer = compilePointer(pointer);
+  if (pointer.length === 0) throw new Error('Invalid JSON pointer for set.')
+  return setter(obj, pointer, value)
+}
+
+function compile (pointer) {
+  var compiled = compilePointer(pointer);
+  return {
+    get: function (object) {
+      return get(object, compiled)
+    },
+    set: function (object, value) {
+      return set(object, compiled, value)
+    }
+  }
+}
+
+var get_1 = get;
+var set_1 = set;
+var compile_1 = compile;
+
+var jsonpointer = {
+	get: get_1,
+	set: set_1,
+	compile: compile_1
+};
+
+var immutable = extend;
+
+var hasOwnProperty$2 = Object.prototype.hasOwnProperty;
+
+function extend() {
+    var target = {};
+
+    for (var i = 0; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+            if (hasOwnProperty$2.call(source, key)) {
+                target[key] = source[key];
+            }
+        }
+    }
+
+    return target
+}
+
+var isMyIpValid = createCommonjsModule(function (module) {
+var reIpv4FirstPass = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+
+var reSubnetString = /\/\d{1,3}(?=%|$)/;
+var reForwardSlash = /\//;
+var reZone = /%.*$/;
+var reBadCharacters = /([^0-9a-f:/%])/i;
+var reBadAddress = /([0-9a-f]{5,}|:{3,}|[^:]:$|^:[^:]|\/$)/i;
+
+function validate4 (input) {
+  if (!(reIpv4FirstPass.test(input))) return false
+
+  var parts = input.split('.');
+
+  if (parts.length !== 4) return false
+
+  if (parts[0][0] === '0' && parts[0].length > 1) return false
+  if (parts[1][0] === '0' && parts[1].length > 1) return false
+  if (parts[2][0] === '0' && parts[2].length > 1) return false
+  if (parts[3][0] === '0' && parts[3].length > 1) return false
+
+  var n0 = Number(parts[0]);
+  var n1 = Number(parts[1]);
+  var n2 = Number(parts[2]);
+  var n3 = Number(parts[3]);
+
+  return (n0 >= 0 && n0 < 256 && n1 >= 0 && n1 < 256 && n2 >= 0 && n2 < 256 && n3 >= 0 && n3 < 256)
+}
+
+function validate6 (input) {
+  var withoutSubnet = input.replace(reSubnetString, '');
+  var hasSubnet = (input.length !== withoutSubnet.length);
+
+  // FIXME: this should probably be an option in the future
+  if (hasSubnet) return false
+
+  if (!hasSubnet) {
+    if (reForwardSlash.test(input)) return false
+  }
+
+  var withoutZone = withoutSubnet.replace(reZone, '');
+  var lastPartSeparator = withoutZone.lastIndexOf(':');
+
+  if (lastPartSeparator === -1) return false
+
+  var lastPart = withoutZone.substring(lastPartSeparator + 1);
+  var hasV4Part = validate4(lastPart);
+  var address = (hasV4Part ? withoutZone.substring(0, lastPartSeparator + 1) + '1234:5678' : withoutZone);
+
+  if (reBadCharacters.test(address)) return false
+  if (reBadAddress.test(address)) return false
+
+  var halves = address.split('::');
+
+  if (halves.length > 2) return false
+
+  if (halves.length === 2) {
+    var first = (halves[0] === '' ? [] : halves[0].split(':'));
+    var last = (halves[1] === '' ? [] : halves[1].split(':'));
+    var remainingLength = 8 - (first.length + last.length);
+
+    if (remainingLength <= 0) return false
+  } else {
+    if (address.split(':').length !== 8) return false
+  }
+
+  return true
+}
+
+function validate (input) {
+  return validate4(input) || validate6(input)
+}
+
+module.exports = function validator (options) {
+  if (!options) options = {};
+
+  if (options.version === 4) return validate4
+  if (options.version === 6) return validate6
+  if (options.version == null) return validate
+
+  throw new Error('Unknown version: ' + options.version)
+};
+
+module.exports['__all_regexes__'] = [
+  reIpv4FirstPass,
+  reSubnetString,
+  reForwardSlash,
+  reZone,
+  reBadCharacters,
+  reBadAddress
+];
+});
+
+var formats$1 = createCommonjsModule(function (module, exports) {
+var reEmailWhitespace = /\s/;
+var reHostnameFirstPass = /^[a-zA-Z0-9.-]+$/;
+var reHostnamePart = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])$/;
+var rePhoneFirstPass = /^\+[0-9][0-9 ]{5,27}[0-9]$/;
+var rePhoneDoubleSpace = / {2}/;
+var rePhoneGlobalSpace = / /g;
+
+exports['date-time'] = /^\d{4}-(?:0[0-9]{1}|1[0-2]{1})-[0-9]{2}[tT ]\d{2}:\d{2}:\d{2}(?:\.\d+|)([zZ]|[+-]\d{2}:\d{2})$/;
+exports['date'] = /^\d{4}-(?:0[0-9]{1}|1[0-2]{1})-[0-9]{2}$/;
+exports['time'] = /^\d{2}:\d{2}:\d{2}$/;
+exports['email'] = function (input) { return (input.indexOf('@') !== -1) && (!reEmailWhitespace.test(input)) };
+exports['ip-address'] = exports['ipv4'] = isMyIpValid({ version: 4 });
+exports['ipv6'] = isMyIpValid({ version: 6 });
+exports['uri'] = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
+exports['color'] = /(#?([0-9A-Fa-f]{3,6})\b)|(aqua)|(black)|(blue)|(fuchsia)|(gray)|(green)|(lime)|(maroon)|(navy)|(olive)|(orange)|(purple)|(red)|(silver)|(teal)|(white)|(yellow)|(rgb\(\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*,\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*,\s*\b([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\b\s*\))|(rgb\(\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*,\s*(\d?\d%|100%)+\s*\))/;
+exports['hostname'] = function (input) {
+  if (!(reHostnameFirstPass.test(input))) return false
+
+  var parts = input.split('.');
+
+  for (var i = 0; i < parts.length; i++) {
+    if (!(reHostnamePart.test(parts[i]))) return false
+  }
+
+  return true
+};
+exports['alpha'] = /^[a-zA-Z]+$/;
+exports['alphanumeric'] = /^[a-zA-Z0-9]+$/;
+exports['style'] = /.:\s*[^;]/g;
+exports['phone'] = function (input) {
+  if (!(rePhoneFirstPass.test(input))) return false
+  if (rePhoneDoubleSpace.test(input)) return false
+
+  var digits = input.substring(1).replace(rePhoneGlobalSpace, '').length;
+
+  return (digits >= 7 && digits <= 15)
+};
+exports['utc-millisec'] = /^[0-9]{1,15}\.?[0-9]{0,15}$/;
+});
+
+var isMyJsonValid = createCommonjsModule(function (module) {
+var get = function(obj, additionalSchemas, ptr) {
+
+  var visit = function(sub) {
+    if (sub && sub.id === ptr) return sub
+    if (typeof sub !== 'object' || !sub) return null
+    return Object.keys(sub).reduce(function(res, k) {
+      return res || visit(sub[k])
+    }, null)
+  };
+
+  var res = visit(obj);
+  if (res) return res
+
+  ptr = ptr.replace(/^#/, '');
+  ptr = ptr.replace(/\/$/, '');
+
+  try {
+    return jsonpointer.get(obj, decodeURI(ptr))
+  } catch (err) {
+    var end = ptr.indexOf('#');
+    var other;
+    // external reference
+    if (end !== 0) {
+      // fragment doesn't exist.
+      if (end === -1) {
+        other = additionalSchemas[ptr];
+      } else {
+        var ext = ptr.slice(0, end);
+        other = additionalSchemas[ext];
+        var fragment = ptr.slice(end).replace(/^#/, '');
+        try {
+          return jsonpointer.get(other, fragment)
+        } catch (err) {}
+      }
+    } else {
+      other = additionalSchemas[ptr];
+    }
+    return other || null
+  }
+};
+
+var types = {};
+
+types.any = function() {
+  return 'true'
+};
+
+types.null = function(name) {
+  return name+' === null'
+};
+
+types.boolean = function(name) {
+  return 'typeof '+name+' === "boolean"'
+};
+
+types.array = function(name) {
+  return 'Array.isArray('+name+')'
+};
+
+types.object = function(name) {
+  return 'typeof '+name+' === "object" && '+name+' && !Array.isArray('+name+')'
+};
+
+types.number = function(name) {
+  return 'typeof '+name+' === "number" && isFinite('+name+')'
+};
+
+types.integer = function(name) {
+  return 'typeof '+name+' === "number" && (Math.floor('+name+') === '+name+' || '+name+' > 9007199254740992 || '+name+' < -9007199254740992)'
+};
+
+types.string = function(name) {
+  return 'typeof '+name+' === "string"'
+};
+
+var unique = function(array, len) {
+  len = Math.min(len === -1 ? array.length : len, array.length);
+  var list = [];
+  for (var i = 0; i < len; i++) {
+    list.push(typeof array[i] === 'object' ? JSON.stringify(array[i]) : array[i]);
+  }
+  for (var i = 1; i < list.length; i++) {
+    if (list.indexOf(list[i]) !== i) return false
+  }
+  return true
+};
+
+var isMultipleOf = function(name, multipleOf) {
+  var res;
+  var factor = ((multipleOf | 0) !== multipleOf) ? Math.pow(10, multipleOf.toString().split('.').pop().length) : 1;
+  if (factor > 1) {
+    var factorName = ((name | 0) !== name) ? Math.pow(10, name.toString().split('.').pop().length) : 1;
+    if (factorName > factor) res = true;
+    else res = Math.round(factor * name) % (factor * multipleOf);
+  }
+  else res = name % multipleOf;
+  return !res;
+};
+
+var testLimitedRegex = function (r, s, maxLength) {
+  if (maxLength > -1 && s.length > maxLength) return true
+  return r.test(s)
+};
+
+var compile = function(schema, cache, root, reporter, opts) {
+  var fmts = opts ? immutable(formats$1, opts.formats) : formats$1;
+  var scope = {unique:unique, formats:fmts, isMultipleOf:isMultipleOf, testLimitedRegex:testLimitedRegex};
+  var verbose = opts ? !!opts.verbose : false;
+  var greedy = opts && opts.greedy !== undefined ?
+    opts.greedy : false;
+
+  var syms = {};
+  var allocated = [];
+  var gensym = function(name) {
+    var res = name+(syms[name] = (syms[name] || 0)+1);
+    allocated.push(res);
+    return res
+  };
+
+  var formatName = function(field) {
+    var s = JSON.stringify(field);
+    try {
+      var pattern = /\[([^\[\]"]+)\]/;
+      while (pattern.test(s)) s = s.replace(pattern, replacer);
+      return s
+    } catch (_) {
+      return JSON.stringify(field)
+    }
+
+    function replacer (match, v) {
+      if (allocated.indexOf(v) === -1) throw new Error('Unreplaceable')
+      return '." + ' + v + ' + "'
+    }
+  };
+
+  var reversePatterns = {};
+  var patterns = function(p) {
+    if (reversePatterns[p]) return reversePatterns[p]
+    var n = gensym('pattern');
+    scope[n] = new RegExp(p);
+    reversePatterns[p] = n;
+    return n
+  };
+
+  var vars = ['i','j','k','l','m','n','o','p','q','r','s','t','u','v','x','y','z'];
+  var genloop = function() {
+    var v = vars.shift();
+    vars.push(v+v[0]);
+    allocated.push(v);
+    return v
+  };
+
+  var visit = function(name, node, reporter, filter, schemaPath) {
+    var properties = node.properties;
+    var type = node.type;
+    var tuple = false;
+
+    if (Array.isArray(node.items)) { // tuple type
+      properties = {};
+      node.items.forEach(function(item, i) {
+        properties[i] = item;
+      });
+      type = 'array';
+      tuple = true;
+    }
+
+    var indent = 0;
+    var error = function(msg, prop, value) {
+      validate('errors++');
+      if (reporter === true) {
+        validate('if (validate.errors === null) validate.errors = []');
+        if (verbose) {
+          validate(
+            'validate.errors.push({field:%s,message:%s,value:%s,type:%s,schemaPath:%s})',
+            formatName(prop || name),
+            JSON.stringify(msg),
+            value || name,
+            JSON.stringify(type),
+            JSON.stringify(schemaPath)
+          );
+        } else {
+          validate('validate.errors.push({field:%s,message:%s})', formatName(prop || name), JSON.stringify(msg));
+        }
+      }
+    };
+
+    if (node.required === true) {
+      indent++;
+      validate('if (%s === undefined) {', name);
+      error('is required');
+      validate('} else {');
+    } else {
+      indent++;
+      validate('if (%s !== undefined) {', name);
+    }
+
+    var valid = [].concat(type)
+      .map(function(t) {
+        if (t && !types.hasOwnProperty(t)) {
+          throw new Error('Unknown type: ' + t)
+        }
+
+        return types[t || 'any'](name)
+      })
+      .join(' || ') || 'true';
+
+    if (valid !== 'true') {
+      indent++;
+      validate('if (!(%s)) {', valid);
+      error('is the wrong type');
+      validate('} else {');
+    }
+
+    if (tuple) {
+      if (node.additionalItems === false) {
+        validate('if (%s.length > %d) {', name, node.items.length);
+        error('has additional items');
+        validate('}');
+      } else if (node.additionalItems) {
+        var i = genloop();
+        validate('for (var %s = %d; %s < %s.length; %s++) {', i, node.items.length, i, name, i);
+        visit(name+'['+i+']', node.additionalItems, reporter, filter, schemaPath.concat('additionalItems'));
+        validate('}');
+      }
+    }
+
+    if (node.format && fmts[node.format]) {
+      if (type !== 'string' && formats$1[node.format]) validate('if (%s) {', types.string(name));
+      var n = gensym('format');
+      scope[n] = fmts[node.format];
+
+      if (typeof scope[n] === 'function') validate('if (!%s(%s)) {', n, name);
+      else validate('if (!testLimitedRegex(%s, %s, %d)) {', n, name, typeof node.maxLength === 'undefined' ? -1 : node.maxLength);
+      error('must be '+node.format+' format');
+      validate('}');
+      if (type !== 'string' && formats$1[node.format]) validate('}');
+    }
+
+    if (Array.isArray(node.required)) {
+      var n = gensym('missing');
+      validate('var %s = 0', n);
+      var checkRequired = function (req) {
+        var prop = generateObjectProperty(name, req);
+        validate('if (%s === undefined) {', prop);
+        error('is required', prop);
+        validate('%s++', n);
+        validate('}');
+      };
+      validate('if ((%s)) {', type !== 'object' ? types.object(name) : 'true');
+      node.required.map(checkRequired);
+      validate('}');
+      if (!greedy) {
+        validate('if (%s === 0) {', n);
+        indent++;
+      }
+    }
+
+    if (node.uniqueItems) {
+      if (type !== 'array') validate('if (%s) {', types.array(name));
+      validate('if (!(unique(%s, %d))) {', name, node.maxItems || -1);
+      error('must be unique');
+      validate('}');
+      if (type !== 'array') validate('}');
+    }
+
+    if (node.enum) {
+      var complex = node.enum.some(function(e) {
+        return typeof e === 'object'
+      });
+
+      var compare = complex ?
+        function(e) {
+          return 'JSON.stringify('+name+')'+' !== JSON.stringify('+JSON.stringify(e)+')'
+        } :
+        function(e) {
+          return name+' !== '+JSON.stringify(e)
+        };
+
+      validate('if (%s) {', node.enum.map(compare).join(' && ') || 'false');
+      error('must be an enum value');
+      validate('}');
+    }
+
+    if (node.dependencies) {
+      if (type !== 'object') validate('if (%s) {', types.object(name));
+
+      Object.keys(node.dependencies).forEach(function(key) {
+        var deps = node.dependencies[key];
+        if (typeof deps === 'string') deps = [deps];
+
+        var exists = function(k) {
+          return generateObjectProperty(name, k) + ' !== undefined'
+        };
+
+        if (Array.isArray(deps)) {
+          validate('if (%s !== undefined && !(%s)) {', generateObjectProperty(name, key), deps.map(exists).join(' && ') || 'true');
+          error('dependencies not set');
+          validate('}');
+        }
+        if (typeof deps === 'object') {
+          validate('if (%s !== undefined) {', generateObjectProperty(name, key));
+          visit(name, deps, reporter, filter, schemaPath.concat(['dependencies', key]));
+          validate('}');
+        }
+      });
+
+      if (type !== 'object') validate('}');
+    }
+
+    if (node.additionalProperties || node.additionalProperties === false) {
+      if (type !== 'object') validate('if (%s) {', types.object(name));
+
+      var i = genloop();
+      var keys = gensym('keys');
+
+      var toCompare = function(p) {
+        return keys+'['+i+'] !== '+JSON.stringify(p)
+      };
+
+      var toTest = function(p) {
+        return '!'+patterns(p)+'.test('+keys+'['+i+'])'
+      };
+
+      var additionalProp = Object.keys(properties || {}).map(toCompare)
+        .concat(Object.keys(node.patternProperties || {}).map(toTest))
+        .join(' && ') || 'true';
+
+      validate('var %s = Object.keys(%s)', keys, name)
+        ('for (var %s = 0; %s < %s.length; %s++) {', i, i, keys, i)
+          ('if (%s) {', additionalProp);
+
+      if (node.additionalProperties === false) {
+        if (filter) validate('delete %s', name+'['+keys+'['+i+']]');
+        error('has additional properties', null, JSON.stringify(name+'.') + ' + ' + keys + '['+i+']');
+      } else {
+        visit(name+'['+keys+'['+i+']]', node.additionalProperties, reporter, filter, schemaPath.concat(['additionalProperties']));
+      }
+
+      validate
+          ('}')
+        ('}');
+
+      if (type !== 'object') validate('}');
+    }
+
+    if (node.$ref) {
+      var sub = get(root, opts && opts.schemas || {}, node.$ref);
+      if (sub) {
+        var fn = cache[node.$ref];
+        if (!fn) {
+          cache[node.$ref] = function proxy(data) {
+            return fn(data)
+          };
+          fn = compile(sub, cache, root, false, opts);
+        }
+        var n = gensym('ref');
+        scope[n] = fn;
+        validate('if (!(%s(%s))) {', n, name);
+        error('referenced schema does not match');
+        validate('}');
+      }
+    }
+
+    if (node.not) {
+      var prev = gensym('prev');
+      validate('var %s = errors', prev);
+      visit(name, node.not, false, filter, schemaPath.concat('not'));
+      validate('if (%s === errors) {', prev);
+      error('negative schema matches');
+      validate('} else {')
+        ('errors = %s', prev)
+      ('}');
+    }
+
+    if (node.items && !tuple) {
+      if (type !== 'array') validate('if (%s) {', types.array(name));
+
+      var i = genloop();
+      validate('for (var %s = 0; %s < %s.length; %s++) {', i, i, name, i);
+      visit(name+'['+i+']', node.items, reporter, filter, schemaPath.concat('items'));
+      validate('}');
+
+      if (type !== 'array') validate('}');
+    }
+
+    if (node.patternProperties) {
+      if (type !== 'object') validate('if (%s) {', types.object(name));
+      var keys = gensym('keys');
+      var i = genloop();
+      validate
+        ('var %s = Object.keys(%s)', keys, name)
+        ('for (var %s = 0; %s < %s.length; %s++) {', i, i, keys, i);
+
+      Object.keys(node.patternProperties).forEach(function(key) {
+        var p = patterns(key);
+        validate('if (%s.test(%s)) {', p, keys+'['+i+']');
+        visit(name+'['+keys+'['+i+']]', node.patternProperties[key], reporter, filter, schemaPath.concat(['patternProperties', key]));
+        validate('}');
+      });
+
+      validate('}');
+      if (type !== 'object') validate('}');
+    }
+
+    if (node.pattern) {
+      var p = patterns(node.pattern);
+      if (type !== 'string') validate('if (%s) {', types.string(name));
+      validate('if (!(testLimitedRegex(%s, %s, %d))) {', p, name, typeof node.maxLength === 'undefined' ? -1 : node.maxLength);
+      error('pattern mismatch');
+      validate('}');
+      if (type !== 'string') validate('}');
+    }
+
+    if (node.allOf) {
+      node.allOf.forEach(function(sch, key) {
+        visit(name, sch, reporter, filter, schemaPath.concat(['allOf', key]));
+      });
+    }
+
+    if (node.anyOf && node.anyOf.length) {
+      var prev = gensym('prev');
+
+      node.anyOf.forEach(function(sch, i) {
+        if (i === 0) {
+          validate('var %s = errors', prev);
+        } else {
+          validate('if (errors !== %s) {', prev)
+            ('errors = %s', prev);
+        }
+        visit(name, sch, false, false, schemaPath);
+      });
+      node.anyOf.forEach(function(sch, i) {
+        if (i) validate('}');
+      });
+      validate('if (%s !== errors) {', prev);
+      error('no schemas match');
+      validate('}');
+    }
+
+    if (node.oneOf && node.oneOf.length) {
+      var prev = gensym('prev');
+      var passes = gensym('passes');
+
+      validate
+        ('var %s = errors', prev)
+        ('var %s = 0', passes);
+
+      node.oneOf.forEach(function(sch, i) {
+        visit(name, sch, false, false, schemaPath);
+        validate('if (%s === errors) {', prev)
+          ('%s++', passes)
+        ('} else {')
+          ('errors = %s', prev)
+        ('}');
+      });
+
+      validate('if (%s !== 1) {', passes);
+      error('no (or more than one) schemas match');
+      validate('}');
+    }
+
+    if (node.multipleOf !== undefined) {
+      if (type !== 'number' && type !== 'integer') validate('if (%s) {', types.number(name));
+
+      validate('if (!isMultipleOf(%s, %d)) {', name, node.multipleOf);
+
+      error('has a remainder');
+      validate('}');
+
+      if (type !== 'number' && type !== 'integer') validate('}');
+    }
+
+    if (node.maxProperties !== undefined) {
+      if (type !== 'object') validate('if (%s) {', types.object(name));
+
+      validate('if (Object.keys(%s).length > %d) {', name, node.maxProperties);
+      error('has more properties than allowed');
+      validate('}');
+
+      if (type !== 'object') validate('}');
+    }
+
+    if (node.minProperties !== undefined) {
+      if (type !== 'object') validate('if (%s) {', types.object(name));
+
+      validate('if (Object.keys(%s).length < %d) {', name, node.minProperties);
+      error('has less properties than allowed');
+      validate('}');
+
+      if (type !== 'object') validate('}');
+    }
+
+    if (node.maxItems !== undefined) {
+      if (type !== 'array') validate('if (%s) {', types.array(name));
+
+      validate('if (%s.length > %d) {', name, node.maxItems);
+      error('has more items than allowed');
+      validate('}');
+
+      if (type !== 'array') validate('}');
+    }
+
+    if (node.minItems !== undefined) {
+      if (type !== 'array') validate('if (%s) {', types.array(name));
+
+      validate('if (%s.length < %d) {', name, node.minItems);
+      error('has less items than allowed');
+      validate('}');
+
+      if (type !== 'array') validate('}');
+    }
+
+    if (node.maxLength !== undefined) {
+      if (type !== 'string') validate('if (%s) {', types.string(name));
+
+      validate('if (%s.length > %d) {', name, node.maxLength);
+      error('has longer length than allowed');
+      validate('}');
+
+      if (type !== 'string') validate('}');
+    }
+
+    if (node.minLength !== undefined) {
+      if (type !== 'string') validate('if (%s) {', types.string(name));
+
+      validate('if (%s.length < %d) {', name, node.minLength);
+      error('has less length than allowed');
+      validate('}');
+
+      if (type !== 'string') validate('}');
+    }
+
+    if (node.minimum !== undefined) {
+      if (type !== 'number' && type !== 'integer') validate('if (%s) {', types.number(name));
+
+      validate('if (%s %s %d) {', name, node.exclusiveMinimum ? '<=' : '<', node.minimum);
+      error('is less than minimum');
+      validate('}');
+
+      if (type !== 'number' && type !== 'integer') validate('}');
+    }
+
+    if (node.maximum !== undefined) {
+      if (type !== 'number' && type !== 'integer') validate('if (%s) {', types.number(name));
+
+      validate('if (%s %s %d) {', name, node.exclusiveMaximum ? '>=' : '>', node.maximum);
+      error('is more than maximum');
+      validate('}');
+
+      if (type !== 'number' && type !== 'integer') validate('}');
+    }
+
+    if (properties) {
+      Object.keys(properties).forEach(function(p) {
+        if (Array.isArray(type) && type.indexOf('null') !== -1) validate('if (%s !== null) {', name);
+
+        visit(
+          generateObjectProperty(name, p),
+          properties[p],
+          reporter,
+          filter,
+          schemaPath.concat(tuple ? p : ['properties', p])
+        );
+
+        if (Array.isArray(type) && type.indexOf('null') !== -1) validate('}');
+      });
+    }
+
+    while (indent--) validate('}');
+  };
+
+  var validate = generateFunction
+    ('function validate(data) {')
+      // Since undefined is not a valid JSON value, we coerce to null and other checks will catch this
+      ('if (data === undefined) data = null')
+      ('validate.errors = null')
+      ('var errors = 0');
+
+  visit('data', schema, reporter, opts && opts.filter, []);
+
+  validate
+      ('return errors === 0')
+    ('}');
+
+  validate = validate.toFunction(scope);
+  validate.errors = null;
+
+  if (Object.defineProperty) {
+    Object.defineProperty(validate, 'error', {
+      get: function() {
+        if (!validate.errors) return ''
+        return validate.errors.map(function(err) {
+          return err.field + ' ' + err.message;
+        }).join('\n')
+      }
+    });
+  }
+
+  validate.toJSON = function() {
+    return schema
+  };
+
+  return validate
+};
+
+module.exports = function(schema, opts) {
+  if (typeof schema === 'string') schema = JSON.parse(schema);
+  return compile(schema, {}, schema, true, opts)
+};
+
+module.exports.filter = function(schema, opts) {
+  var validate = module.exports(schema, immutable(opts, {filter: true}));
+  return function(sch) {
+    validate(sch);
+    return sch
+  }
+};
+});
+
+/**
+ * this plugin validates documents before they can be inserted into the RxCollection.
+ * It's using is-my-json-valid as jsonschema-validator
+ * @link https://github.com/mafintosh/is-my-json-valid
+ */
+
+/**
+ * cache the validators by the schema-hash
+ * so we can reuse them when multiple collections have the same schema
+ */
+var VALIDATOR_CACHE = new Map();
+/**
+ * returns the parsed validator from is-my-json-valid
+ */
+
+function _getValidator(rxSchema) {
+  var hash = rxSchema.hash;
+
+  if (!VALIDATOR_CACHE.has(hash)) {
+    var validator = isMyJsonValid(rxSchema.jsonSchema);
+    VALIDATOR_CACHE.set(hash, validator);
+  }
+
+  return VALIDATOR_CACHE.get(hash);
+}
+/**
+ * validates the given object against the schema
+ * @param  schemaPath if given, the sub-schema will be validated
+ * @throws {RxError} if not valid
+ */
+
+
+var validate$1 = function validate(obj) {
+  var useValidator = _getValidator(this);
+
+  var isValid = useValidator(obj);
+  if (isValid) return obj;else {
+    throw newRxError('VD2', {
+      errors: useValidator.errors,
+      obj: obj,
+      schema: this.jsonSchema
+    });
+  }
+};
+
+var runAfterSchemaCreated = function runAfterSchemaCreated(rxSchema) {
+  // pre-generate the isMyJsonValid-validator from the schema
+  requestIdleCallbackIfAvailable(function () {
+    _getValidator(rxSchema);
+  });
+};
+
+var rxdb = true;
+var prototypes = {
+  /**
+   * set validate-function for the RxSchema.prototype
+   * @param prototype of RxSchema
+   */
+  RxSchema: function RxSchema(proto) {
+    proto._getValidator = _getValidator;
+    proto.validate = validate$1;
+  }
+};
+var hooks = {
+  createRxSchema: runAfterSchemaCreated
+};
+var RxDBValidatePlugin = {
+  name: 'validate',
+  rxdb: rxdb,
+  prototypes: prototypes,
+  hooks: hooks
+};
+
+/**
+ * @link https://de.wikipedia.org/wiki/Base58
+ * this does not start with the numbers to generate valid variable-names
+ */
+var base58Chars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789';
+var base58Length = base58Chars.length;
+/**
+ * transform a number to a string by using only base58 chars
+ * @link https://github.com/matthewmueller/number-to-letter/blob/master/index.js
+ */
+function numberToLetter(nr) {
+    var digits = [];
+    do {
+        var v = nr % base58Length;
+        digits.push(v);
+        nr = Math.floor(nr / base58Length);
+    } while (nr-- > 0);
+    return digits
+        .reverse()
+        .map(function (d) { return base58Chars[d]; })
+        .join('');
+}
+var alphabeticCompare = function (a, b) {
+    if (a < b) {
+        return -1;
+    }
+    if (b > a) {
+        return 1;
+    }
+    return 0;
+};
+
+/**
+ * Compressed property-names begin with the compression-flag
+ * it indicates that the name is compressed.
+ * If an object is compressed, where one attribute starts with the
+ * compression-flag, an error will be thrown.
+ */
+var DEFAULT_COMPRESSION_FLAG = '|';
+function createCompressionTable(schema, compressionFlag, ignoreProperties) {
+    if (compressionFlag === void 0) { compressionFlag = DEFAULT_COMPRESSION_FLAG; }
+    if (ignoreProperties === void 0) { ignoreProperties = []; }
+    var table = compressedToUncompressedTable(schema, ignoreProperties);
+    var compressionTable = {
+        compressedToUncompressed: table,
+        uncompressedToCompressed: uncompressedToCompressedTable(table, compressionFlag, ignoreProperties),
+        compressionFlag: compressionFlag
+    };
+    return compressionTable;
+}
+function getPropertiesOfSchema(schema) {
+    var ret = new Set();
+    function addSchema(innerSchema) {
+        var keys = getPropertiesOfSchema(innerSchema);
+        Array.from(keys).forEach(function (k) { return ret.add(k); });
+    }
+    if (schema.properties) {
+        Object.keys(schema.properties).forEach(function (property) {
+            ret.add(property);
+            if (!schema.properties)
+                return;
+            var deepSchema = schema.properties[property];
+            addSchema(deepSchema);
+        });
+    }
+    if (schema.items) {
+        if (Array.isArray(schema.items)) {
+            schema.items.forEach(function (subSchema) {
+                addSchema(subSchema);
+            });
+        }
+        else {
+            addSchema(schema.items);
+        }
+    }
+    return ret;
+}
+function compressedToUncompressedTable(schema, ignoreProperties) {
+    var attributes = getPropertiesOfSchema(schema);
+    var schemaKeysSorted = Array.from(attributes).sort(alphabeticCompare);
+    var table = new Map();
+    var lastKeyNumber = 0;
+    schemaKeysSorted
+        .filter(function (k) { return k.length > 3 && !ignoreProperties.includes(k); })
+        .forEach(function (k) {
+        var compressKey = numberToLetter(lastKeyNumber);
+        lastKeyNumber++;
+        table.set(k, compressKey);
+    });
+    return table;
+}
+function uncompressedToCompressedTable(table, compressionFlag, ignoreProperties) {
+    var reverseTable = new Map();
+    Array.from(table.keys()).forEach(function (key) {
+        var value = table.get(key);
+        if (!ignoreProperties.includes(value)) {
+            reverseTable.set(compressionFlag + value, key);
+        }
+    });
+    return reverseTable;
+}
+
+var __read$1 = (undefined && undefined.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+/**
+ * compress the keys of an object via the compression-table
+ * @recursive
+ */
+function compressObject(table, obj) {
+    if (typeof obj !== 'object' || obj === null)
+        return obj;
+    else if (Array.isArray(obj)) {
+        // array
+        return obj
+            .map(function (item) { return compressObject(table, item); });
+    }
+    else {
+        // object
+        var ret_1 = {};
+        Object.keys(obj).forEach(function (key) {
+            var compressedKey = compressedAndFlaggedKey(table, key);
+            var value = compressObject(table, obj[key]);
+            ret_1[compressedKey] = value;
+        });
+        return ret_1;
+    }
+}
+/**
+ * transform an object-path
+ * into its compressed version
+ * e.g:
+ * - input: 'names[1].firstName'
+ * - ouput: '|a[1].|b'
+ */
+function compressedPath(table, path) {
+    var splitted = path.split('.');
+    return splitted
+        .map(function (subKey) {
+        var compressedKey = compressedAndFlaggedKey(table, subKey);
+        return compressedKey;
+    }).join('.');
+}
+function throwErrorIfCompressionFlagUsed(table, key) {
+    if (key.startsWith(table.compressionFlag)) {
+        throw new Error('cannot compress objects that start with the compression-flag: ' +
+            table.compressionFlag + ' on key ' + key);
+    }
+}
+function compressedAndFlaggedKey(table, key) {
+    throwErrorIfCompressionFlagUsed(table, key);
+    /**
+     * keys could be array-accessors like myArray[4]
+     * we have to split and readd the squared brackets value
+     */
+    var splitSquaredBrackets = key.split('[');
+    key = splitSquaredBrackets.shift();
+    var compressedKey = table.compressedToUncompressed.get(key);
+    if (!compressedKey) {
+        return key;
+    }
+    else {
+        var readdSquared = splitSquaredBrackets.length ? '[' + splitSquaredBrackets.join('[') : '';
+        return table.compressionFlag + compressedKey + readdSquared;
+    }
+}
+/**
+ * compress a mango-query
+ * so that it can be used to find documents
+ * in a database where all documents are compressed
+ */
+function compressQuery(table, query) {
+    var ret = {
+        selector: compressQuerySelector(table, query.selector)
+    };
+    if (query.skip)
+        ret.skip = query.skip;
+    if (query.limit)
+        ret.limit = query.limit;
+    if (query.fields) {
+        ret.fields = query.fields
+            .map(function (field) { return compressedPath(table, field); });
+    }
+    if (query.sort) {
+        if (Array.isArray(query.sort)) {
+            ret.sort = query.sort.map(function (item) {
+                if (typeof item === 'string') {
+                    var hasMinus = item.startsWith('-');
+                    if (hasMinus) {
+                        item = item.substr(1);
+                    }
+                    var compressedField = compressedPath(table, item);
+                    if (hasMinus) {
+                        compressedField = '-' + compressedField;
+                    }
+                    return compressedField;
+                }
+                else {
+                    return compressQuerySelector(table, item);
+                }
+            });
+        }
+        else {
+            var compressedSort_1 = {};
+            Object.entries(query.sort).forEach(function (_a) {
+                var _b = __read$1(_a, 2), key = _b[0], direction = _b[1];
+                var compressedField = compressedPath(table, key);
+                compressedSort_1[compressedField] = direction;
+            });
+            ret.sort = compressedSort_1;
+        }
+    }
+    return ret;
+}
+/**
+ * @recursive
+ */
+function compressQuerySelector(table, selector) {
+    if (Array.isArray(selector)) {
+        return selector.map(function (item) { return compressQuerySelector(table, item); });
+    }
+    else if (selector instanceof RegExp) {
+        return selector;
+    }
+    else if (typeof selector === 'object' && selector !== null) {
+        var ret_2 = {};
+        Object.keys(selector).forEach(function (key) {
+            var useKey;
+            if (key.startsWith('$')) {
+                // operator
+                useKey = key;
+            }
+            else {
+                // property path
+                useKey = compressedPath(table, key);
+            }
+            ret_2[useKey] = compressQuerySelector(table, selector[key]);
+        });
+        return ret_2;
+    }
+    else {
+        return selector;
+    }
+}
+
+function decompressObject(table, obj) {
+    if (typeof obj !== 'object' || obj === null)
+        return obj;
+    else if (Array.isArray(obj)) {
+        // array
+        return obj.map(function (item) { return decompressObject(table, item); });
+    }
+    else {
+        // object
+        var ret_1 = {};
+        Object.keys(obj).forEach(function (key) {
+            var decompressed = decompressedKey(table, key);
+            var value = decompressObject(table, obj[key]);
+            ret_1[decompressed] = value;
+        });
+        return ret_1;
+    }
+}
+function decompressedKey(table, key) {
+    /**
+        * keys could be array-accessors like myArray[4]
+        * we have to split and readd the squared brackets value
+        */
+    var splitSquaredBrackets = key.split('[');
+    key = splitSquaredBrackets.shift();
+    var decompressed = table.uncompressedToCompressed.get(key);
+    if (!decompressed) {
+        return key;
+    }
+    else {
+        var readdSquared = splitSquaredBrackets.length ? '[' + splitSquaredBrackets.join('[') : '';
+        return decompressed + readdSquared;
+    }
+}
+
+var KeyCompressor = /*#__PURE__*/function () {
+  function KeyCompressor(schema) {
+    this.schema = schema;
+  }
+  /**
+   * @overwrites itself on the first call
+   */
+
+
+  var _proto = KeyCompressor.prototype;
+
+  /**
+   * compress the keys of an object via the compression-table
+   */
+  _proto.compress = function compress(obj) {
+    if (!this.schema.doKeyCompression()) {
+      return obj;
+    } else {
+      return compressObject(this.table, obj);
+    }
+  };
+
+  _proto.decompress = function decompress(compressedObject) {
+    if (!this.schema.doKeyCompression()) {
+      return compressedObject;
+    } else {
+      return decompressObject(this.table, compressedObject);
+    }
+  }
+  /**
+   * get the full compressed-key-path of a object-path
+   */
+  ;
+
+  _proto.transformKey = function transformKey(objectPath) {
+    return compressedPath(this.table, objectPath); // > '|a.|b'
+  }
+  /**
+   * replace the keys of a query-obj with the compressed keys
+   * @return compressed queryJSON
+   */
+  ;
+
+  _proto.compressQuery = function compressQuery$1(queryJSON) {
+    if (!this.schema.doKeyCompression()) {
+      return queryJSON;
+    } else {
+      return compressQuery(this.table, queryJSON);
+    }
+  };
+
+  createClass(KeyCompressor, [{
+    key: "table",
+    get: function get() {
+      var jsonSchema = this.schema.normalized;
+      var table = createCompressionTable(jsonSchema, DEFAULT_COMPRESSION_FLAG, [this.schema.primaryPath, '_rev', '_attachments']);
+      return overwriteGetterForCaching(this, 'table', table);
+    }
+  }]);
+
+  return KeyCompressor;
+}();
+function create$1(schema) {
+  return new KeyCompressor(schema);
+}
+var rxdb$1 = true;
+var prototypes$1 = {};
+var overwritable$1 = {
+  createKeyCompressor: create$1
+};
+var RxDBKeyCompressionPlugin = {
+  name: 'key-compression',
+  rxdb: rxdb$1,
+  prototypes: prototypes$1,
+  overwritable: overwritable$1
+};
+
+/**
+ * The DataMigrator handles the documents from collections with older schemas
+ * and transforms/saves them into the newest collection
+ */
+var DataMigrator = /*#__PURE__*/function () {
+  function DataMigrator(newestCollection, migrationStrategies) {
+    this._migrated = false;
+    this.newestCollection = newestCollection;
+    this.migrationStrategies = migrationStrategies;
+    this.currentSchema = newestCollection.schema;
+    this.database = newestCollection.database;
+    this.name = newestCollection.name;
+  }
+
+  var _proto = DataMigrator.prototype;
+
+  _proto.migrate = function migrate() {
+    var _this = this;
+
+    var batchSize = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
+    if (this._migrated) throw newRxError('DM1');
+    this._migrated = true;
+    var state = {
+      done: false,
+      // true if finished
+      total: 0,
+      // will be the doc-count
+      handled: 0,
+      // amount of handled docs
+      success: 0,
+      // handled docs which successed
+      deleted: 0,
+      // handled docs which got deleted
+      percent: 0 // percentage
+
+    };
+    var observer = new Subject();
+    /**
+     * TODO this is a side-effect which might throw
+     * We did this because it is not possible to create new Observer(async(...))
+     * @link https://github.com/ReactiveX/rxjs/issues/4074
+     */
+
+    (function () {
+      var oldCols;
+      return _getOldCollections(_this).then(function (ret) {
+        oldCols = ret;
+        var countAll = Promise.all(oldCols.map(function (oldCol) {
+          return countAllUndeleted(oldCol.pouchdb);
+        }));
+        return countAll;
+      }).then(function (countAll) {
+        var totalCount = countAll.reduce(function (cur, prev) {
+          return prev = cur + prev;
+        }, 0);
+        state.total = totalCount;
+        observer.next(flatClone(state));
+        var currentCol = oldCols.shift();
+        var currentPromise = Promise.resolve();
+
+        var _loop = function _loop() {
+          var migrationState$ = migrateOldCollection(currentCol, batchSize);
+          currentPromise = currentPromise.then(function () {
+            return new Promise(function (res) {
+              var sub = migrationState$.subscribe(function (subState) {
+                state.handled++;
+                state[subState.type] = state[subState.type] + 1;
+                state.percent = Math.round(state.handled / state.total * 100);
+                observer.next(flatClone(state));
+              }, function (e) {
+                sub.unsubscribe();
+                observer.error(e);
+              }, function () {
+                sub.unsubscribe();
+                res();
+              });
+            });
+          });
+          currentCol = oldCols.shift();
+        };
+
+        while (currentCol) {
+          _loop();
+        }
+
+        return currentPromise;
+      }).then(function () {
+        state.done = true;
+        state.percent = 100;
+        observer.next(flatClone(state));
+        observer.complete();
+      });
+    })();
+
+    return observer.asObservable();
+  };
+
+  _proto.migratePromise = function migratePromise(batchSize) {
+    var _this2 = this;
+
+    if (!this._migratePromise) {
+      this._migratePromise = mustMigrate(this).then(function (must) {
+        if (!must) return Promise.resolve(false);else return new Promise(function (res, rej) {
+          var state$ = _this2.migrate(batchSize);
+
+          state$.subscribe(null, rej, res);
+        });
+      });
+    }
+
+    return this._migratePromise;
+  };
+
+  return DataMigrator;
+}();
+function createOldCollection(version, schemaObj, dataMigrator) {
+  var database = dataMigrator.newestCollection.database;
+  var schema = createRxSchema(schemaObj, false);
+  var ret = {
+    version: version,
+    dataMigrator: dataMigrator,
+    newestCollection: dataMigrator.newestCollection,
+    database: database,
+    schema: createRxSchema(schemaObj, false),
+    pouchdb: database._spawnPouchDB(dataMigrator.newestCollection.name, version, dataMigrator.newestCollection.pouchSettings),
+    _crypter: createCrypter(database.password, schema)
+  };
+
+  if (schema.doKeyCompression()) {
+    ret._keyCompressor = overwritable.createKeyCompressor(schema);
+  }
+
+  return ret;
+}
+/**
+ * get an array with OldCollection-instances from all existing old pouchdb-instance
+ */
+
+function _getOldCollections(dataMigrator) {
+  return Promise.all(getPreviousVersions(dataMigrator.currentSchema.jsonSchema).map(function (v) {
+    return dataMigrator.database.internalStore.get(dataMigrator.name + '-' + v);
+  }).map(function (fun) {
+    return fun["catch"](function () {
+      return null;
+    });
+  }) // auto-catch so Promise.all continues
+  ).then(function (oldColDocs) {
+    return oldColDocs.filter(function (colDoc) {
+      return colDoc !== null;
+    }).map(function (colDoc) {
+      return createOldCollection(colDoc.schema.version, colDoc.schema, dataMigrator);
+    });
+  });
+}
+/**
+ * returns true if a migration is needed
+ */
+
+function mustMigrate(dataMigrator) {
+  if (dataMigrator.currentSchema.version === 0) {
+    return Promise.resolve(false);
+  }
+
+  return _getOldCollections(dataMigrator).then(function (oldCols) {
+    if (oldCols.length === 0) return false;else return true;
+  });
+}
+function createDataMigrator(newestCollection, migrationStrategies) {
+  return new DataMigrator(newestCollection, migrationStrategies);
+}
+function _runStrategyIfNotNull(oldCollection, version, docOrNull) {
+  if (docOrNull === null) {
+    return Promise.resolve(null);
+  } else {
+    var ret = oldCollection.dataMigrator.migrationStrategies[version](docOrNull);
+    var retPromise = toPromise(ret);
+    return retPromise;
+  }
+}
+function getBatchOfOldCollection(oldCollection, batchSize) {
+  return getBatch(oldCollection.pouchdb, batchSize).then(function (docs) {
+    return docs.map(function (doc) {
+      return _handleFromPouch(oldCollection, doc);
+    });
+  });
+}
+/**
+ * runs the doc-data through all following migrationStrategies
+ * so it will match the newest schema.
+ * @throws Error if final doc does not match final schema or migrationStrategy crashes
+ * @return final object or null if migrationStrategy deleted it
+ */
+
+function migrateDocumentData(oldCollection, docData) {
+  docData = clone(docData);
+  var nextVersion = oldCollection.version + 1; // run the document throught migrationStrategies
+
+  var currentPromise = Promise.resolve(docData);
+
+  var _loop2 = function _loop2() {
+    var version = nextVersion;
+    currentPromise = currentPromise.then(function (docOrNull) {
+      return _runStrategyIfNotNull(oldCollection, version, docOrNull);
+    });
+    nextVersion++;
+  };
+
+  while (nextVersion <= oldCollection.newestCollection.schema.version) {
+    _loop2();
+  }
+
+  return currentPromise.then(function (doc) {
+    if (doc === null) return Promise.resolve(null); // check final schema
+
+    try {
+      oldCollection.newestCollection.schema.validate(doc);
+    } catch (e) {
+      throw newRxError('DM2', {
+        fromVersion: oldCollection.version,
+        toVersion: oldCollection.newestCollection.schema.version,
+        finalDoc: doc
+      });
+    }
+
+    return doc;
+  });
+}
+/**
+ * transform docdata and save to new collection
+ * @return status-action with status and migrated document
+ */
+
+function _migrateDocument(oldCollection, doc) {
+  var action = {
+    res: null,
+    type: '',
+    migrated: null,
+    doc: doc,
+    oldCollection: oldCollection,
+    newestCollection: oldCollection.newestCollection
+  };
+  return migrateDocumentData(oldCollection, doc).then(function (migrated) {
+    action.migrated = migrated;
+
+    if (migrated) {
+      runPluginHooks('preMigrateDocument', action); // save to newest collection
+
+      delete migrated._rev;
+      return oldCollection.newestCollection._pouchPut(migrated, true).then(function (res) {
+        action.res = res;
+        action.type = 'success';
+        return runAsyncPluginHooks('postMigrateDocument', action);
+      });
+    } else action.type = 'deleted';
+  }).then(function () {
+    // remove from old collection
+    return oldCollection.pouchdb.remove(_handleToPouch(oldCollection, doc))["catch"](function () {});
+  }).then(function () {
+    return action;
+  });
+}
+/**
+ * deletes this.pouchdb and removes it from the database.collectionsCollection
+ */
+
+function deleteOldCollection(oldCollection) {
+  return oldCollection.pouchdb.destroy().then(function () {
+    return oldCollection.database.removeCollectionDoc(oldCollection.dataMigrator.name, oldCollection.schema);
+  });
+}
+/**
+ * runs the migration on all documents and deletes the pouchdb afterwards
+ */
+
+function migrateOldCollection(oldCollection) {
+  var batchSize = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+
+  if (oldCollection._migrate) {
+    // already running
+    throw newRxError('DM3');
+  }
+
+  oldCollection._migrate = true;
+  var observer = new Subject();
+  /**
+   * TODO this is a side-effect which might throw
+   * @see DataMigrator.migrate()
+   */
+
+  (function () {
+    var error;
+
+    var allBatchesDone = function allBatchesDone() {
+      // remove this oldCollection
+      return deleteOldCollection(oldCollection).then(function () {
+        return observer.complete();
+      });
+    };
+
+    var handleOneBatch = function handleOneBatch() {
+      return getBatchOfOldCollection(oldCollection, batchSize).then(function (batch) {
+        if (batch.length === 0) {
+          allBatchesDone();
+          return false;
+        } else {
+          return Promise.all(batch.map(function (doc) {
+            return _migrateDocument(oldCollection, doc).then(function (action) {
+              return observer.next(action);
+            });
+          }))["catch"](function (e) {
+            return error = e;
+          }).then(function () {
+            return true;
+          });
+        }
+      }).then(function (next) {
+        if (!next) return;
+        if (error) observer.error(error);else handleOneBatch();
+      });
+    };
+
+    handleOneBatch();
+  })();
+
+  return observer.asObservable();
+}
+
+var DATA_MIGRATOR_BY_COLLECTION = new WeakMap();
+var RxDBMigrationPlugin = {
+  name: 'migration',
+  rxdb: true,
+  prototypes: {
+    RxCollection: function RxCollection(proto) {
+      proto.getDataMigrator = function () {
+        if (!DATA_MIGRATOR_BY_COLLECTION.has(this)) {
+          DATA_MIGRATOR_BY_COLLECTION.set(this, createDataMigrator(this.asRxCollection, this.migrationStrategies));
+        }
+
+        return DATA_MIGRATOR_BY_COLLECTION.get(this);
+      };
+
+      proto.migrationNeeded = function () {
+        return mustMigrate(this.getDataMigrator());
+      };
+    }
+  }
+}; // used in tests
+
+/**
+ * this plugin adds the leader-election-capabilities to rxdb
+ */
+var LEADER_ELECTORS_OF_DB = new WeakMap();
+var LeaderElector = /*#__PURE__*/function () {
+  function LeaderElector(database) {
+    this.destroyed = false;
+    this.isLeader = false;
+    this.isDead = false;
+    this.database = database;
+    this.elector = es$1.createLeaderElection(database.broadcastChannel);
+  }
+
+  var _proto = LeaderElector.prototype;
+
+  _proto.die = function die() {
+    return this.elector.die();
+  };
+
+  _proto.waitForLeadership = function waitForLeadership() {
+    var _this = this;
+
+    return this.elector.awaitLeadership().then(function () {
+      _this.isLeader = true;
+      return true;
+    });
+  };
+
+  _proto.destroy = function destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.isDead = true;
+    return this.die();
+  };
+
+  return LeaderElector;
+}();
+function getForDatabase() {
+  if (!LEADER_ELECTORS_OF_DB.has(this)) {
+    LEADER_ELECTORS_OF_DB.set(this, new LeaderElector(this));
+  }
+
+  return LEADER_ELECTORS_OF_DB.get(this);
+}
+function isLeader() {
+  if (!this.multiInstance) {
+    return true;
+  }
+
+  return this.leaderElector().isLeader;
+}
+function waitForLeadership() {
+  if (!this.multiInstance) {
+    return Promise.resolve(true);
+  } else {
+    return this.leaderElector().waitForLeadership();
+  }
+}
+/**
+ * runs when the database gets destroyed
+ */
+
+function onDestroy(db) {
+  var has = LEADER_ELECTORS_OF_DB.get(db);
+
+  if (has) {
+    has.destroy();
+  }
+}
+var rxdb$2 = true;
+var prototypes$2 = {
+  RxDatabase: function RxDatabase(proto) {
+    proto.leaderElector = getForDatabase;
+    proto.isLeader = isLeader;
+    proto.waitForLeadership = waitForLeadership;
+  }
+};
+var RxDBLeaderElectionPlugin = {
+  name: 'leader-election',
+  rxdb: rxdb$2,
+  prototypes: prototypes$2,
+  hooks: {
+    preDestroyRxDatabase: onDestroy
+  }
+};
+
+var core = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory();
+	}
+}(commonjsGlobal, function () {
+
+	/**
+	 * CryptoJS core components.
+	 */
+	var CryptoJS = CryptoJS || (function (Math, undefined$1) {
+	    /*
+	     * Local polyfil of Object.create
+	     */
+	    var create = Object.create || (function () {
+	        function F() {}
+	        return function (obj) {
+	            var subtype;
+
+	            F.prototype = obj;
+
+	            subtype = new F();
+
+	            F.prototype = null;
+
+	            return subtype;
+	        };
+	    }());
+
+	    /**
+	     * CryptoJS namespace.
+	     */
+	    var C = {};
+
+	    /**
+	     * Library namespace.
+	     */
+	    var C_lib = C.lib = {};
+
+	    /**
+	     * Base object for prototypal inheritance.
+	     */
+	    var Base = C_lib.Base = (function () {
+
+
+	        return {
+	            /**
+	             * Creates a new object that inherits from this object.
+	             *
+	             * @param {Object} overrides Properties to copy into the new object.
+	             *
+	             * @return {Object} The new object.
+	             *
+	             * @static
+	             *
+	             * @example
+	             *
+	             *     var MyType = CryptoJS.lib.Base.extend({
+	             *         field: 'value',
+	             *
+	             *         method: function () {
+	             *         }
+	             *     });
+	             */
+	            extend: function (overrides) {
+	                // Spawn
+	                var subtype = create(this);
+
+	                // Augment
+	                if (overrides) {
+	                    subtype.mixIn(overrides);
+	                }
+
+	                // Create default initializer
+	                if (!subtype.hasOwnProperty('init') || this.init === subtype.init) {
+	                    subtype.init = function () {
+	                        subtype.$super.init.apply(this, arguments);
+	                    };
+	                }
+
+	                // Initializer's prototype is the subtype object
+	                subtype.init.prototype = subtype;
+
+	                // Reference supertype
+	                subtype.$super = this;
+
+	                return subtype;
+	            },
+
+	            /**
+	             * Extends this object and runs the init method.
+	             * Arguments to create() will be passed to init().
+	             *
+	             * @return {Object} The new object.
+	             *
+	             * @static
+	             *
+	             * @example
+	             *
+	             *     var instance = MyType.create();
+	             */
+	            create: function () {
+	                var instance = this.extend();
+	                instance.init.apply(instance, arguments);
+
+	                return instance;
+	            },
+
+	            /**
+	             * Initializes a newly created object.
+	             * Override this method to add some logic when your objects are created.
+	             *
+	             * @example
+	             *
+	             *     var MyType = CryptoJS.lib.Base.extend({
+	             *         init: function () {
+	             *             // ...
+	             *         }
+	             *     });
+	             */
+	            init: function () {
+	            },
+
+	            /**
+	             * Copies properties into this object.
+	             *
+	             * @param {Object} properties The properties to mix in.
+	             *
+	             * @example
+	             *
+	             *     MyType.mixIn({
+	             *         field: 'value'
+	             *     });
+	             */
+	            mixIn: function (properties) {
+	                for (var propertyName in properties) {
+	                    if (properties.hasOwnProperty(propertyName)) {
+	                        this[propertyName] = properties[propertyName];
+	                    }
+	                }
+
+	                // IE won't copy toString using the loop above
+	                if (properties.hasOwnProperty('toString')) {
+	                    this.toString = properties.toString;
+	                }
+	            },
+
+	            /**
+	             * Creates a copy of this object.
+	             *
+	             * @return {Object} The clone.
+	             *
+	             * @example
+	             *
+	             *     var clone = instance.clone();
+	             */
+	            clone: function () {
+	                return this.init.prototype.extend(this);
+	            }
+	        };
+	    }());
+
+	    /**
+	     * An array of 32-bit words.
+	     *
+	     * @property {Array} words The array of 32-bit words.
+	     * @property {number} sigBytes The number of significant bytes in this word array.
+	     */
+	    var WordArray = C_lib.WordArray = Base.extend({
+	        /**
+	         * Initializes a newly created word array.
+	         *
+	         * @param {Array} words (Optional) An array of 32-bit words.
+	         * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.lib.WordArray.create();
+	         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+	         *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
+	         */
+	        init: function (words, sigBytes) {
+	            words = this.words = words || [];
+
+	            if (sigBytes != undefined$1) {
+	                this.sigBytes = sigBytes;
+	            } else {
+	                this.sigBytes = words.length * 4;
+	            }
+	        },
+
+	        /**
+	         * Converts this word array to a string.
+	         *
+	         * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
+	         *
+	         * @return {string} The stringified word array.
+	         *
+	         * @example
+	         *
+	         *     var string = wordArray + '';
+	         *     var string = wordArray.toString();
+	         *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+	         */
+	        toString: function (encoder) {
+	            return (encoder || Hex).stringify(this);
+	        },
+
+	        /**
+	         * Concatenates a word array to this word array.
+	         *
+	         * @param {WordArray} wordArray The word array to append.
+	         *
+	         * @return {WordArray} This word array.
+	         *
+	         * @example
+	         *
+	         *     wordArray1.concat(wordArray2);
+	         */
+	        concat: function (wordArray) {
+	            // Shortcuts
+	            var thisWords = this.words;
+	            var thatWords = wordArray.words;
+	            var thisSigBytes = this.sigBytes;
+	            var thatSigBytes = wordArray.sigBytes;
+
+	            // Clamp excess bits
+	            this.clamp();
+
+	            // Concat
+	            if (thisSigBytes % 4) {
+	                // Copy one byte at a time
+	                for (var i = 0; i < thatSigBytes; i++) {
+	                    var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	                    thisWords[(thisSigBytes + i) >>> 2] |= thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
+	                }
+	            } else {
+	                // Copy one word at a time
+	                for (var i = 0; i < thatSigBytes; i += 4) {
+	                    thisWords[(thisSigBytes + i) >>> 2] = thatWords[i >>> 2];
+	                }
+	            }
+	            this.sigBytes += thatSigBytes;
+
+	            // Chainable
+	            return this;
+	        },
+
+	        /**
+	         * Removes insignificant bits.
+	         *
+	         * @example
+	         *
+	         *     wordArray.clamp();
+	         */
+	        clamp: function () {
+	            // Shortcuts
+	            var words = this.words;
+	            var sigBytes = this.sigBytes;
+
+	            // Clamp
+	            words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
+	            words.length = Math.ceil(sigBytes / 4);
+	        },
+
+	        /**
+	         * Creates a copy of this word array.
+	         *
+	         * @return {WordArray} The clone.
+	         *
+	         * @example
+	         *
+	         *     var clone = wordArray.clone();
+	         */
+	        clone: function () {
+	            var clone = Base.clone.call(this);
+	            clone.words = this.words.slice(0);
+
+	            return clone;
+	        },
+
+	        /**
+	         * Creates a word array filled with random bytes.
+	         *
+	         * @param {number} nBytes The number of random bytes to generate.
+	         *
+	         * @return {WordArray} The random word array.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.lib.WordArray.random(16);
+	         */
+	        random: function (nBytes) {
+	            var words = [];
+
+	            var r = (function (m_w) {
+	                var m_w = m_w;
+	                var m_z = 0x3ade68b1;
+	                var mask = 0xffffffff;
+
+	                return function () {
+	                    m_z = (0x9069 * (m_z & 0xFFFF) + (m_z >> 0x10)) & mask;
+	                    m_w = (0x4650 * (m_w & 0xFFFF) + (m_w >> 0x10)) & mask;
+	                    var result = ((m_z << 0x10) + m_w) & mask;
+	                    result /= 0x100000000;
+	                    result += 0.5;
+	                    return result * (Math.random() > .5 ? 1 : -1);
+	                }
+	            });
+
+	            for (var i = 0, rcache; i < nBytes; i += 4) {
+	                var _r = r((rcache || Math.random()) * 0x100000000);
+
+	                rcache = _r() * 0x3ade67b7;
+	                words.push((_r() * 0x100000000) | 0);
+	            }
+
+	            return new WordArray.init(words, nBytes);
+	        }
+	    });
+
+	    /**
+	     * Encoder namespace.
+	     */
+	    var C_enc = C.enc = {};
+
+	    /**
+	     * Hex encoding strategy.
+	     */
+	    var Hex = C_enc.Hex = {
+	        /**
+	         * Converts a word array to a hex string.
+	         *
+	         * @param {WordArray} wordArray The word array.
+	         *
+	         * @return {string} The hex string.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
+	         */
+	        stringify: function (wordArray) {
+	            // Shortcuts
+	            var words = wordArray.words;
+	            var sigBytes = wordArray.sigBytes;
+
+	            // Convert
+	            var hexChars = [];
+	            for (var i = 0; i < sigBytes; i++) {
+	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	                hexChars.push((bite >>> 4).toString(16));
+	                hexChars.push((bite & 0x0f).toString(16));
+	            }
+
+	            return hexChars.join('');
+	        },
+
+	        /**
+	         * Converts a hex string to a word array.
+	         *
+	         * @param {string} hexStr The hex string.
+	         *
+	         * @return {WordArray} The word array.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
+	         */
+	        parse: function (hexStr) {
+	            // Shortcut
+	            var hexStrLength = hexStr.length;
+
+	            // Convert
+	            var words = [];
+	            for (var i = 0; i < hexStrLength; i += 2) {
+	                words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
+	            }
+
+	            return new WordArray.init(words, hexStrLength / 2);
+	        }
+	    };
+
+	    /**
+	     * Latin1 encoding strategy.
+	     */
+	    var Latin1 = C_enc.Latin1 = {
+	        /**
+	         * Converts a word array to a Latin1 string.
+	         *
+	         * @param {WordArray} wordArray The word array.
+	         *
+	         * @return {string} The Latin1 string.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
+	         */
+	        stringify: function (wordArray) {
+	            // Shortcuts
+	            var words = wordArray.words;
+	            var sigBytes = wordArray.sigBytes;
+
+	            // Convert
+	            var latin1Chars = [];
+	            for (var i = 0; i < sigBytes; i++) {
+	                var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+	                latin1Chars.push(String.fromCharCode(bite));
+	            }
+
+	            return latin1Chars.join('');
+	        },
+
+	        /**
+	         * Converts a Latin1 string to a word array.
+	         *
+	         * @param {string} latin1Str The Latin1 string.
+	         *
+	         * @return {WordArray} The word array.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
+	         */
+	        parse: function (latin1Str) {
+	            // Shortcut
+	            var latin1StrLength = latin1Str.length;
+
+	            // Convert
+	            var words = [];
+	            for (var i = 0; i < latin1StrLength; i++) {
+	                words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
+	            }
+
+	            return new WordArray.init(words, latin1StrLength);
+	        }
+	    };
+
+	    /**
+	     * UTF-8 encoding strategy.
+	     */
+	    var Utf8 = C_enc.Utf8 = {
+	        /**
+	         * Converts a word array to a UTF-8 string.
+	         *
+	         * @param {WordArray} wordArray The word array.
+	         *
+	         * @return {string} The UTF-8 string.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
+	         */
+	        stringify: function (wordArray) {
+	            try {
+	                return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+	            } catch (e) {
+	                throw new Error('Malformed UTF-8 data');
+	            }
+	        },
+
+	        /**
+	         * Converts a UTF-8 string to a word array.
+	         *
+	         * @param {string} utf8Str The UTF-8 string.
+	         *
+	         * @return {WordArray} The word array.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
+	         */
+	        parse: function (utf8Str) {
+	            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
+	        }
+	    };
+
+	    /**
+	     * Abstract buffered block algorithm template.
+	     *
+	     * The property blockSize must be implemented in a concrete subtype.
+	     *
+	     * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
+	     */
+	    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+	        /**
+	         * Resets this block algorithm's data buffer to its initial state.
+	         *
+	         * @example
+	         *
+	         *     bufferedBlockAlgorithm.reset();
+	         */
+	        reset: function () {
+	            // Initial values
+	            this._data = new WordArray.init();
+	            this._nDataBytes = 0;
+	        },
+
+	        /**
+	         * Adds new data to this block algorithm's buffer.
+	         *
+	         * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
+	         *
+	         * @example
+	         *
+	         *     bufferedBlockAlgorithm._append('data');
+	         *     bufferedBlockAlgorithm._append(wordArray);
+	         */
+	        _append: function (data) {
+	            // Convert string to WordArray, else assume WordArray already
+	            if (typeof data == 'string') {
+	                data = Utf8.parse(data);
+	            }
+
+	            // Append
+	            this._data.concat(data);
+	            this._nDataBytes += data.sigBytes;
+	        },
+
+	        /**
+	         * Processes available data blocks.
+	         *
+	         * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
+	         *
+	         * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
+	         *
+	         * @return {WordArray} The processed data.
+	         *
+	         * @example
+	         *
+	         *     var processedData = bufferedBlockAlgorithm._process();
+	         *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
+	         */
+	        _process: function (doFlush) {
+	            // Shortcuts
+	            var data = this._data;
+	            var dataWords = data.words;
+	            var dataSigBytes = data.sigBytes;
+	            var blockSize = this.blockSize;
+	            var blockSizeBytes = blockSize * 4;
+
+	            // Count blocks ready
+	            var nBlocksReady = dataSigBytes / blockSizeBytes;
+	            if (doFlush) {
+	                // Round up to include partial blocks
+	                nBlocksReady = Math.ceil(nBlocksReady);
+	            } else {
+	                // Round down to include only full blocks,
+	                // less the number of blocks that must remain in the buffer
+	                nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
+	            }
+
+	            // Count words ready
+	            var nWordsReady = nBlocksReady * blockSize;
+
+	            // Count bytes ready
+	            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes);
+
+	            // Process blocks
+	            if (nWordsReady) {
+	                for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+	                    // Perform concrete-algorithm logic
+	                    this._doProcessBlock(dataWords, offset);
+	                }
+
+	                // Remove processed words
+	                var processedWords = dataWords.splice(0, nWordsReady);
+	                data.sigBytes -= nBytesReady;
+	            }
+
+	            // Return processed words
+	            return new WordArray.init(processedWords, nBytesReady);
+	        },
+
+	        /**
+	         * Creates a copy of this object.
+	         *
+	         * @return {Object} The clone.
+	         *
+	         * @example
+	         *
+	         *     var clone = bufferedBlockAlgorithm.clone();
+	         */
+	        clone: function () {
+	            var clone = Base.clone.call(this);
+	            clone._data = this._data.clone();
+
+	            return clone;
+	        },
+
+	        _minBufferSize: 0
+	    });
+
+	    /**
+	     * Abstract hasher template.
+	     *
+	     * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+	     */
+	    C_lib.Hasher = BufferedBlockAlgorithm.extend({
+	        /**
+	         * Configuration options.
+	         */
+	        cfg: Base.extend(),
+
+	        /**
+	         * Initializes a newly created hasher.
+	         *
+	         * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
+	         *
+	         * @example
+	         *
+	         *     var hasher = CryptoJS.algo.SHA256.create();
+	         */
+	        init: function (cfg) {
+	            // Apply config defaults
+	            this.cfg = this.cfg.extend(cfg);
+
+	            // Set initial values
+	            this.reset();
+	        },
+
+	        /**
+	         * Resets this hasher to its initial state.
+	         *
+	         * @example
+	         *
+	         *     hasher.reset();
+	         */
+	        reset: function () {
+	            // Reset data buffer
+	            BufferedBlockAlgorithm.reset.call(this);
+
+	            // Perform concrete-hasher logic
+	            this._doReset();
+	        },
+
+	        /**
+	         * Updates this hasher with a message.
+	         *
+	         * @param {WordArray|string} messageUpdate The message to append.
+	         *
+	         * @return {Hasher} This hasher.
+	         *
+	         * @example
+	         *
+	         *     hasher.update('message');
+	         *     hasher.update(wordArray);
+	         */
+	        update: function (messageUpdate) {
+	            // Append
+	            this._append(messageUpdate);
+
+	            // Update the hash
+	            this._process();
+
+	            // Chainable
+	            return this;
+	        },
+
+	        /**
+	         * Finalizes the hash computation.
+	         * Note that the finalize operation is effectively a destructive, read-once operation.
+	         *
+	         * @param {WordArray|string} messageUpdate (Optional) A final message update.
+	         *
+	         * @return {WordArray} The hash.
+	         *
+	         * @example
+	         *
+	         *     var hash = hasher.finalize();
+	         *     var hash = hasher.finalize('message');
+	         *     var hash = hasher.finalize(wordArray);
+	         */
+	        finalize: function (messageUpdate) {
+	            // Final message update
+	            if (messageUpdate) {
+	                this._append(messageUpdate);
+	            }
+
+	            // Perform concrete-hasher logic
+	            var hash = this._doFinalize();
+
+	            return hash;
+	        },
+
+	        blockSize: 512/32,
+
+	        /**
+	         * Creates a shortcut function to a hasher's object interface.
+	         *
+	         * @param {Hasher} hasher The hasher to create a helper for.
+	         *
+	         * @return {Function} The shortcut function.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
+	         */
+	        _createHelper: function (hasher) {
+	            return function (message, cfg) {
+	                return new hasher.init(cfg).finalize(message);
+	            };
+	        },
+
+	        /**
+	         * Creates a shortcut function to the HMAC's object interface.
+	         *
+	         * @param {Hasher} hasher The hasher to use in this HMAC helper.
+	         *
+	         * @return {Function} The shortcut function.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
+	         */
+	        _createHmacHelper: function (hasher) {
+	            return function (message, key) {
+	                return new C_algo.HMAC.init(hasher, key).finalize(message);
+	            };
+	        }
+	    });
+
+	    /**
+	     * Algorithm namespace.
+	     */
+	    var C_algo = C.algo = {};
+
+	    return C;
+	}(Math));
+
+
+	return CryptoJS;
+
+}));
+});
+
+var encBase64 = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory(core);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function () {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var WordArray = C_lib.WordArray;
+	    var C_enc = C.enc;
+
+	    /**
+	     * Base64 encoding strategy.
+	     */
+	    C_enc.Base64 = {
+	        /**
+	         * Converts a word array to a Base64 string.
+	         *
+	         * @param {WordArray} wordArray The word array.
+	         *
+	         * @return {string} The Base64 string.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
+	         */
+	        stringify: function (wordArray) {
+	            // Shortcuts
+	            var words = wordArray.words;
+	            var sigBytes = wordArray.sigBytes;
+	            var map = this._map;
+
+	            // Clamp excess bits
+	            wordArray.clamp();
+
+	            // Convert
+	            var base64Chars = [];
+	            for (var i = 0; i < sigBytes; i += 3) {
+	                var byte1 = (words[i >>> 2]       >>> (24 - (i % 4) * 8))       & 0xff;
+	                var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+	                var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
+
+	                var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+
+	                for (var j = 0; (j < 4) && (i + j * 0.75 < sigBytes); j++) {
+	                    base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
+	                }
+	            }
+
+	            // Add padding
+	            var paddingChar = map.charAt(64);
+	            if (paddingChar) {
+	                while (base64Chars.length % 4) {
+	                    base64Chars.push(paddingChar);
+	                }
+	            }
+
+	            return base64Chars.join('');
+	        },
+
+	        /**
+	         * Converts a Base64 string to a word array.
+	         *
+	         * @param {string} base64Str The Base64 string.
+	         *
+	         * @return {WordArray} The word array.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
+	         */
+	        parse: function (base64Str) {
+	            // Shortcuts
+	            var base64StrLength = base64Str.length;
+	            var map = this._map;
+	            var reverseMap = this._reverseMap;
+
+	            if (!reverseMap) {
+	                    reverseMap = this._reverseMap = [];
+	                    for (var j = 0; j < map.length; j++) {
+	                        reverseMap[map.charCodeAt(j)] = j;
+	                    }
+	            }
+
+	            // Ignore padding
+	            var paddingChar = map.charAt(64);
+	            if (paddingChar) {
+	                var paddingIndex = base64Str.indexOf(paddingChar);
+	                if (paddingIndex !== -1) {
+	                    base64StrLength = paddingIndex;
+	                }
+	            }
+
+	            // Convert
+	            return parseLoop(base64Str, base64StrLength, reverseMap);
+
+	        },
+
+	        _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+	    };
+
+	    function parseLoop(base64Str, base64StrLength, reverseMap) {
+	      var words = [];
+	      var nBytes = 0;
+	      for (var i = 0; i < base64StrLength; i++) {
+	          if (i % 4) {
+	              var bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
+	              var bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
+	              words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
+	              nBytes++;
+	          }
+	      }
+	      return WordArray.create(words, nBytes);
+	    }
+	}());
+
+
+	return CryptoJS.enc.Base64;
+
+}));
+});
+
+var md5 = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory(core);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function (Math) {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var WordArray = C_lib.WordArray;
+	    var Hasher = C_lib.Hasher;
+	    var C_algo = C.algo;
+
+	    // Constants table
+	    var T = [];
+
+	    // Compute constants
+	    (function () {
+	        for (var i = 0; i < 64; i++) {
+	            T[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
+	        }
+	    }());
+
+	    /**
+	     * MD5 hash algorithm.
+	     */
+	    var MD5 = C_algo.MD5 = Hasher.extend({
+	        _doReset: function () {
+	            this._hash = new WordArray.init([
+	                0x67452301, 0xefcdab89,
+	                0x98badcfe, 0x10325476
+	            ]);
+	        },
+
+	        _doProcessBlock: function (M, offset) {
+	            // Swap endian
+	            for (var i = 0; i < 16; i++) {
+	                // Shortcuts
+	                var offset_i = offset + i;
+	                var M_offset_i = M[offset_i];
+
+	                M[offset_i] = (
+	                    (((M_offset_i << 8)  | (M_offset_i >>> 24)) & 0x00ff00ff) |
+	                    (((M_offset_i << 24) | (M_offset_i >>> 8))  & 0xff00ff00)
+	                );
+	            }
+
+	            // Shortcuts
+	            var H = this._hash.words;
+
+	            var M_offset_0  = M[offset + 0];
+	            var M_offset_1  = M[offset + 1];
+	            var M_offset_2  = M[offset + 2];
+	            var M_offset_3  = M[offset + 3];
+	            var M_offset_4  = M[offset + 4];
+	            var M_offset_5  = M[offset + 5];
+	            var M_offset_6  = M[offset + 6];
+	            var M_offset_7  = M[offset + 7];
+	            var M_offset_8  = M[offset + 8];
+	            var M_offset_9  = M[offset + 9];
+	            var M_offset_10 = M[offset + 10];
+	            var M_offset_11 = M[offset + 11];
+	            var M_offset_12 = M[offset + 12];
+	            var M_offset_13 = M[offset + 13];
+	            var M_offset_14 = M[offset + 14];
+	            var M_offset_15 = M[offset + 15];
+
+	            // Working varialbes
+	            var a = H[0];
+	            var b = H[1];
+	            var c = H[2];
+	            var d = H[3];
+
+	            // Computation
+	            a = FF(a, b, c, d, M_offset_0,  7,  T[0]);
+	            d = FF(d, a, b, c, M_offset_1,  12, T[1]);
+	            c = FF(c, d, a, b, M_offset_2,  17, T[2]);
+	            b = FF(b, c, d, a, M_offset_3,  22, T[3]);
+	            a = FF(a, b, c, d, M_offset_4,  7,  T[4]);
+	            d = FF(d, a, b, c, M_offset_5,  12, T[5]);
+	            c = FF(c, d, a, b, M_offset_6,  17, T[6]);
+	            b = FF(b, c, d, a, M_offset_7,  22, T[7]);
+	            a = FF(a, b, c, d, M_offset_8,  7,  T[8]);
+	            d = FF(d, a, b, c, M_offset_9,  12, T[9]);
+	            c = FF(c, d, a, b, M_offset_10, 17, T[10]);
+	            b = FF(b, c, d, a, M_offset_11, 22, T[11]);
+	            a = FF(a, b, c, d, M_offset_12, 7,  T[12]);
+	            d = FF(d, a, b, c, M_offset_13, 12, T[13]);
+	            c = FF(c, d, a, b, M_offset_14, 17, T[14]);
+	            b = FF(b, c, d, a, M_offset_15, 22, T[15]);
+
+	            a = GG(a, b, c, d, M_offset_1,  5,  T[16]);
+	            d = GG(d, a, b, c, M_offset_6,  9,  T[17]);
+	            c = GG(c, d, a, b, M_offset_11, 14, T[18]);
+	            b = GG(b, c, d, a, M_offset_0,  20, T[19]);
+	            a = GG(a, b, c, d, M_offset_5,  5,  T[20]);
+	            d = GG(d, a, b, c, M_offset_10, 9,  T[21]);
+	            c = GG(c, d, a, b, M_offset_15, 14, T[22]);
+	            b = GG(b, c, d, a, M_offset_4,  20, T[23]);
+	            a = GG(a, b, c, d, M_offset_9,  5,  T[24]);
+	            d = GG(d, a, b, c, M_offset_14, 9,  T[25]);
+	            c = GG(c, d, a, b, M_offset_3,  14, T[26]);
+	            b = GG(b, c, d, a, M_offset_8,  20, T[27]);
+	            a = GG(a, b, c, d, M_offset_13, 5,  T[28]);
+	            d = GG(d, a, b, c, M_offset_2,  9,  T[29]);
+	            c = GG(c, d, a, b, M_offset_7,  14, T[30]);
+	            b = GG(b, c, d, a, M_offset_12, 20, T[31]);
+
+	            a = HH(a, b, c, d, M_offset_5,  4,  T[32]);
+	            d = HH(d, a, b, c, M_offset_8,  11, T[33]);
+	            c = HH(c, d, a, b, M_offset_11, 16, T[34]);
+	            b = HH(b, c, d, a, M_offset_14, 23, T[35]);
+	            a = HH(a, b, c, d, M_offset_1,  4,  T[36]);
+	            d = HH(d, a, b, c, M_offset_4,  11, T[37]);
+	            c = HH(c, d, a, b, M_offset_7,  16, T[38]);
+	            b = HH(b, c, d, a, M_offset_10, 23, T[39]);
+	            a = HH(a, b, c, d, M_offset_13, 4,  T[40]);
+	            d = HH(d, a, b, c, M_offset_0,  11, T[41]);
+	            c = HH(c, d, a, b, M_offset_3,  16, T[42]);
+	            b = HH(b, c, d, a, M_offset_6,  23, T[43]);
+	            a = HH(a, b, c, d, M_offset_9,  4,  T[44]);
+	            d = HH(d, a, b, c, M_offset_12, 11, T[45]);
+	            c = HH(c, d, a, b, M_offset_15, 16, T[46]);
+	            b = HH(b, c, d, a, M_offset_2,  23, T[47]);
+
+	            a = II(a, b, c, d, M_offset_0,  6,  T[48]);
+	            d = II(d, a, b, c, M_offset_7,  10, T[49]);
+	            c = II(c, d, a, b, M_offset_14, 15, T[50]);
+	            b = II(b, c, d, a, M_offset_5,  21, T[51]);
+	            a = II(a, b, c, d, M_offset_12, 6,  T[52]);
+	            d = II(d, a, b, c, M_offset_3,  10, T[53]);
+	            c = II(c, d, a, b, M_offset_10, 15, T[54]);
+	            b = II(b, c, d, a, M_offset_1,  21, T[55]);
+	            a = II(a, b, c, d, M_offset_8,  6,  T[56]);
+	            d = II(d, a, b, c, M_offset_15, 10, T[57]);
+	            c = II(c, d, a, b, M_offset_6,  15, T[58]);
+	            b = II(b, c, d, a, M_offset_13, 21, T[59]);
+	            a = II(a, b, c, d, M_offset_4,  6,  T[60]);
+	            d = II(d, a, b, c, M_offset_11, 10, T[61]);
+	            c = II(c, d, a, b, M_offset_2,  15, T[62]);
+	            b = II(b, c, d, a, M_offset_9,  21, T[63]);
+
+	            // Intermediate hash value
+	            H[0] = (H[0] + a) | 0;
+	            H[1] = (H[1] + b) | 0;
+	            H[2] = (H[2] + c) | 0;
+	            H[3] = (H[3] + d) | 0;
+	        },
+
+	        _doFinalize: function () {
+	            // Shortcuts
+	            var data = this._data;
+	            var dataWords = data.words;
+
+	            var nBitsTotal = this._nDataBytes * 8;
+	            var nBitsLeft = data.sigBytes * 8;
+
+	            // Add padding
+	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+
+	            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+	            var nBitsTotalL = nBitsTotal;
+	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = (
+	                (((nBitsTotalH << 8)  | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
+	                (((nBitsTotalH << 24) | (nBitsTotalH >>> 8))  & 0xff00ff00)
+	            );
+	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = (
+	                (((nBitsTotalL << 8)  | (nBitsTotalL >>> 24)) & 0x00ff00ff) |
+	                (((nBitsTotalL << 24) | (nBitsTotalL >>> 8))  & 0xff00ff00)
+	            );
+
+	            data.sigBytes = (dataWords.length + 1) * 4;
+
+	            // Hash final blocks
+	            this._process();
+
+	            // Shortcuts
+	            var hash = this._hash;
+	            var H = hash.words;
+
+	            // Swap endian
+	            for (var i = 0; i < 4; i++) {
+	                // Shortcut
+	                var H_i = H[i];
+
+	                H[i] = (((H_i << 8)  | (H_i >>> 24)) & 0x00ff00ff) |
+	                       (((H_i << 24) | (H_i >>> 8))  & 0xff00ff00);
+	            }
+
+	            // Return final computed hash
+	            return hash;
+	        },
+
+	        clone: function () {
+	            var clone = Hasher.clone.call(this);
+	            clone._hash = this._hash.clone();
+
+	            return clone;
+	        }
+	    });
+
+	    function FF(a, b, c, d, x, s, t) {
+	        var n = a + ((b & c) | (~b & d)) + x + t;
+	        return ((n << s) | (n >>> (32 - s))) + b;
+	    }
+
+	    function GG(a, b, c, d, x, s, t) {
+	        var n = a + ((b & d) | (c & ~d)) + x + t;
+	        return ((n << s) | (n >>> (32 - s))) + b;
+	    }
+
+	    function HH(a, b, c, d, x, s, t) {
+	        var n = a + (b ^ c ^ d) + x + t;
+	        return ((n << s) | (n >>> (32 - s))) + b;
+	    }
+
+	    function II(a, b, c, d, x, s, t) {
+	        var n = a + (c ^ (b | ~d)) + x + t;
+	        return ((n << s) | (n >>> (32 - s))) + b;
+	    }
+
+	    /**
+	     * Shortcut function to the hasher's object interface.
+	     *
+	     * @param {WordArray|string} message The message to hash.
+	     *
+	     * @return {WordArray} The hash.
+	     *
+	     * @static
+	     *
+	     * @example
+	     *
+	     *     var hash = CryptoJS.MD5('message');
+	     *     var hash = CryptoJS.MD5(wordArray);
+	     */
+	    C.MD5 = Hasher._createHelper(MD5);
+
+	    /**
+	     * Shortcut function to the HMAC's object interface.
+	     *
+	     * @param {WordArray|string} message The message to hash.
+	     * @param {WordArray|string} key The secret key.
+	     *
+	     * @return {WordArray} The HMAC.
+	     *
+	     * @static
+	     *
+	     * @example
+	     *
+	     *     var hmac = CryptoJS.HmacMD5(message, key);
+	     */
+	    C.HmacMD5 = Hasher._createHmacHelper(MD5);
+	}(Math));
+
+
+	return CryptoJS.MD5;
+
+}));
+});
+
+var sha1 = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory(core);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function () {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var WordArray = C_lib.WordArray;
+	    var Hasher = C_lib.Hasher;
+	    var C_algo = C.algo;
+
+	    // Reusable object
+	    var W = [];
+
+	    /**
+	     * SHA-1 hash algorithm.
+	     */
+	    var SHA1 = C_algo.SHA1 = Hasher.extend({
+	        _doReset: function () {
+	            this._hash = new WordArray.init([
+	                0x67452301, 0xefcdab89,
+	                0x98badcfe, 0x10325476,
+	                0xc3d2e1f0
+	            ]);
+	        },
+
+	        _doProcessBlock: function (M, offset) {
+	            // Shortcut
+	            var H = this._hash.words;
+
+	            // Working variables
+	            var a = H[0];
+	            var b = H[1];
+	            var c = H[2];
+	            var d = H[3];
+	            var e = H[4];
+
+	            // Computation
+	            for (var i = 0; i < 80; i++) {
+	                if (i < 16) {
+	                    W[i] = M[offset + i] | 0;
+	                } else {
+	                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+	                    W[i] = (n << 1) | (n >>> 31);
+	                }
+
+	                var t = ((a << 5) | (a >>> 27)) + e + W[i];
+	                if (i < 20) {
+	                    t += ((b & c) | (~b & d)) + 0x5a827999;
+	                } else if (i < 40) {
+	                    t += (b ^ c ^ d) + 0x6ed9eba1;
+	                } else if (i < 60) {
+	                    t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
+	                } else /* if (i < 80) */ {
+	                    t += (b ^ c ^ d) - 0x359d3e2a;
+	                }
+
+	                e = d;
+	                d = c;
+	                c = (b << 30) | (b >>> 2);
+	                b = a;
+	                a = t;
+	            }
+
+	            // Intermediate hash value
+	            H[0] = (H[0] + a) | 0;
+	            H[1] = (H[1] + b) | 0;
+	            H[2] = (H[2] + c) | 0;
+	            H[3] = (H[3] + d) | 0;
+	            H[4] = (H[4] + e) | 0;
+	        },
+
+	        _doFinalize: function () {
+	            // Shortcuts
+	            var data = this._data;
+	            var dataWords = data.words;
+
+	            var nBitsTotal = this._nDataBytes * 8;
+	            var nBitsLeft = data.sigBytes * 8;
+
+	            // Add padding
+	            dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - nBitsLeft % 32);
+	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
+	            dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] = nBitsTotal;
+	            data.sigBytes = dataWords.length * 4;
+
+	            // Hash final blocks
+	            this._process();
+
+	            // Return final computed hash
+	            return this._hash;
+	        },
+
+	        clone: function () {
+	            var clone = Hasher.clone.call(this);
+	            clone._hash = this._hash.clone();
+
+	            return clone;
+	        }
+	    });
+
+	    /**
+	     * Shortcut function to the hasher's object interface.
+	     *
+	     * @param {WordArray|string} message The message to hash.
+	     *
+	     * @return {WordArray} The hash.
+	     *
+	     * @static
+	     *
+	     * @example
+	     *
+	     *     var hash = CryptoJS.SHA1('message');
+	     *     var hash = CryptoJS.SHA1(wordArray);
+	     */
+	    C.SHA1 = Hasher._createHelper(SHA1);
+
+	    /**
+	     * Shortcut function to the HMAC's object interface.
+	     *
+	     * @param {WordArray|string} message The message to hash.
+	     * @param {WordArray|string} key The secret key.
+	     *
+	     * @return {WordArray} The HMAC.
+	     *
+	     * @static
+	     *
+	     * @example
+	     *
+	     *     var hmac = CryptoJS.HmacSHA1(message, key);
+	     */
+	    C.HmacSHA1 = Hasher._createHmacHelper(SHA1);
+	}());
+
+
+	return CryptoJS.SHA1;
+
+}));
+});
+
+var hmac = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory(core);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function () {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var Base = C_lib.Base;
+	    var C_enc = C.enc;
+	    var Utf8 = C_enc.Utf8;
+	    var C_algo = C.algo;
+
+	    /**
+	     * HMAC algorithm.
+	     */
+	    C_algo.HMAC = Base.extend({
+	        /**
+	         * Initializes a newly created HMAC.
+	         *
+	         * @param {Hasher} hasher The hash algorithm to use.
+	         * @param {WordArray|string} key The secret key.
+	         *
+	         * @example
+	         *
+	         *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
+	         */
+	        init: function (hasher, key) {
+	            // Init hasher
+	            hasher = this._hasher = new hasher.init();
+
+	            // Convert string to WordArray, else assume WordArray already
+	            if (typeof key == 'string') {
+	                key = Utf8.parse(key);
+	            }
+
+	            // Shortcuts
+	            var hasherBlockSize = hasher.blockSize;
+	            var hasherBlockSizeBytes = hasherBlockSize * 4;
+
+	            // Allow arbitrary length keys
+	            if (key.sigBytes > hasherBlockSizeBytes) {
+	                key = hasher.finalize(key);
+	            }
+
+	            // Clamp excess bits
+	            key.clamp();
+
+	            // Clone key for inner and outer pads
+	            var oKey = this._oKey = key.clone();
+	            var iKey = this._iKey = key.clone();
+
+	            // Shortcuts
+	            var oKeyWords = oKey.words;
+	            var iKeyWords = iKey.words;
+
+	            // XOR keys with pad constants
+	            for (var i = 0; i < hasherBlockSize; i++) {
+	                oKeyWords[i] ^= 0x5c5c5c5c;
+	                iKeyWords[i] ^= 0x36363636;
+	            }
+	            oKey.sigBytes = iKey.sigBytes = hasherBlockSizeBytes;
+
+	            // Set initial values
+	            this.reset();
+	        },
+
+	        /**
+	         * Resets this HMAC to its initial state.
+	         *
+	         * @example
+	         *
+	         *     hmacHasher.reset();
+	         */
+	        reset: function () {
+	            // Shortcut
+	            var hasher = this._hasher;
+
+	            // Reset
+	            hasher.reset();
+	            hasher.update(this._iKey);
+	        },
+
+	        /**
+	         * Updates this HMAC with a message.
+	         *
+	         * @param {WordArray|string} messageUpdate The message to append.
+	         *
+	         * @return {HMAC} This HMAC instance.
+	         *
+	         * @example
+	         *
+	         *     hmacHasher.update('message');
+	         *     hmacHasher.update(wordArray);
+	         */
+	        update: function (messageUpdate) {
+	            this._hasher.update(messageUpdate);
+
+	            // Chainable
+	            return this;
+	        },
+
+	        /**
+	         * Finalizes the HMAC computation.
+	         * Note that the finalize operation is effectively a destructive, read-once operation.
+	         *
+	         * @param {WordArray|string} messageUpdate (Optional) A final message update.
+	         *
+	         * @return {WordArray} The HMAC.
+	         *
+	         * @example
+	         *
+	         *     var hmac = hmacHasher.finalize();
+	         *     var hmac = hmacHasher.finalize('message');
+	         *     var hmac = hmacHasher.finalize(wordArray);
+	         */
+	        finalize: function (messageUpdate) {
+	            // Shortcut
+	            var hasher = this._hasher;
+
+	            // Compute HMAC
+	            var innerHash = hasher.finalize(messageUpdate);
+	            hasher.reset();
+	            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
+
+	            return hmac;
+	        }
+	    });
+	}());
+
+
+}));
+});
+
+var evpkdf = createCommonjsModule(function (module, exports) {
+(function (root, factory, undef) {
+	{
+		// CommonJS
+		module.exports = factory(core, sha1, hmac);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function () {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var Base = C_lib.Base;
+	    var WordArray = C_lib.WordArray;
+	    var C_algo = C.algo;
+	    var MD5 = C_algo.MD5;
+
+	    /**
+	     * This key derivation function is meant to conform with EVP_BytesToKey.
+	     * www.openssl.org/docs/crypto/EVP_BytesToKey.html
+	     */
+	    var EvpKDF = C_algo.EvpKDF = Base.extend({
+	        /**
+	         * Configuration options.
+	         *
+	         * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
+	         * @property {Hasher} hasher The hash algorithm to use. Default: MD5
+	         * @property {number} iterations The number of iterations to perform. Default: 1
+	         */
+	        cfg: Base.extend({
+	            keySize: 128/32,
+	            hasher: MD5,
+	            iterations: 1
+	        }),
+
+	        /**
+	         * Initializes a newly created key derivation function.
+	         *
+	         * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+	         *
+	         * @example
+	         *
+	         *     var kdf = CryptoJS.algo.EvpKDF.create();
+	         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8 });
+	         *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8, iterations: 1000 });
+	         */
+	        init: function (cfg) {
+	            this.cfg = this.cfg.extend(cfg);
+	        },
+
+	        /**
+	         * Derives a key from a password.
+	         *
+	         * @param {WordArray|string} password The password.
+	         * @param {WordArray|string} salt A salt.
+	         *
+	         * @return {WordArray} The derived key.
+	         *
+	         * @example
+	         *
+	         *     var key = kdf.compute(password, salt);
+	         */
+	        compute: function (password, salt) {
+	            // Shortcut
+	            var cfg = this.cfg;
+
+	            // Init hasher
+	            var hasher = cfg.hasher.create();
+
+	            // Initial values
+	            var derivedKey = WordArray.create();
+
+	            // Shortcuts
+	            var derivedKeyWords = derivedKey.words;
+	            var keySize = cfg.keySize;
+	            var iterations = cfg.iterations;
+
+	            // Generate key
+	            while (derivedKeyWords.length < keySize) {
+	                if (block) {
+	                    hasher.update(block);
+	                }
+	                var block = hasher.update(password).finalize(salt);
+	                hasher.reset();
+
+	                // Iterations
+	                for (var i = 1; i < iterations; i++) {
+	                    block = hasher.finalize(block);
+	                    hasher.reset();
+	                }
+
+	                derivedKey.concat(block);
+	            }
+	            derivedKey.sigBytes = keySize * 4;
+
+	            return derivedKey;
+	        }
+	    });
+
+	    /**
+	     * Derives a key from a password.
+	     *
+	     * @param {WordArray|string} password The password.
+	     * @param {WordArray|string} salt A salt.
+	     * @param {Object} cfg (Optional) The configuration options to use for this computation.
+	     *
+	     * @return {WordArray} The derived key.
+	     *
+	     * @static
+	     *
+	     * @example
+	     *
+	     *     var key = CryptoJS.EvpKDF(password, salt);
+	     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8 });
+	     *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8, iterations: 1000 });
+	     */
+	    C.EvpKDF = function (password, salt, cfg) {
+	        return EvpKDF.create(cfg).compute(password, salt);
+	    };
+	}());
+
+
+	return CryptoJS.EvpKDF;
+
+}));
+});
+
+var cipherCore = createCommonjsModule(function (module, exports) {
+(function (root, factory, undef) {
+	{
+		// CommonJS
+		module.exports = factory(core, evpkdf);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	/**
+	 * Cipher core components.
+	 */
+	CryptoJS.lib.Cipher || (function (undefined$1) {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var Base = C_lib.Base;
+	    var WordArray = C_lib.WordArray;
+	    var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
+	    var C_enc = C.enc;
+	    C_enc.Utf8;
+	    var Base64 = C_enc.Base64;
+	    var C_algo = C.algo;
+	    var EvpKDF = C_algo.EvpKDF;
+
+	    /**
+	     * Abstract base cipher template.
+	     *
+	     * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
+	     * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
+	     * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
+	     * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
+	     */
+	    var Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
+	        /**
+	         * Configuration options.
+	         *
+	         * @property {WordArray} iv The IV to use for this operation.
+	         */
+	        cfg: Base.extend(),
+
+	        /**
+	         * Creates this cipher in encryption mode.
+	         *
+	         * @param {WordArray} key The key.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {Cipher} A cipher instance.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var cipher = CryptoJS.algo.AES.createEncryptor(keyWordArray, { iv: ivWordArray });
+	         */
+	        createEncryptor: function (key, cfg) {
+	            return this.create(this._ENC_XFORM_MODE, key, cfg);
+	        },
+
+	        /**
+	         * Creates this cipher in decryption mode.
+	         *
+	         * @param {WordArray} key The key.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {Cipher} A cipher instance.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var cipher = CryptoJS.algo.AES.createDecryptor(keyWordArray, { iv: ivWordArray });
+	         */
+	        createDecryptor: function (key, cfg) {
+	            return this.create(this._DEC_XFORM_MODE, key, cfg);
+	        },
+
+	        /**
+	         * Initializes a newly created cipher.
+	         *
+	         * @param {number} xformMode Either the encryption or decryption transormation mode constant.
+	         * @param {WordArray} key The key.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @example
+	         *
+	         *     var cipher = CryptoJS.algo.AES.create(CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray });
+	         */
+	        init: function (xformMode, key, cfg) {
+	            // Apply config defaults
+	            this.cfg = this.cfg.extend(cfg);
+
+	            // Store transform mode and key
+	            this._xformMode = xformMode;
+	            this._key = key;
+
+	            // Set initial values
+	            this.reset();
+	        },
+
+	        /**
+	         * Resets this cipher to its initial state.
+	         *
+	         * @example
+	         *
+	         *     cipher.reset();
+	         */
+	        reset: function () {
+	            // Reset data buffer
+	            BufferedBlockAlgorithm.reset.call(this);
+
+	            // Perform concrete-cipher logic
+	            this._doReset();
+	        },
+
+	        /**
+	         * Adds data to be encrypted or decrypted.
+	         *
+	         * @param {WordArray|string} dataUpdate The data to encrypt or decrypt.
+	         *
+	         * @return {WordArray} The data after processing.
+	         *
+	         * @example
+	         *
+	         *     var encrypted = cipher.process('data');
+	         *     var encrypted = cipher.process(wordArray);
+	         */
+	        process: function (dataUpdate) {
+	            // Append
+	            this._append(dataUpdate);
+
+	            // Process available blocks
+	            return this._process();
+	        },
+
+	        /**
+	         * Finalizes the encryption or decryption process.
+	         * Note that the finalize operation is effectively a destructive, read-once operation.
+	         *
+	         * @param {WordArray|string} dataUpdate The final data to encrypt or decrypt.
+	         *
+	         * @return {WordArray} The data after final processing.
+	         *
+	         * @example
+	         *
+	         *     var encrypted = cipher.finalize();
+	         *     var encrypted = cipher.finalize('data');
+	         *     var encrypted = cipher.finalize(wordArray);
+	         */
+	        finalize: function (dataUpdate) {
+	            // Final data update
+	            if (dataUpdate) {
+	                this._append(dataUpdate);
+	            }
+
+	            // Perform concrete-cipher logic
+	            var finalProcessedData = this._doFinalize();
+
+	            return finalProcessedData;
+	        },
+
+	        keySize: 128/32,
+
+	        ivSize: 128/32,
+
+	        _ENC_XFORM_MODE: 1,
+
+	        _DEC_XFORM_MODE: 2,
+
+	        /**
+	         * Creates shortcut functions to a cipher's object interface.
+	         *
+	         * @param {Cipher} cipher The cipher to create a helper for.
+	         *
+	         * @return {Object} An object with encrypt and decrypt shortcut functions.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var AES = CryptoJS.lib.Cipher._createHelper(CryptoJS.algo.AES);
+	         */
+	        _createHelper: (function () {
+	            function selectCipherStrategy(key) {
+	                if (typeof key == 'string') {
+	                    return PasswordBasedCipher;
+	                } else {
+	                    return SerializableCipher;
+	                }
+	            }
+
+	            return function (cipher) {
+	                return {
+	                    encrypt: function (message, key, cfg) {
+	                        return selectCipherStrategy(key).encrypt(cipher, message, key, cfg);
+	                    },
+
+	                    decrypt: function (ciphertext, key, cfg) {
+	                        return selectCipherStrategy(key).decrypt(cipher, ciphertext, key, cfg);
+	                    }
+	                };
+	            };
+	        }())
+	    });
+
+	    /**
+	     * Abstract base stream cipher template.
+	     *
+	     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
+	     */
+	    C_lib.StreamCipher = Cipher.extend({
+	        _doFinalize: function () {
+	            // Process partial blocks
+	            var finalProcessedBlocks = this._process(!!'flush');
+
+	            return finalProcessedBlocks;
+	        },
+
+	        blockSize: 1
+	    });
+
+	    /**
+	     * Mode namespace.
+	     */
+	    var C_mode = C.mode = {};
+
+	    /**
+	     * Abstract base block cipher mode template.
+	     */
+	    var BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
+	        /**
+	         * Creates this mode for encryption.
+	         *
+	         * @param {Cipher} cipher A block cipher instance.
+	         * @param {Array} iv The IV words.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv.words);
+	         */
+	        createEncryptor: function (cipher, iv) {
+	            return this.Encryptor.create(cipher, iv);
+	        },
+
+	        /**
+	         * Creates this mode for decryption.
+	         *
+	         * @param {Cipher} cipher A block cipher instance.
+	         * @param {Array} iv The IV words.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv.words);
+	         */
+	        createDecryptor: function (cipher, iv) {
+	            return this.Decryptor.create(cipher, iv);
+	        },
+
+	        /**
+	         * Initializes a newly created mode.
+	         *
+	         * @param {Cipher} cipher A block cipher instance.
+	         * @param {Array} iv The IV words.
+	         *
+	         * @example
+	         *
+	         *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv.words);
+	         */
+	        init: function (cipher, iv) {
+	            this._cipher = cipher;
+	            this._iv = iv;
+	        }
+	    });
+
+	    /**
+	     * Cipher Block Chaining mode.
+	     */
+	    var CBC = C_mode.CBC = (function () {
+	        /**
+	         * Abstract base CBC mode.
+	         */
+	        var CBC = BlockCipherMode.extend();
+
+	        /**
+	         * CBC encryptor.
+	         */
+	        CBC.Encryptor = CBC.extend({
+	            /**
+	             * Processes the data block at offset.
+	             *
+	             * @param {Array} words The data words to operate on.
+	             * @param {number} offset The offset where the block starts.
+	             *
+	             * @example
+	             *
+	             *     mode.processBlock(data.words, offset);
+	             */
+	            processBlock: function (words, offset) {
+	                // Shortcuts
+	                var cipher = this._cipher;
+	                var blockSize = cipher.blockSize;
+
+	                // XOR and encrypt
+	                xorBlock.call(this, words, offset, blockSize);
+	                cipher.encryptBlock(words, offset);
+
+	                // Remember this block to use with next block
+	                this._prevBlock = words.slice(offset, offset + blockSize);
+	            }
+	        });
+
+	        /**
+	         * CBC decryptor.
+	         */
+	        CBC.Decryptor = CBC.extend({
+	            /**
+	             * Processes the data block at offset.
+	             *
+	             * @param {Array} words The data words to operate on.
+	             * @param {number} offset The offset where the block starts.
+	             *
+	             * @example
+	             *
+	             *     mode.processBlock(data.words, offset);
+	             */
+	            processBlock: function (words, offset) {
+	                // Shortcuts
+	                var cipher = this._cipher;
+	                var blockSize = cipher.blockSize;
+
+	                // Remember this block to use with next block
+	                var thisBlock = words.slice(offset, offset + blockSize);
+
+	                // Decrypt and XOR
+	                cipher.decryptBlock(words, offset);
+	                xorBlock.call(this, words, offset, blockSize);
+
+	                // This block becomes the previous block
+	                this._prevBlock = thisBlock;
+	            }
+	        });
+
+	        function xorBlock(words, offset, blockSize) {
+	            // Shortcut
+	            var iv = this._iv;
+
+	            // Choose mixing block
+	            if (iv) {
+	                var block = iv;
+
+	                // Remove IV for subsequent blocks
+	                this._iv = undefined$1;
+	            } else {
+	                var block = this._prevBlock;
+	            }
+
+	            // XOR blocks
+	            for (var i = 0; i < blockSize; i++) {
+	                words[offset + i] ^= block[i];
+	            }
+	        }
+
+	        return CBC;
+	    }());
+
+	    /**
+	     * Padding namespace.
+	     */
+	    var C_pad = C.pad = {};
+
+	    /**
+	     * PKCS #5/7 padding strategy.
+	     */
+	    var Pkcs7 = C_pad.Pkcs7 = {
+	        /**
+	         * Pads data using the algorithm defined in PKCS #5/7.
+	         *
+	         * @param {WordArray} data The data to pad.
+	         * @param {number} blockSize The multiple that the data should be padded to.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     CryptoJS.pad.Pkcs7.pad(wordArray, 4);
+	         */
+	        pad: function (data, blockSize) {
+	            // Shortcut
+	            var blockSizeBytes = blockSize * 4;
+
+	            // Count padding bytes
+	            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes;
+
+	            // Create padding word
+	            var paddingWord = (nPaddingBytes << 24) | (nPaddingBytes << 16) | (nPaddingBytes << 8) | nPaddingBytes;
+
+	            // Create padding
+	            var paddingWords = [];
+	            for (var i = 0; i < nPaddingBytes; i += 4) {
+	                paddingWords.push(paddingWord);
+	            }
+	            var padding = WordArray.create(paddingWords, nPaddingBytes);
+
+	            // Add padding
+	            data.concat(padding);
+	        },
+
+	        /**
+	         * Unpads data that had been padded using the algorithm defined in PKCS #5/7.
+	         *
+	         * @param {WordArray} data The data to unpad.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     CryptoJS.pad.Pkcs7.unpad(wordArray);
+	         */
+	        unpad: function (data) {
+	            // Get number of padding bytes from last byte
+	            var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff;
+
+	            // Remove padding
+	            data.sigBytes -= nPaddingBytes;
+	        }
+	    };
+
+	    /**
+	     * Abstract base block cipher template.
+	     *
+	     * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
+	     */
+	    C_lib.BlockCipher = Cipher.extend({
+	        /**
+	         * Configuration options.
+	         *
+	         * @property {Mode} mode The block mode to use. Default: CBC
+	         * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+	         */
+	        cfg: Cipher.cfg.extend({
+	            mode: CBC,
+	            padding: Pkcs7
+	        }),
+
+	        reset: function () {
+	            // Reset cipher
+	            Cipher.reset.call(this);
+
+	            // Shortcuts
+	            var cfg = this.cfg;
+	            var iv = cfg.iv;
+	            var mode = cfg.mode;
+
+	            // Reset block mode
+	            if (this._xformMode == this._ENC_XFORM_MODE) {
+	                var modeCreator = mode.createEncryptor;
+	            } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
+	                var modeCreator = mode.createDecryptor;
+	                // Keep at least one block in the buffer for unpadding
+	                this._minBufferSize = 1;
+	            }
+
+	            if (this._mode && this._mode.__creator == modeCreator) {
+	                this._mode.init(this, iv && iv.words);
+	            } else {
+	                this._mode = modeCreator.call(mode, this, iv && iv.words);
+	                this._mode.__creator = modeCreator;
+	            }
+	        },
+
+	        _doProcessBlock: function (words, offset) {
+	            this._mode.processBlock(words, offset);
+	        },
+
+	        _doFinalize: function () {
+	            // Shortcut
+	            var padding = this.cfg.padding;
+
+	            // Finalize
+	            if (this._xformMode == this._ENC_XFORM_MODE) {
+	                // Pad data
+	                padding.pad(this._data, this.blockSize);
+
+	                // Process final blocks
+	                var finalProcessedBlocks = this._process(!!'flush');
+	            } else /* if (this._xformMode == this._DEC_XFORM_MODE) */ {
+	                // Process final blocks
+	                var finalProcessedBlocks = this._process(!!'flush');
+
+	                // Unpad data
+	                padding.unpad(finalProcessedBlocks);
+	            }
+
+	            return finalProcessedBlocks;
+	        },
+
+	        blockSize: 128/32
+	    });
+
+	    /**
+	     * A collection of cipher parameters.
+	     *
+	     * @property {WordArray} ciphertext The raw ciphertext.
+	     * @property {WordArray} key The key to this ciphertext.
+	     * @property {WordArray} iv The IV used in the ciphering operation.
+	     * @property {WordArray} salt The salt used with a key derivation function.
+	     * @property {Cipher} algorithm The cipher algorithm.
+	     * @property {Mode} mode The block mode used in the ciphering operation.
+	     * @property {Padding} padding The padding scheme used in the ciphering operation.
+	     * @property {number} blockSize The block size of the cipher.
+	     * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
+	     */
+	    var CipherParams = C_lib.CipherParams = Base.extend({
+	        /**
+	         * Initializes a newly created cipher params object.
+	         *
+	         * @param {Object} cipherParams An object with any of the possible cipher parameters.
+	         *
+	         * @example
+	         *
+	         *     var cipherParams = CryptoJS.lib.CipherParams.create({
+	         *         ciphertext: ciphertextWordArray,
+	         *         key: keyWordArray,
+	         *         iv: ivWordArray,
+	         *         salt: saltWordArray,
+	         *         algorithm: CryptoJS.algo.AES,
+	         *         mode: CryptoJS.mode.CBC,
+	         *         padding: CryptoJS.pad.PKCS7,
+	         *         blockSize: 4,
+	         *         formatter: CryptoJS.format.OpenSSL
+	         *     });
+	         */
+	        init: function (cipherParams) {
+	            this.mixIn(cipherParams);
+	        },
+
+	        /**
+	         * Converts this cipher params object to a string.
+	         *
+	         * @param {Format} formatter (Optional) The formatting strategy to use.
+	         *
+	         * @return {string} The stringified cipher params.
+	         *
+	         * @throws Error If neither the formatter nor the default formatter is set.
+	         *
+	         * @example
+	         *
+	         *     var string = cipherParams + '';
+	         *     var string = cipherParams.toString();
+	         *     var string = cipherParams.toString(CryptoJS.format.OpenSSL);
+	         */
+	        toString: function (formatter) {
+	            return (formatter || this.formatter).stringify(this);
+	        }
+	    });
+
+	    /**
+	     * Format namespace.
+	     */
+	    var C_format = C.format = {};
+
+	    /**
+	     * OpenSSL formatting strategy.
+	     */
+	    var OpenSSLFormatter = C_format.OpenSSL = {
+	        /**
+	         * Converts a cipher params object to an OpenSSL-compatible string.
+	         *
+	         * @param {CipherParams} cipherParams The cipher params object.
+	         *
+	         * @return {string} The OpenSSL-compatible string.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
+	         */
+	        stringify: function (cipherParams) {
+	            // Shortcuts
+	            var ciphertext = cipherParams.ciphertext;
+	            var salt = cipherParams.salt;
+
+	            // Format
+	            if (salt) {
+	                var wordArray = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
+	            } else {
+	                var wordArray = ciphertext;
+	            }
+
+	            return wordArray.toString(Base64);
+	        },
+
+	        /**
+	         * Converts an OpenSSL-compatible string to a cipher params object.
+	         *
+	         * @param {string} openSSLStr The OpenSSL-compatible string.
+	         *
+	         * @return {CipherParams} The cipher params object.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var cipherParams = CryptoJS.format.OpenSSL.parse(openSSLString);
+	         */
+	        parse: function (openSSLStr) {
+	            // Parse base64
+	            var ciphertext = Base64.parse(openSSLStr);
+
+	            // Shortcut
+	            var ciphertextWords = ciphertext.words;
+
+	            // Test for salt
+	            if (ciphertextWords[0] == 0x53616c74 && ciphertextWords[1] == 0x65645f5f) {
+	                // Extract salt
+	                var salt = WordArray.create(ciphertextWords.slice(2, 4));
+
+	                // Remove salt from ciphertext
+	                ciphertextWords.splice(0, 4);
+	                ciphertext.sigBytes -= 16;
+	            }
+
+	            return CipherParams.create({ ciphertext: ciphertext, salt: salt });
+	        }
+	    };
+
+	    /**
+	     * A cipher wrapper that returns ciphertext as a serializable cipher params object.
+	     */
+	    var SerializableCipher = C_lib.SerializableCipher = Base.extend({
+	        /**
+	         * Configuration options.
+	         *
+	         * @property {Formatter} format The formatting strategy to convert cipher param objects to and from a string. Default: OpenSSL
+	         */
+	        cfg: Base.extend({
+	            format: OpenSSLFormatter
+	        }),
+
+	        /**
+	         * Encrypts a message.
+	         *
+	         * @param {Cipher} cipher The cipher algorithm to use.
+	         * @param {WordArray|string} message The message to encrypt.
+	         * @param {WordArray} key The key.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {CipherParams} A cipher params object.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key);
+	         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv });
+	         *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+	         */
+	        encrypt: function (cipher, message, key, cfg) {
+	            // Apply config defaults
+	            cfg = this.cfg.extend(cfg);
+
+	            // Encrypt
+	            var encryptor = cipher.createEncryptor(key, cfg);
+	            var ciphertext = encryptor.finalize(message);
+
+	            // Shortcut
+	            var cipherCfg = encryptor.cfg;
+
+	            // Create and return serializable cipher params
+	            return CipherParams.create({
+	                ciphertext: ciphertext,
+	                key: key,
+	                iv: cipherCfg.iv,
+	                algorithm: cipher,
+	                mode: cipherCfg.mode,
+	                padding: cipherCfg.padding,
+	                blockSize: cipher.blockSize,
+	                formatter: cfg.format
+	            });
+	        },
+
+	        /**
+	         * Decrypts serialized ciphertext.
+	         *
+	         * @param {Cipher} cipher The cipher algorithm to use.
+	         * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+	         * @param {WordArray} key The key.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {WordArray} The plaintext.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+	         *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+	         */
+	        decrypt: function (cipher, ciphertext, key, cfg) {
+	            // Apply config defaults
+	            cfg = this.cfg.extend(cfg);
+
+	            // Convert string to CipherParams
+	            ciphertext = this._parse(ciphertext, cfg.format);
+
+	            // Decrypt
+	            var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+
+	            return plaintext;
+	        },
+
+	        /**
+	         * Converts serialized ciphertext to CipherParams,
+	         * else assumed CipherParams already and returns ciphertext unchanged.
+	         *
+	         * @param {CipherParams|string} ciphertext The ciphertext.
+	         * @param {Formatter} format The formatting strategy to use to parse serialized ciphertext.
+	         *
+	         * @return {CipherParams} The unserialized ciphertext.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var ciphertextParams = CryptoJS.lib.SerializableCipher._parse(ciphertextStringOrParams, format);
+	         */
+	        _parse: function (ciphertext, format) {
+	            if (typeof ciphertext == 'string') {
+	                return format.parse(ciphertext, this);
+	            } else {
+	                return ciphertext;
+	            }
+	        }
+	    });
+
+	    /**
+	     * Key derivation function namespace.
+	     */
+	    var C_kdf = C.kdf = {};
+
+	    /**
+	     * OpenSSL key derivation function.
+	     */
+	    var OpenSSLKdf = C_kdf.OpenSSL = {
+	        /**
+	         * Derives a key and IV from a password.
+	         *
+	         * @param {string} password The password to derive from.
+	         * @param {number} keySize The size in words of the key to generate.
+	         * @param {number} ivSize The size in words of the IV to generate.
+	         * @param {WordArray|string} salt (Optional) A 64-bit salt to use. If omitted, a salt will be generated randomly.
+	         *
+	         * @return {CipherParams} A cipher params object with the key, IV, and salt.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32);
+	         *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32, 'saltsalt');
+	         */
+	        execute: function (password, keySize, ivSize, salt) {
+	            // Generate random salt
+	            if (!salt) {
+	                salt = WordArray.random(64/8);
+	            }
+
+	            // Derive key and IV
+	            var key = EvpKDF.create({ keySize: keySize + ivSize }).compute(password, salt);
+
+	            // Separate key and IV
+	            var iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
+	            key.sigBytes = keySize * 4;
+
+	            // Return params
+	            return CipherParams.create({ key: key, iv: iv, salt: salt });
+	        }
+	    };
+
+	    /**
+	     * A serializable cipher wrapper that derives the key from a password,
+	     * and returns ciphertext as a serializable cipher params object.
+	     */
+	    var PasswordBasedCipher = C_lib.PasswordBasedCipher = SerializableCipher.extend({
+	        /**
+	         * Configuration options.
+	         *
+	         * @property {KDF} kdf The key derivation function to use to generate a key and IV from a password. Default: OpenSSL
+	         */
+	        cfg: SerializableCipher.cfg.extend({
+	            kdf: OpenSSLKdf
+	        }),
+
+	        /**
+	         * Encrypts a message using a password.
+	         *
+	         * @param {Cipher} cipher The cipher algorithm to use.
+	         * @param {WordArray|string} message The message to encrypt.
+	         * @param {string} password The password.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {CipherParams} A cipher params object.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password');
+	         *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password', { format: CryptoJS.format.OpenSSL });
+	         */
+	        encrypt: function (cipher, message, password, cfg) {
+	            // Apply config defaults
+	            cfg = this.cfg.extend(cfg);
+
+	            // Derive key and other params
+	            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize);
+
+	            // Add IV to config
+	            cfg.iv = derivedParams.iv;
+
+	            // Encrypt
+	            var ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg);
+
+	            // Mix in derived params
+	            ciphertext.mixIn(derivedParams);
+
+	            return ciphertext;
+	        },
+
+	        /**
+	         * Decrypts serialized ciphertext using a password.
+	         *
+	         * @param {Cipher} cipher The cipher algorithm to use.
+	         * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+	         * @param {string} password The password.
+	         * @param {Object} cfg (Optional) The configuration options to use for this operation.
+	         *
+	         * @return {WordArray} The plaintext.
+	         *
+	         * @static
+	         *
+	         * @example
+	         *
+	         *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, 'password', { format: CryptoJS.format.OpenSSL });
+	         *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, 'password', { format: CryptoJS.format.OpenSSL });
+	         */
+	        decrypt: function (cipher, ciphertext, password, cfg) {
+	            // Apply config defaults
+	            cfg = this.cfg.extend(cfg);
+
+	            // Convert string to CipherParams
+	            ciphertext = this._parse(ciphertext, cfg.format);
+
+	            // Derive key and other params
+	            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt);
+
+	            // Add IV to config
+	            cfg.iv = derivedParams.iv;
+
+	            // Decrypt
+	            var plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, cfg);
+
+	            return plaintext;
+	        }
+	    });
+	}());
+
+
+}));
+});
+
+var aes = createCommonjsModule(function (module, exports) {
+(function (root, factory, undef) {
+	{
+		// CommonJS
+		module.exports = factory(core, encBase64, md5, evpkdf, cipherCore);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	(function () {
+	    // Shortcuts
+	    var C = CryptoJS;
+	    var C_lib = C.lib;
+	    var BlockCipher = C_lib.BlockCipher;
+	    var C_algo = C.algo;
+
+	    // Lookup tables
+	    var SBOX = [];
+	    var INV_SBOX = [];
+	    var SUB_MIX_0 = [];
+	    var SUB_MIX_1 = [];
+	    var SUB_MIX_2 = [];
+	    var SUB_MIX_3 = [];
+	    var INV_SUB_MIX_0 = [];
+	    var INV_SUB_MIX_1 = [];
+	    var INV_SUB_MIX_2 = [];
+	    var INV_SUB_MIX_3 = [];
+
+	    // Compute lookup tables
+	    (function () {
+	        // Compute double table
+	        var d = [];
+	        for (var i = 0; i < 256; i++) {
+	            if (i < 128) {
+	                d[i] = i << 1;
+	            } else {
+	                d[i] = (i << 1) ^ 0x11b;
+	            }
+	        }
+
+	        // Walk GF(2^8)
+	        var x = 0;
+	        var xi = 0;
+	        for (var i = 0; i < 256; i++) {
+	            // Compute sbox
+	            var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+	            sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
+	            SBOX[x] = sx;
+	            INV_SBOX[sx] = x;
+
+	            // Compute multiplication
+	            var x2 = d[x];
+	            var x4 = d[x2];
+	            var x8 = d[x4];
+
+	            // Compute sub bytes, mix columns tables
+	            var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
+	            SUB_MIX_0[x] = (t << 24) | (t >>> 8);
+	            SUB_MIX_1[x] = (t << 16) | (t >>> 16);
+	            SUB_MIX_2[x] = (t << 8)  | (t >>> 24);
+	            SUB_MIX_3[x] = t;
+
+	            // Compute inv sub bytes, inv mix columns tables
+	            var t = (x8 * 0x1010101) ^ (x4 * 0x10001) ^ (x2 * 0x101) ^ (x * 0x1010100);
+	            INV_SUB_MIX_0[sx] = (t << 24) | (t >>> 8);
+	            INV_SUB_MIX_1[sx] = (t << 16) | (t >>> 16);
+	            INV_SUB_MIX_2[sx] = (t << 8)  | (t >>> 24);
+	            INV_SUB_MIX_3[sx] = t;
+
+	            // Compute next counter
+	            if (!x) {
+	                x = xi = 1;
+	            } else {
+	                x = x2 ^ d[d[d[x8 ^ x2]]];
+	                xi ^= d[d[xi]];
+	            }
+	        }
+	    }());
+
+	    // Precomputed Rcon lookup
+	    var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+
+	    /**
+	     * AES block cipher algorithm.
+	     */
+	    var AES = C_algo.AES = BlockCipher.extend({
+	        _doReset: function () {
+	            // Skip reset of nRounds has been set before and key did not change
+	            if (this._nRounds && this._keyPriorReset === this._key) {
+	                return;
+	            }
+
+	            // Shortcuts
+	            var key = this._keyPriorReset = this._key;
+	            var keyWords = key.words;
+	            var keySize = key.sigBytes / 4;
+
+	            // Compute number of rounds
+	            var nRounds = this._nRounds = keySize + 6;
+
+	            // Compute number of key schedule rows
+	            var ksRows = (nRounds + 1) * 4;
+
+	            // Compute key schedule
+	            var keySchedule = this._keySchedule = [];
+	            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+	                if (ksRow < keySize) {
+	                    keySchedule[ksRow] = keyWords[ksRow];
+	                } else {
+	                    var t = keySchedule[ksRow - 1];
+
+	                    if (!(ksRow % keySize)) {
+	                        // Rot word
+	                        t = (t << 8) | (t >>> 24);
+
+	                        // Sub word
+	                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+
+	                        // Mix Rcon
+	                        t ^= RCON[(ksRow / keySize) | 0] << 24;
+	                    } else if (keySize > 6 && ksRow % keySize == 4) {
+	                        // Sub word
+	                        t = (SBOX[t >>> 24] << 24) | (SBOX[(t >>> 16) & 0xff] << 16) | (SBOX[(t >>> 8) & 0xff] << 8) | SBOX[t & 0xff];
+	                    }
+
+	                    keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
+	                }
+	            }
+
+	            // Compute inv key schedule
+	            var invKeySchedule = this._invKeySchedule = [];
+	            for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+	                var ksRow = ksRows - invKsRow;
+
+	                if (invKsRow % 4) {
+	                    var t = keySchedule[ksRow];
+	                } else {
+	                    var t = keySchedule[ksRow - 4];
+	                }
+
+	                if (invKsRow < 4 || ksRow <= 4) {
+	                    invKeySchedule[invKsRow] = t;
+	                } else {
+	                    invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[(t >>> 16) & 0xff]] ^
+	                                               INV_SUB_MIX_2[SBOX[(t >>> 8) & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]];
+	                }
+	            }
+	        },
+
+	        encryptBlock: function (M, offset) {
+	            this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
+	        },
+
+	        decryptBlock: function (M, offset) {
+	            // Swap 2nd and 4th rows
+	            var t = M[offset + 1];
+	            M[offset + 1] = M[offset + 3];
+	            M[offset + 3] = t;
+
+	            this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX);
+
+	            // Inv swap 2nd and 4th rows
+	            var t = M[offset + 1];
+	            M[offset + 1] = M[offset + 3];
+	            M[offset + 3] = t;
+	        },
+
+	        _doCryptBlock: function (M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
+	            // Shortcut
+	            var nRounds = this._nRounds;
+
+	            // Get input, add round key
+	            var s0 = M[offset]     ^ keySchedule[0];
+	            var s1 = M[offset + 1] ^ keySchedule[1];
+	            var s2 = M[offset + 2] ^ keySchedule[2];
+	            var s3 = M[offset + 3] ^ keySchedule[3];
+
+	            // Key schedule row counter
+	            var ksRow = 4;
+
+	            // Rounds
+	            for (var round = 1; round < nRounds; round++) {
+	                // Shift rows, sub bytes, mix columns, add round key
+	                var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[(s1 >>> 16) & 0xff] ^ SUB_MIX_2[(s2 >>> 8) & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
+	                var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[(s2 >>> 16) & 0xff] ^ SUB_MIX_2[(s3 >>> 8) & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
+	                var t2 = SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[(s3 >>> 16) & 0xff] ^ SUB_MIX_2[(s0 >>> 8) & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++];
+	                var t3 = SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[(s0 >>> 16) & 0xff] ^ SUB_MIX_2[(s1 >>> 8) & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++];
+
+	                // Update state
+	                s0 = t0;
+	                s1 = t1;
+	                s2 = t2;
+	                s3 = t3;
+	            }
+
+	            // Shift rows, sub bytes, add round key
+	            var t0 = ((SBOX[s0 >>> 24] << 24) | (SBOX[(s1 >>> 16) & 0xff] << 16) | (SBOX[(s2 >>> 8) & 0xff] << 8) | SBOX[s3 & 0xff]) ^ keySchedule[ksRow++];
+	            var t1 = ((SBOX[s1 >>> 24] << 24) | (SBOX[(s2 >>> 16) & 0xff] << 16) | (SBOX[(s3 >>> 8) & 0xff] << 8) | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
+	            var t2 = ((SBOX[s2 >>> 24] << 24) | (SBOX[(s3 >>> 16) & 0xff] << 16) | (SBOX[(s0 >>> 8) & 0xff] << 8) | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
+	            var t3 = ((SBOX[s3 >>> 24] << 24) | (SBOX[(s0 >>> 16) & 0xff] << 16) | (SBOX[(s1 >>> 8) & 0xff] << 8) | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++];
+
+	            // Set output
+	            M[offset]     = t0;
+	            M[offset + 1] = t1;
+	            M[offset + 2] = t2;
+	            M[offset + 3] = t3;
+	        },
+
+	        keySize: 256/32
+	    });
+
+	    /**
+	     * Shortcut functions to the cipher's object interface.
+	     *
+	     * @example
+	     *
+	     *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
+	     *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
+	     */
+	    C.AES = BlockCipher._createHelper(AES);
+	}());
+
+
+	return CryptoJS.AES;
+
+}));
+});
+
+var encUtf8 = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+	{
+		// CommonJS
+		module.exports = factory(core);
+	}
+}(commonjsGlobal, function (CryptoJS) {
+
+	return CryptoJS.enc.Utf8;
+
+}));
+});
+
+var cryptoEnc = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.assign(/*#__PURE__*/Object.create(null), encUtf8, {
+  'default': encUtf8
+}));
+
+/**
+ * this plugin adds the encryption-capabilities to rxdb
+ * It's using crypto-js/aes for password-encryption
+ * @link https://github.com/brix/crypto-js
+ */
+var minPassLength = 8;
+function encrypt(value, password) {
+  var encrypted = aes.encrypt(value, password);
+  return encrypted.toString();
+}
+function decrypt(cipherText, password) {
+  var decrypted = aes.decrypt(cipherText, password);
+  return decrypted.toString(cryptoEnc);
+}
+
+var _encryptValue = function _encryptValue(value) {
+  return encrypt(JSON.stringify(value), this.password);
+};
+
+var _decryptValue = function _decryptValue(encryptedValue) {
+  var decrypted = decrypt(encryptedValue, this.password);
+  return JSON.parse(decrypted);
+};
+
+/**
+ * validates and inserts the password hash into the internal collection
+ * to ensure there is/was no other instance with a different password
+ * which would cause strange side effects when both instances save into the same db
+ */
+function storePasswordHashIntoDatabase(rxDatabase) {
+  if (!rxDatabase.password) {
+    return Promise.resolve(false);
+  }
+
+  var pwHash = hash(rxDatabase.password);
+  return rxDatabase.internalStore.get(LOCAL_PREFIX + 'pwHash')["catch"](function () {
+    return null;
+  }).then(function (pwHashDoc) {
+    /**
+     * if pwHash was not saved, we save it,
+     * this operation might throw because another instance runs save at the same time,
+     */
+    if (!pwHashDoc) {
+      return rxDatabase.internalStore.put({
+        _id: LOCAL_PREFIX + 'pwHash',
+        value: pwHash
+      })["catch"](function () {
+        return null;
+      }).then(function () {
+        return true;
+      });
+    } else if (pwHash !== pwHashDoc.value) {
+      // different hash was already set by other instance
+      return rxDatabase.destroy().then(function () {
+        throw newRxError('DB1', {
+          passwordHash: hash(rxDatabase.password),
+          existingPasswordHash: pwHashDoc.value
+        });
+      });
+    }
+
+    return true;
+  });
+}
+var rxdb$3 = true;
+var prototypes$3 = {
+  /**
+   * set crypto-functions for the Crypter.prototype
+   */
+  Crypter: function Crypter(proto) {
+    proto._encryptValue = _encryptValue;
+    proto._decryptValue = _decryptValue;
+  }
+};
+var overwritable$2 = {
+  validatePassword: function validatePassword(password) {
+    if (password && typeof password !== 'string') {
+      throw newRxTypeError('EN1', {
+        password: password
+      });
+    }
+
+    if (password && password.length < minPassLength) {
+      throw newRxError('EN2', {
+        minPassLength: minPassLength,
+        password: password
+      });
+    }
+  }
+};
+var RxDBEncryptionPlugin = {
+  name: 'encryption',
+  rxdb: rxdb$3,
+  prototypes: prototypes$3,
+  overwritable: overwritable$2,
+  hooks: {
+    createRxDatabase: function createRxDatabase(db) {
+      return storePasswordHashIntoDatabase(db);
+    }
+  }
+};
+
+var getTime = Date.prototype.getTime;
+
+function deepEqual$1(actual, expected, options) {
+  var opts = options || {};
+
+  // 7.1. All identical values are equivalent, as determined by ===.
+  if (opts.strict ? objectIs(actual, expected) : actual === expected) {
+    return true;
+  }
+
+  // 7.3. Other pairs that do not both pass typeof value == 'object', equivalence is determined by ==.
+  if (!actual || !expected || (typeof actual !== 'object' && typeof expected !== 'object')) {
+    return opts.strict ? objectIs(actual, expected) : actual == expected;
+  }
+
+  /*
+   * 7.4. For all other Object pairs, including Array objects, equivalence is
+   * determined by having the same number of owned properties (as verified
+   * with Object.prototype.hasOwnProperty.call), the same set of keys
+   * (although not necessarily the same order), equivalent values for every
+   * corresponding key, and an identical 'prototype' property. Note: this
+   * accounts for both named and indexed properties on Arrays.
+   */
+  // eslint-disable-next-line no-use-before-define
+  return objEquiv$1(actual, expected, opts);
+}
+
+function isUndefinedOrNull(value) {
+  return value === null || value === undefined;
+}
+
+function isBuffer$3(x) {
+  if (!x || typeof x !== 'object' || typeof x.length !== 'number') {
+    return false;
+  }
+  if (typeof x.copy !== 'function' || typeof x.slice !== 'function') {
+    return false;
+  }
+  if (x.length > 0 && typeof x[0] !== 'number') {
+    return false;
+  }
+  return true;
+}
+
+function objEquiv$1(a, b, opts) {
+  /* eslint max-statements: [2, 50] */
+  var i, key;
+  if (typeof a !== typeof b) { return false; }
+  if (isUndefinedOrNull(a) || isUndefinedOrNull(b)) { return false; }
+
+  // an identical 'prototype' property.
+  if (a.prototype !== b.prototype) { return false; }
+
+  if (isArguments$1(a) !== isArguments$1(b)) { return false; }
+
+  var aIsRegex = isRegex(a);
+  var bIsRegex = isRegex(b);
+  if (aIsRegex !== bIsRegex) { return false; }
+  if (aIsRegex || bIsRegex) {
+    return a.source === b.source && regexp_prototype_flags(a) === regexp_prototype_flags(b);
+  }
+
+  if (isDateObject(a) && isDateObject(b)) {
+    return getTime.call(a) === getTime.call(b);
+  }
+
+  var aIsBuffer = isBuffer$3(a);
+  var bIsBuffer = isBuffer$3(b);
+  if (aIsBuffer !== bIsBuffer) { return false; }
+  if (aIsBuffer || bIsBuffer) { // && would work too, because both are true or both false here
+    if (a.length !== b.length) { return false; }
+    for (i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) { return false; }
+    }
+    return true;
+  }
+
+  if (typeof a !== typeof b) { return false; }
+
+  try {
+    var ka = objectKeys(a);
+    var kb = objectKeys(b);
+  } catch (e) { // happens when one is a string literal and the other isn't
+    return false;
+  }
+  // having the same number of owned properties (keys incorporates hasOwnProperty)
+  if (ka.length !== kb.length) { return false; }
+
+  // the same set of keys (although not necessarily the same order),
+  ka.sort();
+  kb.sort();
+  // ~~~cheap key test
+  for (i = ka.length - 1; i >= 0; i--) {
+    if (ka[i] != kb[i]) { return false; }
+  }
+  // equivalent values for every corresponding key, and ~~~possibly expensive deep test
+  for (i = ka.length - 1; i >= 0; i--) {
+    key = ka[i];
+    if (!deepEqual$1(a[key], b[key], opts)) { return false; }
+  }
+
+  return true;
+}
+
+var deepEqual_1 = deepEqual$1;
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var clone$1 = _interopDefault(clone_1);
+var equal = _interopDefault(deepEqual_1);
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+  return typeof obj;
+} : function (obj) {
+  return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
+var isObject$2 = (function (variableToCheck) {
+  return (typeof variableToCheck === "undefined" ? "undefined" : _typeof(variableToCheck)) === "object" && variableToCheck !== null;
+});
+
+var every = (function (arrayToIterate, cb) {
+  return arrayToIterate.every(function (elem) {
+    return cb && cb(elem) || elem;
+  });
+});
+
+var has$2 = (function (objectWithKeys, key) {
+  return objectWithKeys.hasOwnProperty(key);
+});
+
+var keys = (function (objectWithKeys) {
+  return Object.keys(objectWithKeys);
+});
+
+var each = (function (objectToIterate, cb) {
+  Object.keys(objectToIterate).forEach(function (key) {
+    cb(objectToIterate[key], key);
+  });
+});
+
+var libIsArray = (function (variableToCheck) {
+  return Array.isArray(variableToCheck);
+});
+
+var isBinary = (function (variableToCheck) {
+  return !!(typeof Uint8Array !== 'undefined' && variableToCheck instanceof Uint8Array || variableToCheck && variableToCheck.$Uint8ArrayPolyfill);
+});
+
+var _$1 = { isArray: libIsArray, each: each };
+// Like _.isArray, but doesn't regard polyfilled Uint8Arrays on old browsers as
+// arrays.
+// XXX maybe this should be EJSON.isArray
+var isArray$4 = function isArray(x) {
+  return _$1.isArray(x) && !isBinary(x);
+};
+
+var isIndexable = function isIndexable(x) {
+  return isArray$4(x) || isPlainObject(x);
+};
+
+// Returns true if this is an object with at least one key and all keys begin
+// with $.  Unless inconsistentOK is set, throws if some keys begin with $ and
+// others don't.
+var isOperatorObject = function isOperatorObject(valueSelector, inconsistentOK) {
+  if (!isPlainObject(valueSelector)) return false;
+
+  var theseAreOperators = undefined;
+  _$1.each(valueSelector, function (value, selKey) {
+    var thisIsOperator = selKey.substr(0, 1) === '$';
+    if (theseAreOperators === undefined) {
+      theseAreOperators = thisIsOperator;
+    } else if (theseAreOperators !== thisIsOperator) {
+      if (!inconsistentOK) throw new Error("Inconsistent operator: " + JSON.stringify(valueSelector));
+      theseAreOperators = false;
+    }
+  });
+  return !!theseAreOperators; // {} has no operators
+};
+
+// string can be converted to integer
+var isNumericKey = function isNumericKey(s) {
+  return (/^[0-9]+$/.test(s)
+  );
+};
+
+var isPlainObject = (function (variableToCheck) {
+  if (!variableToCheck) return false;
+  if (typeof variableToCheck === "number") return false;
+  if (typeof variableToCheck === "string") return false;
+  if (typeof variableToCheck === "boolean") return false;
+  if (isArray$4(variableToCheck)) return false;
+  if (variableToCheck === null) return false;
+  if (variableToCheck instanceof RegExp)
+    // note that typeof(/x/) === "object"
+    return false;
+  if (typeof variableToCheck === "function") return false;
+  if (variableToCheck instanceof Date) return false;
+  if (isBinary(variableToCheck)) return false;
+
+  return true; // object
+});
+
+var ModifyJsError = function (message) {
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  if (typeof message === "string" && options.field) {
+    message += " for field '" + options.field + "'";
+  }
+
+  var e = new Error(message);
+  e.name = "ModifyJsError";
+  return e;
+};
+
+var _ = { all: every, each: each, keys: keys, has: has$2, isObject: isObject$2 };
+// XXX need a strategy for passing the binding of $ into this
+// function, from the compiled selector
+//
+// maybe just {key.up.to.just.before.dollarsign: array_index}
+//
+// XXX atomicity: if one modification fails, do we roll back the whole
+// change?
+//
+// options:
+//   - isInsert is set when _modify is being called to compute the document to
+//     insert as part of an upsert operation. We use this primarily to figure
+//     out when to set the fields in $setOnInsert, if present.
+var modify = function (doc, mod, options) {
+  if (options && options.each) {
+    return;
+  }
+  return _modify(doc, mod, _extends({}, options, { returnInsteadOfReplacing: true }));
+};
+
+var _modify = function _modify(doc, mod, options) {
+  options = options || {};
+  if (!isPlainObject(mod)) throw ModifyJsError("Modifier must be an object");
+
+  // Make sure the caller can't mutate our data structures.
+  mod = clone$1(mod);
+
+  var isModifier = isOperatorObject(mod);
+
+  var newDoc;
+
+  if (!isModifier) {
+    // replace the whole document
+    newDoc = mod;
+  } else {
+    // apply modifiers to the doc.
+    newDoc = clone$1(doc);
+    _.each(mod, function (operand, op) {
+      var modFunc = MODIFIERS[op];
+      // Treat $setOnInsert as $set if this is an insert.
+      if (!modFunc) throw ModifyJsError("Invalid modifier specified " + op);
+      _.each(operand, function (arg, keypath) {
+        if (keypath === '') {
+          throw ModifyJsError("An empty update path is not valid.");
+        }
+
+        var keyparts = keypath.split('.');
+        if (!_.all(keyparts)) {
+          throw ModifyJsError("The update path '" + keypath + "' contains an empty field name, which is not allowed.");
+        }
+
+        var target = findModTarget(newDoc, keyparts, {
+          noCreate: NO_CREATE_MODIFIERS[op],
+          forbidArray: op === "$rename",
+          arrayIndices: options.arrayIndices
+        });
+        var field = keyparts.pop();
+        modFunc(target, field, arg, keypath, newDoc);
+      });
+    });
+  }
+
+  if (options.returnInsteadOfReplacing) {
+    return newDoc;
+  } else {
+    // move new document into place.
+    _.each(_.keys(doc), function (k) {
+      // Note: this used to be for (var k in doc) however, this does not
+      // work right in Opera. Deleting from a doc while iterating over it
+      // would sometimes cause opera to skip some keys.
+      if (k !== '_id') delete doc[k];
+    });
+    _.each(newDoc, function (v, k) {
+      doc[k] = v;
+    });
+  }
+};
+
+// for a.b.c.2.d.e, keyparts should be ['a', 'b', 'c', '2', 'd', 'e'],
+// and then you would operate on the 'e' property of the returned
+// object.
+//
+// if options.noCreate is falsey, creates intermediate levels of
+// structure as necessary, like mkdir -p (and raises an exception if
+// that would mean giving a non-numeric property to an array.) if
+// options.noCreate is true, return undefined instead.
+//
+// may modify the last element of keyparts to signal to the caller that it needs
+// to use a different value to index into the returned object (for example,
+// ['a', '01'] -> ['a', 1]).
+//
+// if forbidArray is true, return null if the keypath goes through an array.
+//
+// if options.arrayIndices is set, use its first element for the (first) '$' in
+// the path.
+var findModTarget = function findModTarget(doc, keyparts, options) {
+  options = options || {};
+  var usedArrayIndex = false;
+  for (var i = 0; i < keyparts.length; i++) {
+    var last = i === keyparts.length - 1;
+    var keypart = keyparts[i];
+    var indexable = isIndexable(doc);
+    if (!indexable) {
+      if (options.noCreate) return undefined;
+      var e = ModifyJsError("cannot use the part '" + keypart + "' to traverse " + doc);
+      e.setPropertyError = true;
+      throw e;
+    }
+    if (doc instanceof Array) {
+      if (options.forbidArray) return null;
+      if (keypart === '$') {
+        if (usedArrayIndex) throw ModifyJsError("Too many positional (i.e. '$') elements");
+        if (!options.arrayIndices || !options.arrayIndices.length) {
+          throw ModifyJsError("The positional operator did not find the " + "match needed from the query");
+        }
+        keypart = options.arrayIndices[0];
+        usedArrayIndex = true;
+      } else if (isNumericKey(keypart)) {
+        keypart = parseInt(keypart);
+      } else {
+        if (options.noCreate) return undefined;
+        throw ModifyJsError("can't append to array using string field name [" + keypart + "]");
+      }
+      if (last)
+        // handle 'a.01'
+        keyparts[i] = keypart;
+      if (options.noCreate && keypart >= doc.length) return undefined;
+      while (doc.length < keypart) {
+        doc.push(null);
+      }if (!last) {
+        if (doc.length === keypart) doc.push({});else if (_typeof(doc[keypart]) !== "object") throw ModifyJsError("can't modify field '" + keyparts[i + 1] + "' of list value " + JSON.stringify(doc[keypart]));
+      }
+    } else {
+      if (!(keypart in doc)) {
+        if (options.noCreate) return undefined;
+        if (!last) doc[keypart] = {};
+      }
+    }
+
+    if (last) return doc;
+    doc = doc[keypart];
+  }
+};
+
+var NO_CREATE_MODIFIERS = {
+  $unset: true,
+  $pop: true,
+  $rename: true,
+  $pull: true,
+  $pullAll: true
+};
+
+var MODIFIERS = {
+  $currentDate: function $currentDate(target, field, arg) {
+    if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === "object" && arg.hasOwnProperty("$type")) {
+      if (arg.$type !== "date") {
+        throw ModifyJsError("Minimongo does currently only support the date type " + "in $currentDate modifiers", { field: field });
+      }
+    } else if (arg !== true) {
+      throw ModifyJsError("Invalid $currentDate modifier", { field: field });
+    }
+    target[field] = new Date();
+  },
+  $min: function $min(target, field, arg) {
+    if (typeof arg !== "number") {
+      throw ModifyJsError("Modifier $min allowed for numbers only", { field: field });
+    }
+    if (field in target) {
+      if (typeof target[field] !== "number") {
+        throw ModifyJsError("Cannot apply $min modifier to non-number", { field: field });
+      }
+      if (target[field] > arg) {
+        target[field] = arg;
+      }
+    } else {
+      target[field] = arg;
+    }
+  },
+  $max: function $max(target, field, arg) {
+    if (typeof arg !== "number") {
+      throw ModifyJsError("Modifier $max allowed for numbers only", { field: field });
+    }
+    if (field in target) {
+      if (typeof target[field] !== "number") {
+        throw ModifyJsError("Cannot apply $max modifier to non-number", { field: field });
+      }
+      if (target[field] < arg) {
+        target[field] = arg;
+      }
+    } else {
+      target[field] = arg;
+    }
+  },
+  $inc: function $inc(target, field, arg) {
+    if (typeof arg !== "number") throw ModifyJsError("Modifier $inc allowed for numbers only", { field: field });
+    if (field in target) {
+      if (typeof target[field] !== "number") throw ModifyJsError("Cannot apply $inc modifier to non-number", { field: field });
+      target[field] += arg;
+    } else {
+      target[field] = arg;
+    }
+  },
+  $set: function $set(target, field, arg) {
+    if (!_.isObject(target)) {
+      // not an array or an object
+      var e = ModifyJsError("Cannot set property on non-object field", { field: field });
+      e.setPropertyError = true;
+      throw e;
+    }
+    if (target === null) {
+      var e = ModifyJsError("Cannot set property on null", { field: field });
+      e.setPropertyError = true;
+      throw e;
+    }
+    target[field] = arg;
+  },
+  $setOnInsert: function $setOnInsert(target, field, arg) {
+    // converted to `$set` in `_modify`
+  },
+  $unset: function $unset(target, field, arg) {
+    if (target !== undefined) {
+      if (target instanceof Array) {
+        if (field in target) target[field] = null;
+      } else delete target[field];
+    }
+  },
+  $push: function $push(target, field, arg) {
+    if (target[field] === undefined) target[field] = [];
+    if (!(target[field] instanceof Array)) throw ModifyJsError("Cannot apply $push modifier to non-array", { field: field });
+
+    if (!(arg && arg.$each)) {
+      // Simple mode: not $each
+      target[field].push(arg);
+      return;
+    }
+
+    // Fancy mode: $each (and maybe $slice and $sort and $position)
+    var toPush = arg.$each;
+    if (!(toPush instanceof Array)) throw ModifyJsError("$each must be an array", { field: field });
+
+    // Parse $position
+    var position = undefined;
+    if ('$position' in arg) {
+      if (typeof arg.$position !== "number") throw ModifyJsError("$position must be a numeric value", { field: field });
+      // XXX should check to make sure integer
+      if (arg.$position < 0) throw ModifyJsError("$position in $push must be zero or positive", { field: field });
+      position = arg.$position;
+    }
+
+    // Parse $slice.
+    var slice = undefined;
+    if ('$slice' in arg) {
+      if (typeof arg.$slice !== "number") throw ModifyJsError("$slice must be a numeric value", { field: field });
+      // XXX should check to make sure integer
+      if (arg.$slice > 0) throw ModifyJsError("$slice in $push must be zero or negative", { field: field });
+      slice = arg.$slice;
+    }
+    if (arg.$sort) {
+      throw ModifyJsError("$sort in $push not implemented yet");
+      // if (slice === undefined)
+      //   throw ModifyJsError("$sort requires $slice to be present", { field });
+      // // XXX this allows us to use a $sort whose value is an array, but that's
+      // // actually an extension of the Node driver, so it won't work
+      // // server-side. Could be confusing!
+      // // XXX is it correct that we don't do geo-stuff here?
+      // sortFunction = new Minimongo.Sorter(arg.$sort).getComparator();
+      // for (var i = 0; i < toPush.length; i++) {
+      //   if (_f._type(toPush[i]) !== 3) {
+      //     throw ModifyJsError("$push like modifiers using $sort " +
+      //                 "require all elements to be objects", { field });
+      //   }
+      // }
+    }
+
+    // Actually push.
+    if (position === undefined) {
+      for (var j = 0; j < toPush.length; j++) {
+        target[field].push(toPush[j]);
+      }
+    } else {
+      var spliceArguments = [position, 0];
+      for (var j = 0; j < toPush.length; j++) {
+        spliceArguments.push(toPush[j]);
+      }Array.prototype.splice.apply(target[field], spliceArguments);
+    }
+
+    // Actually slice.
+    if (slice !== undefined) {
+      if (slice === 0) target[field] = []; // differs from Array.slice!
+      else target[field] = target[field].slice(slice);
+    }
+  },
+  $pushAll: function $pushAll(target, field, arg) {
+    if (!((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === "object" && arg instanceof Array)) throw ModifyJsError("Modifier $pushAll/pullAll allowed for arrays only");
+    var x = target[field];
+    if (x === undefined) target[field] = arg;else if (!(x instanceof Array)) throw ModifyJsError("Cannot apply $pushAll modifier to non-array", { field: field });else {
+      for (var i = 0; i < arg.length; i++) {
+        x.push(arg[i]);
+      }
+    }
+  },
+  $addToSet: function $addToSet(target, field, arg) {
+    var isEach = false;
+    if ((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === "object") {
+      //check if first key is '$each'
+      var _keys = Object.keys(arg);
+      if (_keys[0] === "$each") {
+        isEach = true;
+      }
+    }
+    var values = isEach ? arg["$each"] : [arg];
+    var x = target[field];
+    if (x === undefined) target[field] = values;else if (!(x instanceof Array)) throw ModifyJsError("Cannot apply $addToSet modifier to non-array", { field: field });else {
+      _.each(values, function (value) {
+        for (var i = 0; i < x.length; i++) {
+          if (equal(value, x[i])) return;
+        }x.push(value);
+      });
+    }
+  },
+  $pop: function $pop(target, field, arg) {
+    if (target === undefined) return;
+    var x = target[field];
+    if (x === undefined) return;else if (!(x instanceof Array)) throw ModifyJsError("Cannot apply $pop modifier to non-array", { field: field });else {
+      if (typeof arg === 'number' && arg < 0) x.splice(0, 1);else x.pop();
+    }
+  },
+  $pull: function $pull(target, field, arg) {
+    if (target === undefined) return;
+    var x = target[field];
+    if (x === undefined) return;else if (!(x instanceof Array)) throw ModifyJsError("Cannot apply $pull/pullAll modifier to non-array", { field: field });else {
+      throw ModifyJsError("$pull not implemented yet");
+      // var out = [];
+      // if (arg != null && typeof arg === "object" && !(arg instanceof Array)) {
+      //   // XXX would be much nicer to compile this once, rather than
+      //   // for each document we modify.. but usually we're not
+      //   // modifying that many documents, so we'll let it slide for
+      //   // now
+      //
+      //   // XXX Minimongo.Matcher isn't up for the job, because we need
+      //   // to permit stuff like {$pull: {a: {$gt: 4}}}.. something
+      //   // like {$gt: 4} is not normally a complete selector.
+      //   // same issue as $elemMatch possibly?
+      //   var matcher = new Minimongo.Matcher(arg);
+      //   for (var i = 0; i < x.length; i++)
+      //     if (!matcher.documentMatches(x[i]).result)
+      //       out.push(x[i]);
+      // } else {
+      //   for (var i = 0; i < x.length; i++)
+      //     if (!_f._equal(x[i], arg))
+      //       out.push(x[i]);
+      // }
+      // target[field] = out;
+    }
+  },
+  $pullAll: function $pullAll(target, field, arg) {
+    if (!((typeof arg === 'undefined' ? 'undefined' : _typeof(arg)) === "object" && arg instanceof Array)) throw ModifyJsError("Modifier $pushAll/pullAll allowed for arrays only", { field: field });
+    if (target === undefined) return;
+    var x = target[field];
+    if (x === undefined) return;else if (!(x instanceof Array)) throw ModifyJsError("Cannot apply $pull/pullAll modifier to non-array", { field: field });else {
+      var out = [];
+      for (var i = 0; i < x.length; i++) {
+        var exclude = false;
+        for (var j = 0; j < arg.length; j++) {
+          if (equal(x[i], arg[j])) {
+            exclude = true;
+            break;
+          }
+        }
+        if (!exclude) out.push(x[i]);
+      }
+      target[field] = out;
+    }
+  },
+  $rename: function $rename(target, field, arg, keypath, doc) {
+    if (keypath === arg)
+      // no idea why mongo has this restriction..
+      throw ModifyJsError("$rename source must differ from target", { field: field });
+    if (target === null) throw ModifyJsError("$rename source field invalid", { field: field });
+    if (typeof arg !== "string") throw ModifyJsError("$rename target must be a string", { field: field });
+    if (arg.indexOf('\0') > -1) {
+      // Null bytes are not allowed in Mongo field names
+      // https://docs.mongodb.com/manual/reference/limits/#Restrictions-on-Field-Names
+      throw ModifyJsError("The 'to' field for $rename cannot contain an embedded null byte", { field: field });
+    }
+    if (target === undefined) return;
+    var v = target[field];
+    delete target[field];
+
+    var keyparts = arg.split('.');
+    var target2 = findModTarget(doc, keyparts, { forbidArray: true });
+    if (target2 === null) throw ModifyJsError("$rename target field invalid", { field: field });
+    var field2 = keyparts.pop();
+    target2[field2] = v;
+  },
+  $bit: function $bit(target, field, arg) {
+    // XXX mongo only supports $bit on integers, and we only support
+    // native javascript numbers (doubles) so far, so we can't support $bit
+    throw ModifyJsError("$bit is not supported", { field: field });
+  }
+};
+
+var bundle = modify;
+
+/**
+ * this plugin allows delta-updates with mongo-like-syntax
+ * It's using modifyjs internally
+ * @link https://github.com/lgandecki/modifyjs
+ */
+function update(updateObj) {
+  var oldDocData = this._data;
+  var newDocData = bundle(oldDocData, updateObj);
+  return this._saveData(newDocData, oldDocData);
+}
+function RxQueryUpdate(updateObj) {
+  return this.exec().then(function (docs) {
+    if (!docs) return null;
+
+    if (Array.isArray(docs)) {
+      return Promise.all(docs.map(function (doc) {
+        return doc.update(updateObj);
+      })).then(function () {
+        return docs;
+      });
+    } else {
+      // via findOne()
+      return docs.update(updateObj).then(function () {
+        return docs;
+      });
+    }
+  });
+}
+var rxdb$4 = true;
+var prototypes$4 = {
+  RxDocument: function RxDocument(proto) {
+    proto.update = update;
+  },
+  RxQuery: function RxQuery(proto) {
+    proto.update = RxQueryUpdate;
+  }
+};
+var RxDBUpdatePlugin = {
+  name: 'update',
+  rxdb: rxdb$4,
+  prototypes: prototypes$4
+};
+
+/**
+ * listens to changes of the internal pouchdb
+ * and ensures they are emitted to the internal RxChangeEvent-Stream
+ */
+function watchForChanges() {
+  var _this = this;
+
+  // do not call twice on same collection
+  if (this.synced) return;
+  this.synced = true;
+  this._watchForChangesUnhandled = new Set();
+  /**
+   * this will grap the changes and publish them to the rx-stream
+   * this is to ensure that changes from 'synced' dbs will be published
+   */
+
+  var pouch$ = fromEvent(this.pouch.changes({
+    since: 'now',
+    live: true,
+    include_docs: true
+  }), 'change').pipe(map(function (ar) {
+    return ar[0];
+  }) // rxjs6.x fires an array for whatever reason
+  ).subscribe(function (change) {
+    var resPromise = _handleSingleChange(_this, change); // add and remove to the Set so RxReplicationState.complete$ can know when all events where handled
+
+
+    _this._watchForChangesUnhandled.add(resPromise);
+
+    resPromise.then(function () {
+      _this._watchForChangesUnhandled["delete"](resPromise);
+    });
+  });
+
+  this._subs.push(pouch$);
+}
+/**
+ * handles a single change-event
+ * and ensures that it is not already handled
+ */
+
+function _handleSingleChange(collection, change) {
+  if (change.id.charAt(0) === '_') return Promise.resolve(false); // do not handle changes of internal docs
+
+  var startTime = now();
+  var endTime = now(); // wait 2 ticks and 20 ms to give the internal event-handling time to run
+
+  return promiseWait(20).then(function () {
+    return nextTick();
+  }).then(function () {
+    return nextTick();
+  }).then(function () {
+    var docData = change.doc; // already handled by internal event-stream
+
+    if (collection._changeEventBuffer.hasChangeWithRevision(docData._rev)) {
+      return false;
+    }
+
+    var cE = changeEventfromPouchChange(docData, collection, startTime, endTime);
+    collection.$emit(cE);
+    return true;
+  });
+}
+
+var rxdb$5 = true;
+var prototypes$5 = {
+  RxCollection: function RxCollection(proto) {
+    proto.watchForChanges = watchForChanges;
+  }
+};
+var RxDBWatchForChangesPlugin = {
+  name: 'watch-for-changes',
+  rxdb: rxdb$5,
+  prototypes: prototypes$5
+};
+
+var CHECKPOINT_VERSION = 1;
+var REPLICATOR = "pouchdb";
+// This is an arbitrary number to limit the
+// amount of replication history we save in the checkpoint.
+// If we save too much, the checkpoing docs will become very big,
+// if we save fewer, we'll run a greater risk of having to
+// read all the changes from 0 when checkpoint PUTs fail
+// CouchDB 2.0 has a more involved history pruning,
+// but let's go for the simple version for now.
+var CHECKPOINT_HISTORY_SIZE = 5;
+var LOWEST_SEQ = 0;
+
+function updateCheckpoint(db, id, checkpoint, session, returnValue) {
+  return db.get(id).catch(function (err) {
+    if (err.status === 404) {
+      if (db.adapter === 'http' || db.adapter === 'https') {
+        explainError(
+          404, 'PouchDB is just checking if a remote checkpoint exists.'
+        );
+      }
+      return {
+        session_id: session,
+        _id: id,
+        history: [],
+        replicator: REPLICATOR,
+        version: CHECKPOINT_VERSION
+      };
+    }
+    throw err;
+  }).then(function (doc) {
+    if (returnValue.cancelled) {
+      return;
+    }
+
+    // if the checkpoint has not changed, do not update
+    if (doc.last_seq === checkpoint) {
+      return;
+    }
+
+    // Filter out current entry for this replication
+    doc.history = (doc.history || []).filter(function (item) {
+      return item.session_id !== session;
+    });
+
+    // Add the latest checkpoint to history
+    doc.history.unshift({
+      last_seq: checkpoint,
+      session_id: session
+    });
+
+    // Just take the last pieces in history, to
+    // avoid really big checkpoint docs.
+    // see comment on history size above
+    doc.history = doc.history.slice(0, CHECKPOINT_HISTORY_SIZE);
+
+    doc.version = CHECKPOINT_VERSION;
+    doc.replicator = REPLICATOR;
+
+    doc.session_id = session;
+    doc.last_seq = checkpoint;
+
+    return db.put(doc).catch(function (err) {
+      if (err.status === 409) {
+        // retry; someone is trying to write a checkpoint simultaneously
+        return updateCheckpoint(db, id, checkpoint, session, returnValue);
+      }
+      throw err;
+    });
+  });
+}
+
+function Checkpointer(src, target, id, returnValue, opts) {
+  this.src = src;
+  this.target = target;
+  this.id = id;
+  this.returnValue = returnValue;
+  this.opts = opts || {};
+}
+
+Checkpointer.prototype.writeCheckpoint = function (checkpoint, session) {
+  var self = this;
+  return this.updateTarget(checkpoint, session).then(function () {
+    return self.updateSource(checkpoint, session);
+  });
+};
+
+Checkpointer.prototype.updateTarget = function (checkpoint, session) {
+  if (this.opts.writeTargetCheckpoint) {
+    return updateCheckpoint(this.target, this.id, checkpoint,
+      session, this.returnValue);
+  } else {
+    return Promise.resolve(true);
+  }
+};
+
+Checkpointer.prototype.updateSource = function (checkpoint, session) {
+  if (this.opts.writeSourceCheckpoint) {
+    var self = this;
+    return updateCheckpoint(this.src, this.id, checkpoint,
+      session, this.returnValue)
+      .catch(function (err) {
+        if (isForbiddenError(err)) {
+          self.opts.writeSourceCheckpoint = false;
+          return true;
+        }
+        throw err;
+      });
+  } else {
+    return Promise.resolve(true);
+  }
+};
+
+var comparisons = {
+  "undefined": function (targetDoc, sourceDoc) {
+    // This is the previous comparison function
+    if (collate(targetDoc.last_seq, sourceDoc.last_seq) === 0) {
+      return sourceDoc.last_seq;
+    }
+    /* istanbul ignore next */
+    return 0;
+  },
+  "1": function (targetDoc, sourceDoc) {
+    // This is the comparison function ported from CouchDB
+    return compareReplicationLogs(sourceDoc, targetDoc).last_seq;
+  }
+};
+
+Checkpointer.prototype.getCheckpoint = function () {
+  var self = this;
+
+  if (self.opts && self.opts.writeSourceCheckpoint && !self.opts.writeTargetCheckpoint) {
+    return self.src.get(self.id).then(function (sourceDoc) {
+      return sourceDoc.last_seq || LOWEST_SEQ;
+    }).catch(function (err) {
+      /* istanbul ignore if */
+      if (err.status !== 404) {
+        throw err;
+      }
+      return LOWEST_SEQ;
+    });
+  }
+
+  return self.target.get(self.id).then(function (targetDoc) {
+    if (self.opts && self.opts.writeTargetCheckpoint && !self.opts.writeSourceCheckpoint) {
+      return targetDoc.last_seq || LOWEST_SEQ;
+    }
+
+    return self.src.get(self.id).then(function (sourceDoc) {
+      // Since we can't migrate an old version doc to a new one
+      // (no session id), we just go with the lowest seq in this case
+      /* istanbul ignore if */
+      if (targetDoc.version !== sourceDoc.version) {
+        return LOWEST_SEQ;
+      }
+
+      var version;
+      if (targetDoc.version) {
+        version = targetDoc.version.toString();
+      } else {
+        version = "undefined";
+      }
+
+      if (version in comparisons) {
+        return comparisons[version](targetDoc, sourceDoc);
+      }
+      /* istanbul ignore next */
+      return LOWEST_SEQ;
+    }, function (err) {
+      if (err.status === 404 && targetDoc.last_seq) {
+        return self.src.put({
+          _id: self.id,
+          last_seq: LOWEST_SEQ
+        }).then(function () {
+          return LOWEST_SEQ;
+        }, function (err) {
+          if (isForbiddenError(err)) {
+            self.opts.writeSourceCheckpoint = false;
+            return targetDoc.last_seq;
+          }
+          /* istanbul ignore next */
+          return LOWEST_SEQ;
+        });
+      }
+      throw err;
+    });
+  }).catch(function (err) {
+    if (err.status !== 404) {
+      throw err;
+    }
+    return LOWEST_SEQ;
+  });
+};
+// This checkpoint comparison is ported from CouchDBs source
+// they come from here:
+// https://github.com/apache/couchdb-couch-replicator/blob/master/src/couch_replicator.erl#L863-L906
+
+function compareReplicationLogs(srcDoc, tgtDoc) {
+  if (srcDoc.session_id === tgtDoc.session_id) {
+    return {
+      last_seq: srcDoc.last_seq,
+      history: srcDoc.history
+    };
+  }
+
+  return compareReplicationHistory(srcDoc.history, tgtDoc.history);
+}
+
+function compareReplicationHistory(sourceHistory, targetHistory) {
+  // the erlang loop via function arguments is not so easy to repeat in JS
+  // therefore, doing this as recursion
+  var S = sourceHistory[0];
+  var sourceRest = sourceHistory.slice(1);
+  var T = targetHistory[0];
+  var targetRest = targetHistory.slice(1);
+
+  if (!S || targetHistory.length === 0) {
+    return {
+      last_seq: LOWEST_SEQ,
+      history: []
+    };
+  }
+
+  var sourceId = S.session_id;
+  /* istanbul ignore if */
+  if (hasSessionId(sourceId, targetHistory)) {
+    return {
+      last_seq: S.last_seq,
+      history: sourceHistory
+    };
+  }
+
+  var targetId = T.session_id;
+  if (hasSessionId(targetId, sourceRest)) {
+    return {
+      last_seq: T.last_seq,
+      history: targetRest
+    };
+  }
+
+  return compareReplicationHistory(sourceRest, targetRest);
+}
+
+function hasSessionId(sessionId, history) {
+  var props = history[0];
+  var rest = history.slice(1);
+
+  if (!sessionId || history.length === 0) {
+    return false;
+  }
+
+  if (sessionId === props.session_id) {
+    return true;
+  }
+
+  return hasSessionId(sessionId, rest);
+}
+
+function isForbiddenError(err) {
+  return typeof err.status === 'number' && Math.floor(err.status / 100) === 4;
+}
+
+function sortObjectPropertiesByKey(queryParams) {
+  return Object.keys(queryParams).sort(collate).reduce(function (result, key) {
+    result[key] = queryParams[key];
+    return result;
+  }, {});
+}
+
+// Generate a unique id particular to this replication.
+// Not guaranteed to align perfectly with CouchDB's rep ids.
+function generateReplicationId(src, target, opts) {
+  var docIds = opts.doc_ids ? opts.doc_ids.sort(collate) : '';
+  var filterFun = opts.filter ? opts.filter.toString() : '';
+  var queryParams = '';
+  var filterViewName =  '';
+  var selector = '';
+
+  // possibility for checkpoints to be lost here as behaviour of
+  // JSON.stringify is not stable (see #6226)
+  /* istanbul ignore if */
+  if (opts.selector) {
+    selector = JSON.stringify(opts.selector);
+  }
+
+  if (opts.filter && opts.query_params) {
+    queryParams = JSON.stringify(sortObjectPropertiesByKey(opts.query_params));
+  }
+
+  if (opts.filter && opts.filter === '_view') {
+    filterViewName = opts.view.toString();
+  }
+
+  return Promise.all([src.id(), target.id()]).then(function (res) {
+    var queryData = res[0] + res[1] + filterFun + filterViewName +
+      queryParams + docIds + selector;
+    return new Promise(function (resolve) {
+      binaryMd5(queryData, resolve);
+    });
+  }).then(function (md5sum) {
+    // can't use straight-up md5 alphabet, because
+    // the char '/' is interpreted as being for attachments,
+    // and + is also not url-safe
+    md5sum = md5sum.replace(/\//g, '.').replace(/\+/g, '_');
+    return '_local/' + md5sum;
+  });
+}
+
+function isGenOne$1(rev) {
+  return /^1-/.test(rev);
+}
+
+function fileHasChanged(localDoc, remoteDoc, filename) {
+  return !localDoc._attachments ||
+         !localDoc._attachments[filename] ||
+         localDoc._attachments[filename].digest !== remoteDoc._attachments[filename].digest;
+}
+
+function getDocAttachments(db, doc) {
+  var filenames = Object.keys(doc._attachments);
+  return Promise.all(filenames.map(function (filename) {
+    return db.getAttachment(doc._id, filename, {rev: doc._rev});
+  }));
+}
+
+function getDocAttachmentsFromTargetOrSource(target, src, doc) {
+  var doCheckForLocalAttachments = isRemote(src) && !isRemote(target);
+  var filenames = Object.keys(doc._attachments);
+
+  if (!doCheckForLocalAttachments) {
+    return getDocAttachments(src, doc);
+  }
+
+  return target.get(doc._id).then(function (localDoc) {
+    return Promise.all(filenames.map(function (filename) {
+      if (fileHasChanged(localDoc, doc, filename)) {
+        return src.getAttachment(doc._id, filename);
+      }
+
+      return target.getAttachment(localDoc._id, filename);
+    }));
+  }).catch(function (error) {
+    /* istanbul ignore if */
+    if (error.status !== 404) {
+      throw error;
+    }
+
+    return getDocAttachments(src, doc);
+  });
+}
+
+function createBulkGetOpts(diffs) {
+  var requests = [];
+  Object.keys(diffs).forEach(function (id) {
+    var missingRevs = diffs[id].missing;
+    missingRevs.forEach(function (missingRev) {
+      requests.push({
+        id: id,
+        rev: missingRev
+      });
+    });
+  });
+
+  return {
+    docs: requests,
+    revs: true,
+    latest: true
+  };
+}
+
+//
+// Fetch all the documents from the src as described in the "diffs",
+// which is a mapping of docs IDs to revisions. If the state ever
+// changes to "cancelled", then the returned promise will be rejected.
+// Else it will be resolved with a list of fetched documents.
+//
+function getDocs(src, target, diffs, state) {
+  diffs = clone$2(diffs); // we do not need to modify this
+
+  var resultDocs = [],
+      ok = true;
+
+  function getAllDocs() {
+
+    var bulkGetOpts = createBulkGetOpts(diffs);
+
+    if (!bulkGetOpts.docs.length) { // optimization: skip empty requests
+      return;
+    }
+
+    return src.bulkGet(bulkGetOpts).then(function (bulkGetResponse) {
+      /* istanbul ignore if */
+      if (state.cancelled) {
+        throw new Error('cancelled');
+      }
+      return Promise.all(bulkGetResponse.results.map(function (bulkGetInfo) {
+        return Promise.all(bulkGetInfo.docs.map(function (doc) {
+          var remoteDoc = doc.ok;
+
+          if (doc.error) {
+            // when AUTO_COMPACTION is set, docs can be returned which look
+            // like this: {"missing":"1-7c3ac256b693c462af8442f992b83696"}
+            ok = false;
+          }
+
+          if (!remoteDoc || !remoteDoc._attachments) {
+            return remoteDoc;
+          }
+
+          return getDocAttachmentsFromTargetOrSource(target, src, remoteDoc)
+                   .then(function (attachments) {
+                           var filenames = Object.keys(remoteDoc._attachments);
+                           attachments
+                             .forEach(function (attachment, i) {
+                                        var att = remoteDoc._attachments[filenames[i]];
+                                        delete att.stub;
+                                        delete att.length;
+                                        att.data = attachment;
+                                      });
+
+                                      return remoteDoc;
+                                    });
+        }));
+      }))
+
+      .then(function (results) {
+        resultDocs = resultDocs.concat(flatten$1(results).filter(Boolean));
+      });
+    });
+  }
+
+  function hasAttachments(doc) {
+    return doc._attachments && Object.keys(doc._attachments).length > 0;
+  }
+
+  function hasConflicts(doc) {
+    return doc._conflicts && doc._conflicts.length > 0;
+  }
+
+  function fetchRevisionOneDocs(ids) {
+    // Optimization: fetch gen-1 docs and attachments in
+    // a single request using _all_docs
+    return src.allDocs({
+      keys: ids,
+      include_docs: true,
+      conflicts: true
+    }).then(function (res) {
+      if (state.cancelled) {
+        throw new Error('cancelled');
+      }
+      res.rows.forEach(function (row) {
+        if (row.deleted || !row.doc || !isGenOne$1(row.value.rev) ||
+            hasAttachments(row.doc) || hasConflicts(row.doc)) {
+          // if any of these conditions apply, we need to fetch using get()
+          return;
+        }
+
+        // strip _conflicts array to appease CSG (#5793)
+        /* istanbul ignore if */
+        if (row.doc._conflicts) {
+          delete row.doc._conflicts;
+        }
+
+        // the doc we got back from allDocs() is sufficient
+        resultDocs.push(row.doc);
+        delete diffs[row.id];
+      });
+    });
+  }
+
+  function getRevisionOneDocs() {
+    // filter out the generation 1 docs and get them
+    // leaving the non-generation one docs to be got otherwise
+    var ids = Object.keys(diffs).filter(function (id) {
+      var missing = diffs[id].missing;
+      return missing.length === 1 && isGenOne$1(missing[0]);
+    });
+    if (ids.length > 0) {
+      return fetchRevisionOneDocs(ids);
+    }
+  }
+
+  function returnResult() {
+    return { ok:ok, docs:resultDocs };
+  }
+
+  return Promise.resolve()
+    .then(getRevisionOneDocs)
+    .then(getAllDocs)
+    .then(returnResult);
+}
+
+var STARTING_BACK_OFF = 0;
+
+function backOff(opts, returnValue, error, callback) {
+  if (opts.retry === false) {
+    returnValue.emit('error', error);
+    returnValue.removeAllListeners();
+    return;
+  }
+  /* istanbul ignore if */
+  if (typeof opts.back_off_function !== 'function') {
+    opts.back_off_function = defaultBackOff;
+  }
+  returnValue.emit('requestError', error);
+  if (returnValue.state === 'active' || returnValue.state === 'pending') {
+    returnValue.emit('paused', error);
+    returnValue.state = 'stopped';
+    var backOffSet = function backoffTimeSet() {
+      opts.current_back_off = STARTING_BACK_OFF;
+    };
+    var removeBackOffSetter = function removeBackOffTimeSet() {
+      returnValue.removeListener('active', backOffSet);
+    };
+    returnValue.once('paused', removeBackOffSetter);
+    returnValue.once('active', backOffSet);
+  }
+
+  opts.current_back_off = opts.current_back_off || STARTING_BACK_OFF;
+  opts.current_back_off = opts.back_off_function(opts.current_back_off);
+  setTimeout(callback, opts.current_back_off);
+}
+
+function replicate(src, target, opts, returnValue, result) {
+  var batches = [];               // list of batches to be processed
+  var currentBatch;               // the batch currently being processed
+  var pendingBatch = {
+    seq: 0,
+    changes: [],
+    docs: []
+  }; // next batch, not yet ready to be processed
+  var writingCheckpoint = false;  // true while checkpoint is being written
+  var changesCompleted = false;   // true when all changes received
+  var replicationCompleted = false; // true when replication has completed
+  var last_seq = 0;
+  var continuous = opts.continuous || opts.live || false;
+  var batch_size = opts.batch_size || 100;
+  var batches_limit = opts.batches_limit || 10;
+  var changesPending = false;     // true while src.changes is running
+  var doc_ids = opts.doc_ids;
+  var selector = opts.selector;
+  var repId;
+  var checkpointer;
+  var changedDocs = [];
+  // Like couchdb, every replication gets a unique session id
+  var session = uuid();
+
+  result = result || {
+    ok: true,
+    start_time: new Date().toISOString(),
+    docs_read: 0,
+    docs_written: 0,
+    doc_write_failures: 0,
+    errors: []
+  };
+
+  var changesOpts = {};
+  returnValue.ready(src, target);
+
+  function initCheckpointer() {
+    if (checkpointer) {
+      return Promise.resolve();
+    }
+    return generateReplicationId(src, target, opts).then(function (res) {
+      repId = res;
+
+      var checkpointOpts = {};
+      if (opts.checkpoint === false) {
+        checkpointOpts = { writeSourceCheckpoint: false, writeTargetCheckpoint: false };
+      } else if (opts.checkpoint === 'source') {
+        checkpointOpts = { writeSourceCheckpoint: true, writeTargetCheckpoint: false };
+      } else if (opts.checkpoint === 'target') {
+        checkpointOpts = { writeSourceCheckpoint: false, writeTargetCheckpoint: true };
+      } else {
+        checkpointOpts = { writeSourceCheckpoint: true, writeTargetCheckpoint: true };
+      }
+
+      checkpointer = new Checkpointer(src, target, repId, returnValue, checkpointOpts);
+    });
+  }
+
+  function writeDocs() {
+    changedDocs = [];
+
+    if (currentBatch.docs.length === 0) {
+      return;
+    }
+    var docs = currentBatch.docs;
+    var bulkOpts = {timeout: opts.timeout};
+    return target.bulkDocs({docs: docs, new_edits: false}, bulkOpts).then(function (res) {
+      /* istanbul ignore if */
+      if (returnValue.cancelled) {
+        completeReplication();
+        throw new Error('cancelled');
+      }
+
+      // `res` doesn't include full documents (which live in `docs`), so we create a map of 
+      // (id -> error), and check for errors while iterating over `docs`
+      var errorsById = Object.create(null);
+      res.forEach(function (res) {
+        if (res.error) {
+          errorsById[res.id] = res;
+        }
+      });
+
+      var errorsNo = Object.keys(errorsById).length;
+      result.doc_write_failures += errorsNo;
+      result.docs_written += docs.length - errorsNo;
+
+      docs.forEach(function (doc) {
+        var error = errorsById[doc._id];
+        if (error) {
+          result.errors.push(error);
+          // Normalize error name. i.e. 'Unauthorized' -> 'unauthorized' (eg Sync Gateway)
+          var errorName = (error.name || '').toLowerCase();
+          if (errorName === 'unauthorized' || errorName === 'forbidden') {
+            returnValue.emit('denied', clone$2(error));
+          } else {
+            throw error;
+          }
+        } else {
+          changedDocs.push(doc);
+        }
+      });
+
+    }, function (err) {
+      result.doc_write_failures += docs.length;
+      throw err;
+    });
+  }
+
+  function finishBatch() {
+    if (currentBatch.error) {
+      throw new Error('There was a problem getting docs.');
+    }
+    result.last_seq = last_seq = currentBatch.seq;
+    var outResult = clone$2(result);
+    if (changedDocs.length) {
+      outResult.docs = changedDocs;
+      // Attach 'pending' property if server supports it (CouchDB 2.0+)
+      /* istanbul ignore if */
+      if (typeof currentBatch.pending === 'number') {
+        outResult.pending = currentBatch.pending;
+        delete currentBatch.pending;
+      }
+      returnValue.emit('change', outResult);
+    }
+    writingCheckpoint = true;
+    return checkpointer.writeCheckpoint(currentBatch.seq,
+        session).then(function () {
+      writingCheckpoint = false;
+      /* istanbul ignore if */
+      if (returnValue.cancelled) {
+        completeReplication();
+        throw new Error('cancelled');
+      }
+      currentBatch = undefined;
+      getChanges();
+    }).catch(function (err) {
+      onCheckpointError(err);
+      throw err;
+    });
+  }
+
+  function getDiffs() {
+    var diff = {};
+    currentBatch.changes.forEach(function (change) {
+      // Couchbase Sync Gateway emits these, but we can ignore them
+      /* istanbul ignore if */
+      if (change.id === "_user/") {
+        return;
+      }
+      diff[change.id] = change.changes.map(function (x) {
+        return x.rev;
+      });
+    });
+    return target.revsDiff(diff).then(function (diffs) {
+      /* istanbul ignore if */
+      if (returnValue.cancelled) {
+        completeReplication();
+        throw new Error('cancelled');
+      }
+      // currentBatch.diffs elements are deleted as the documents are written
+      currentBatch.diffs = diffs;
+    });
+  }
+
+  function getBatchDocs() {
+    return getDocs(src, target, currentBatch.diffs, returnValue).then(function (got) {
+      currentBatch.error = !got.ok;
+      got.docs.forEach(function (doc) {
+        delete currentBatch.diffs[doc._id];
+        result.docs_read++;
+        currentBatch.docs.push(doc);
+      });
+    });
+  }
+
+  function startNextBatch() {
+    if (returnValue.cancelled || currentBatch) {
+      return;
+    }
+    if (batches.length === 0) {
+      processPendingBatch(true);
+      return;
+    }
+    currentBatch = batches.shift();
+    getDiffs()
+      .then(getBatchDocs)
+      .then(writeDocs)
+      .then(finishBatch)
+      .then(startNextBatch)
+      .catch(function (err) {
+        abortReplication('batch processing terminated with error', err);
+      });
+  }
+
+
+  function processPendingBatch(immediate) {
+    if (pendingBatch.changes.length === 0) {
+      if (batches.length === 0 && !currentBatch) {
+        if ((continuous && changesOpts.live) || changesCompleted) {
+          returnValue.state = 'pending';
+          returnValue.emit('paused');
+        }
+        if (changesCompleted) {
+          completeReplication();
+        }
+      }
+      return;
+    }
+    if (
+      immediate ||
+      changesCompleted ||
+      pendingBatch.changes.length >= batch_size
+    ) {
+      batches.push(pendingBatch);
+      pendingBatch = {
+        seq: 0,
+        changes: [],
+        docs: []
+      };
+      if (returnValue.state === 'pending' || returnValue.state === 'stopped') {
+        returnValue.state = 'active';
+        returnValue.emit('active');
+      }
+      startNextBatch();
+    }
+  }
+
+
+  function abortReplication(reason, err) {
+    if (replicationCompleted) {
+      return;
+    }
+    if (!err.message) {
+      err.message = reason;
+    }
+    result.ok = false;
+    result.status = 'aborting';
+    batches = [];
+    pendingBatch = {
+      seq: 0,
+      changes: [],
+      docs: []
+    };
+    completeReplication(err);
+  }
+
+
+  function completeReplication(fatalError) {
+    if (replicationCompleted) {
+      return;
+    }
+    /* istanbul ignore if */
+    if (returnValue.cancelled) {
+      result.status = 'cancelled';
+      if (writingCheckpoint) {
+        return;
+      }
+    }
+    result.status = result.status || 'complete';
+    result.end_time = new Date().toISOString();
+    result.last_seq = last_seq;
+    replicationCompleted = true;
+
+    if (fatalError) {
+      // need to extend the error because Firefox considers ".result" read-only
+      fatalError = createError(fatalError);
+      fatalError.result = result;
+
+      // Normalize error name. i.e. 'Unauthorized' -> 'unauthorized' (eg Sync Gateway)
+      var errorName = (fatalError.name || '').toLowerCase();
+      if (errorName === 'unauthorized' || errorName === 'forbidden') {
+        returnValue.emit('error', fatalError);
+        returnValue.removeAllListeners();
+      } else {
+        backOff(opts, returnValue, fatalError, function () {
+          replicate(src, target, opts, returnValue);
+        });
+      }
+    } else {
+      returnValue.emit('complete', result);
+      returnValue.removeAllListeners();
+    }
+  }
+
+
+  function onChange(change, pending, lastSeq) {
+    /* istanbul ignore if */
+    if (returnValue.cancelled) {
+      return completeReplication();
+    }
+    // Attach 'pending' property if server supports it (CouchDB 2.0+)
+    /* istanbul ignore if */
+    if (typeof pending === 'number') {
+      pendingBatch.pending = pending;
+    }
+
+    var filter = filterChange(opts)(change);
+    if (!filter) {
+      return;
+    }
+    pendingBatch.seq = change.seq || lastSeq;
+    pendingBatch.changes.push(change);
+    lib(function () {
+      processPendingBatch(batches.length === 0 && changesOpts.live);
+    });
+  }
+
+
+  function onChangesComplete(changes) {
+    changesPending = false;
+    /* istanbul ignore if */
+    if (returnValue.cancelled) {
+      return completeReplication();
+    }
+
+    // if no results were returned then we're done,
+    // else fetch more
+    if (changes.results.length > 0) {
+      changesOpts.since = changes.results[changes.results.length - 1].seq;
+      getChanges();
+      processPendingBatch(true);
+    } else {
+
+      var complete = function () {
+        if (continuous) {
+          changesOpts.live = true;
+          getChanges();
+        } else {
+          changesCompleted = true;
+        }
+        processPendingBatch(true);
+      };
+
+      // update the checkpoint so we start from the right seq next time
+      if (!currentBatch && changes.results.length === 0) {
+        writingCheckpoint = true;
+        checkpointer.writeCheckpoint(changes.last_seq,
+            session).then(function () {
+          writingCheckpoint = false;
+          result.last_seq = last_seq = changes.last_seq;
+          complete();
+        })
+        .catch(onCheckpointError);
+      } else {
+        complete();
+      }
+    }
+  }
+
+
+  function onChangesError(err) {
+    changesPending = false;
+    /* istanbul ignore if */
+    if (returnValue.cancelled) {
+      return completeReplication();
+    }
+    abortReplication('changes rejected', err);
+  }
+
+
+  function getChanges() {
+    if (!(
+      !changesPending &&
+      !changesCompleted &&
+      batches.length < batches_limit
+      )) {
+      return;
+    }
+    changesPending = true;
+    function abortChanges() {
+      changes.cancel();
+    }
+    function removeListener() {
+      returnValue.removeListener('cancel', abortChanges);
+    }
+
+    if (returnValue._changes) { // remove old changes() and listeners
+      returnValue.removeListener('cancel', returnValue._abortChanges);
+      returnValue._changes.cancel();
+    }
+    returnValue.once('cancel', abortChanges);
+
+    var changes = src.changes(changesOpts)
+      .on('change', onChange);
+    changes.then(removeListener, removeListener);
+    changes.then(onChangesComplete)
+      .catch(onChangesError);
+
+    if (opts.retry) {
+      // save for later so we can cancel if necessary
+      returnValue._changes = changes;
+      returnValue._abortChanges = abortChanges;
+    }
+  }
+
+
+  function startChanges() {
+    initCheckpointer().then(function () {
+      /* istanbul ignore if */
+      if (returnValue.cancelled) {
+        completeReplication();
+        return;
+      }
+      return checkpointer.getCheckpoint().then(function (checkpoint) {
+        last_seq = checkpoint;
+        changesOpts = {
+          since: last_seq,
+          limit: batch_size,
+          batch_size: batch_size,
+          style: 'all_docs',
+          doc_ids: doc_ids,
+          selector: selector,
+          return_docs: true // required so we know when we're done
+        };
+        if (opts.filter) {
+          if (typeof opts.filter !== 'string') {
+            // required for the client-side filter in onChange
+            changesOpts.include_docs = true;
+          } else { // ddoc filter
+            changesOpts.filter = opts.filter;
+          }
+        }
+        if ('heartbeat' in opts) {
+          changesOpts.heartbeat = opts.heartbeat;
+        }
+        if ('timeout' in opts) {
+          changesOpts.timeout = opts.timeout;
+        }
+        if (opts.query_params) {
+          changesOpts.query_params = opts.query_params;
+        }
+        if (opts.view) {
+          changesOpts.view = opts.view;
+        }
+        getChanges();
+      });
+    }).catch(function (err) {
+      abortReplication('getCheckpoint rejected with ', err);
+    });
+  }
+
+  /* istanbul ignore next */
+  function onCheckpointError(err) {
+    writingCheckpoint = false;
+    abortReplication('writeCheckpoint completed with error', err);
+  }
+
+  /* istanbul ignore if */
+  if (returnValue.cancelled) { // cancelled immediately
+    completeReplication();
+    return;
+  }
+
+  if (!returnValue._addedListeners) {
+    returnValue.once('cancel', completeReplication);
+
+    if (typeof opts.complete === 'function') {
+      returnValue.once('error', opts.complete);
+      returnValue.once('complete', function (result) {
+        opts.complete(null, result);
+      });
+    }
+    returnValue._addedListeners = true;
+  }
+
+  if (typeof opts.since === 'undefined') {
+    startChanges();
+  } else {
+    initCheckpointer().then(function () {
+      writingCheckpoint = true;
+      return checkpointer.writeCheckpoint(opts.since, session);
+    }).then(function () {
+      writingCheckpoint = false;
+      /* istanbul ignore if */
+      if (returnValue.cancelled) {
+        completeReplication();
+        return;
+      }
+      last_seq = opts.since;
+      startChanges();
+    }).catch(onCheckpointError);
+  }
+}
+
+// We create a basic promise so the caller can cancel the replication possibly
+// before we have actually started listening to changes etc
+inherits_browser(Replication, EventEmitter);
+function Replication() {
+  EventEmitter.call(this);
+  this.cancelled = false;
+  this.state = 'pending';
+  var self = this;
+  var promise = new Promise(function (fulfill, reject) {
+    self.once('complete', fulfill);
+    self.once('error', reject);
+  });
+  self.then = function (resolve, reject) {
+    return promise.then(resolve, reject);
+  };
+  self.catch = function (reject) {
+    return promise.catch(reject);
+  };
+  // As we allow error handling via "error" event as well,
+  // put a stub in here so that rejecting never throws UnhandledError.
+  self.catch(function () {});
+}
+
+Replication.prototype.cancel = function () {
+  this.cancelled = true;
+  this.state = 'cancelled';
+  this.emit('cancel');
+};
+
+Replication.prototype.ready = function (src, target) {
+  var self = this;
+  if (self._readyCalled) {
+    return;
+  }
+  self._readyCalled = true;
+
+  function onDestroy() {
+    self.cancel();
+  }
+  src.once('destroyed', onDestroy);
+  target.once('destroyed', onDestroy);
+  function cleanup() {
+    src.removeListener('destroyed', onDestroy);
+    target.removeListener('destroyed', onDestroy);
+  }
+  self.once('complete', cleanup);
+};
+
+function toPouch(db, opts) {
+  var PouchConstructor = opts.PouchConstructor;
+  if (typeof db === 'string') {
+    return new PouchConstructor(db, opts);
+  } else {
+    return db;
+  }
+}
+
+function replicateWrapper(src, target, opts, callback) {
+
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
+  if (typeof opts === 'undefined') {
+    opts = {};
+  }
+
+  if (opts.doc_ids && !Array.isArray(opts.doc_ids)) {
+    throw createError(BAD_REQUEST,
+                       "`doc_ids` filter parameter is not a list.");
+  }
+
+  opts.complete = callback;
+  opts = clone$2(opts);
+  opts.continuous = opts.continuous || opts.live;
+  opts.retry = ('retry' in opts) ? opts.retry : false;
+  /*jshint validthis:true */
+  opts.PouchConstructor = opts.PouchConstructor || this;
+  var replicateRet = new Replication(opts);
+  var srcPouch = toPouch(src, opts);
+  var targetPouch = toPouch(target, opts);
+  replicate(srcPouch, targetPouch, opts, replicateRet);
+  return replicateRet;
+}
+
+inherits_browser(Sync, EventEmitter);
+function sync(src, target, opts, callback) {
+  if (typeof opts === 'function') {
+    callback = opts;
+    opts = {};
+  }
+  if (typeof opts === 'undefined') {
+    opts = {};
+  }
+  opts = clone$2(opts);
+  /*jshint validthis:true */
+  opts.PouchConstructor = opts.PouchConstructor || this;
+  src = toPouch(src, opts);
+  target = toPouch(target, opts);
+  return new Sync(src, target, opts, callback);
+}
+
+function Sync(src, target, opts, callback) {
+  var self = this;
+  this.canceled = false;
+
+  var optsPush = opts.push ? assign$1({}, opts, opts.push) : opts;
+  var optsPull = opts.pull ? assign$1({}, opts, opts.pull) : opts;
+
+  this.push = replicateWrapper(src, target, optsPush);
+  this.pull = replicateWrapper(target, src, optsPull);
+
+  this.pushPaused = true;
+  this.pullPaused = true;
+
+  function pullChange(change) {
+    self.emit('change', {
+      direction: 'pull',
+      change: change
+    });
+  }
+  function pushChange(change) {
+    self.emit('change', {
+      direction: 'push',
+      change: change
+    });
+  }
+  function pushDenied(doc) {
+    self.emit('denied', {
+      direction: 'push',
+      doc: doc
+    });
+  }
+  function pullDenied(doc) {
+    self.emit('denied', {
+      direction: 'pull',
+      doc: doc
+    });
+  }
+  function pushPaused() {
+    self.pushPaused = true;
+    /* istanbul ignore if */
+    if (self.pullPaused) {
+      self.emit('paused');
+    }
+  }
+  function pullPaused() {
+    self.pullPaused = true;
+    /* istanbul ignore if */
+    if (self.pushPaused) {
+      self.emit('paused');
+    }
+  }
+  function pushActive() {
+    self.pushPaused = false;
+    /* istanbul ignore if */
+    if (self.pullPaused) {
+      self.emit('active', {
+        direction: 'push'
+      });
+    }
+  }
+  function pullActive() {
+    self.pullPaused = false;
+    /* istanbul ignore if */
+    if (self.pushPaused) {
+      self.emit('active', {
+        direction: 'pull'
+      });
+    }
+  }
+
+  var removed = {};
+
+  function removeAll(type) { // type is 'push' or 'pull'
+    return function (event, func) {
+      var isChange = event === 'change' &&
+        (func === pullChange || func === pushChange);
+      var isDenied = event === 'denied' &&
+        (func === pullDenied || func === pushDenied);
+      var isPaused = event === 'paused' &&
+        (func === pullPaused || func === pushPaused);
+      var isActive = event === 'active' &&
+        (func === pullActive || func === pushActive);
+
+      if (isChange || isDenied || isPaused || isActive) {
+        if (!(event in removed)) {
+          removed[event] = {};
+        }
+        removed[event][type] = true;
+        if (Object.keys(removed[event]).length === 2) {
+          // both push and pull have asked to be removed
+          self.removeAllListeners(event);
+        }
+      }
+    };
+  }
+
+  if (opts.live) {
+    this.push.on('complete', self.pull.cancel.bind(self.pull));
+    this.pull.on('complete', self.push.cancel.bind(self.push));
+  }
+
+  function addOneListener(ee, event, listener) {
+    if (ee.listeners(event).indexOf(listener) == -1) {
+      ee.on(event, listener);
+    }
+  }
+
+  this.on('newListener', function (event) {
+    if (event === 'change') {
+      addOneListener(self.pull, 'change', pullChange);
+      addOneListener(self.push, 'change', pushChange);
+    } else if (event === 'denied') {
+      addOneListener(self.pull, 'denied', pullDenied);
+      addOneListener(self.push, 'denied', pushDenied);
+    } else if (event === 'active') {
+      addOneListener(self.pull, 'active', pullActive);
+      addOneListener(self.push, 'active', pushActive);
+    } else if (event === 'paused') {
+      addOneListener(self.pull, 'paused', pullPaused);
+      addOneListener(self.push, 'paused', pushPaused);
+    }
+  });
+
+  this.on('removeListener', function (event) {
+    if (event === 'change') {
+      self.pull.removeListener('change', pullChange);
+      self.push.removeListener('change', pushChange);
+    } else if (event === 'denied') {
+      self.pull.removeListener('denied', pullDenied);
+      self.push.removeListener('denied', pushDenied);
+    } else if (event === 'active') {
+      self.pull.removeListener('active', pullActive);
+      self.push.removeListener('active', pushActive);
+    } else if (event === 'paused') {
+      self.pull.removeListener('paused', pullPaused);
+      self.push.removeListener('paused', pushPaused);
+    }
+  });
+
+  this.pull.on('removeListener', removeAll('pull'));
+  this.push.on('removeListener', removeAll('push'));
+
+  var promise = Promise.all([
+    this.push,
+    this.pull
+  ]).then(function (resp) {
+    var out = {
+      push: resp[0],
+      pull: resp[1]
+    };
+    self.emit('complete', out);
+    if (callback) {
+      callback(null, out);
+    }
+    self.removeAllListeners();
+    return out;
+  }, function (err) {
+    self.cancel();
+    if (callback) {
+      // if there's a callback, then the callback can receive
+      // the error event
+      callback(err);
+    } else {
+      // if there's no callback, then we're safe to emit an error
+      // event, which would otherwise throw an unhandled error
+      // due to 'error' being a special event in EventEmitters
+      self.emit('error', err);
+    }
+    self.removeAllListeners();
+    if (callback) {
+      // no sense throwing if we're already emitting an 'error' event
+      throw err;
+    }
+  });
+
+  this.then = function (success, err) {
+    return promise.then(success, err);
+  };
+
+  this.catch = function (err) {
+    return promise.catch(err);
+  };
+}
+
+Sync.prototype.cancel = function () {
+  if (!this.canceled) {
+    this.canceled = true;
+    this.push.cancel();
+    this.pull.cancel();
+  }
+};
+
+function replication(PouchDB) {
+  PouchDB.replicate = replicateWrapper;
+  PouchDB.sync = sync;
+
+  Object.defineProperty(PouchDB.prototype, 'replicate', {
+    get: function () {
+      var self = this;
+      if (typeof this.replicateMethods === 'undefined') {
+        this.replicateMethods = {
+          from: function (other, opts, callback) {
+            return self.constructor.replicate(other, self, opts, callback);
+          },
+          to: function (other, opts, callback) {
+            return self.constructor.replicate(self, other, opts, callback);
+          }
+        };
+      }
+      return this.replicateMethods;
+    }
+  });
+
+  PouchDB.prototype.sync = function (dbName, opts, callback) {
+    return this.constructor.sync(this, dbName, opts, callback);
+  };
+}
+
+/**
+ * this plugin adds the RxCollection.sync()-function to rxdb
+ * you can use it to sync collections with remote or local couchdb-instances
+ */
+
+addRxPlugin(replication); // add the watch-for-changes-plugin
+
+addRxPlugin(RxDBWatchForChangesPlugin);
+var INTERNAL_POUCHDBS = new WeakSet();
+var RxReplicationStateBase = /*#__PURE__*/function () {
+  function RxReplicationStateBase(collection) {
+    var _this = this;
+
+    this._subs = [];
+    this._subjects = {
+      change: new Subject(),
+      docs: new Subject(),
+      denied: new Subject(),
+      active: new BehaviorSubject(false),
+      complete: new BehaviorSubject(false),
+      alive: new BehaviorSubject(false),
+      error: new Subject()
+    };
+    this.collection = collection;
+    // create getters
+    Object.keys(this._subjects).forEach(function (key) {
+      Object.defineProperty(_this, key + '$', {
+        get: function get() {
+          return this._subjects[key].asObservable();
+        }
+      });
+    });
+  }
+
+  var _proto = RxReplicationStateBase.prototype;
+
+  _proto.cancel = function cancel() {
+    if (this._pouchEventEmitterObject) this._pouchEventEmitterObject.cancel();
+
+    this._subs.forEach(function (sub) {
+      return sub.unsubscribe();
+    });
+  };
+
+  return RxReplicationStateBase;
+}();
+function setPouchEventEmitter(rxRepState, evEmitter) {
+  if (rxRepState._pouchEventEmitterObject) throw newRxError('RC1');
+  rxRepState._pouchEventEmitterObject = evEmitter; // change
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'change').subscribe(function (ev) {
+    return rxRepState._subjects.change.next(ev);
+  })); // denied
+
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'denied').subscribe(function (ev) {
+    return rxRepState._subjects.denied.next(ev);
+  })); // docs
+
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'change').subscribe(function (ev) {
+    if (rxRepState._subjects.docs.observers.length === 0 || ev.direction !== 'pull') return;
+    ev.change.docs.filter(function (doc) {
+      return doc.language !== 'query';
+    }) // remove internal docs
+    .map(function (doc) {
+      return rxRepState.collection._handleFromPouch(doc);
+    }) // do primary-swap and keycompression
+    .forEach(function (doc) {
+      return rxRepState._subjects.docs.next(doc);
+    });
+  })); // error
+
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'error').subscribe(function (ev) {
+    return rxRepState._subjects.error.next(ev);
+  })); // active
+
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'active').subscribe(function () {
+    return rxRepState._subjects.active.next(true);
+  }));
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'paused').subscribe(function () {
+    return rxRepState._subjects.active.next(false);
+  })); // complete
+
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'complete').subscribe(function (info) {
+    /**
+     * when complete fires, it might be that not all changeEvents
+     * have passed throught, because of the delay of .wachtForChanges()
+     * Therefore we have to first ensure that all previous changeEvents have been handled
+     */
+    var unhandledEvents = Array.from(rxRepState.collection._watchForChangesUnhandled);
+    Promise.all(unhandledEvents).then(function () {
+      return rxRepState._subjects.complete.next(info);
+    });
+  }));
+
+  function getIsAlive(emitter) {
+    // "state" will live in emitter.state if single direction replication
+    // or in emitter.push.state & emitter.pull.state when syncing for both
+    var state = emitter.state;
+
+    if (!state) {
+      state = [emitter.pull.state, emitter.push.state].reduce(function (acc, val) {
+        if (acc === 'active' || val === 'active') return 'active';
+        return acc === 'stopped' ? acc : val;
+      }, '');
+    } // If it's active, we can't determine whether the connection is active
+    // or not yet
+
+
+    if (state === 'active') {
+      return promiseWait(15).then(function () {
+        return getIsAlive(emitter);
+      });
+    }
+
+    var isAlive = state !== 'stopped';
+    return Promise.resolve(isAlive);
+  }
+
+  rxRepState._subs.push(fromEvent(evEmitter, 'paused').pipe(skipUntil(fromEvent(evEmitter, 'active'))).subscribe(function () {
+    getIsAlive(rxRepState._pouchEventEmitterObject).then(function (isAlive) {
+      return rxRepState._subjects.alive.next(isAlive);
+    });
+  }));
+}
+function createRxReplicationState(collection) {
+  return new RxReplicationStateBase(collection);
+}
+function sync$1(_ref) {
+  var _this2 = this;
+
+  var remote = _ref.remote,
+      _ref$waitForLeadershi = _ref.waitForLeadership,
+      waitForLeadership = _ref$waitForLeadershi === void 0 ? true : _ref$waitForLeadershi,
+      _ref$direction = _ref.direction,
+      direction = _ref$direction === void 0 ? {
+    pull: true,
+    push: true
+  } : _ref$direction,
+      _ref$options = _ref.options,
+      options = _ref$options === void 0 ? {
+    live: true,
+    retry: true
+  } : _ref$options,
+      query = _ref.query;
+  var useOptions = flatClone(options); // prevent #641 by not allowing internal pouchdbs as remote
+
+  if (isInstanceOf$3(remote) && INTERNAL_POUCHDBS.has(remote)) {
+    throw newRxError('RC3', {
+      database: this.database.name,
+      collection: this.name
+    });
+  } // if remote is RxCollection, get internal pouchdb
+
+
+  if (isInstanceOf$4(remote)) {
+    remote.watchForChanges();
+    remote = remote.pouch;
+  }
+
+  if (query && this !== query.collection) {
+    throw newRxError('RC2', {
+      query: query
+    });
+  }
+
+  var syncFun = pouchReplicationFunction(this.pouch, direction);
+  if (query) useOptions.selector = query.keyCompress().selector;
+  var repState = createRxReplicationState(this); // run internal so .sync() does not have to be async
+
+  var waitTillRun = waitForLeadership ? this.database.waitForLeadership() : promiseWait(0);
+  waitTillRun.then(function () {
+    var pouchSync = syncFun(remote, useOptions);
+
+    _this2.watchForChanges();
+
+    setPouchEventEmitter(repState, pouchSync);
+
+    _this2._repStates.push(repState);
+  });
+  return repState;
+}
+var rxdb$6 = true;
+var prototypes$6 = {
+  RxCollection: function RxCollection(proto) {
+    proto.sync = sync$1;
+  }
+};
+var hooks$1 = {
+  createRxCollection: function createRxCollection(collection) {
+    INTERNAL_POUCHDBS.add(collection.pouch);
+  }
+};
+var RxDBReplicationPlugin = {
+  name: 'replication',
+  rxdb: rxdb$6,
+  prototypes: prototypes$6,
+  hooks: hooks$1
+};
+
+/**
+ * this plugin adds the checkAdapter-function to rxdb
+ * you can use it to check if the given adapter is working in the current environmet
+ */
+
+/**
+ * The same pouchdb-location is used on each run
+ * To ensure when this is run multiple times,
+ * there will not be many created databases
+ */
+var POUCHDB_LOCATION = 'rxdb-adapter-check';
+function checkAdapter(adapter) {
+  // id of the document which is stored and removed to ensure everything works
+  var _id = POUCHDB_LOCATION + '-' + generateId();
+
+  var pouch;
+
+  try {
+    pouch = new PouchDB$1(POUCHDB_LOCATION, adapterObject(adapter), {
+      auto_compaction: true,
+      revs_limit: 1
+    });
+  } catch (err) {
+    return Promise.resolve(false);
+  }
+
+  var recoveredDoc;
+  return pouch.info() // ensure that we wait until db is useable
+  // ensure write works
+  .then(function () {
+    return pouch.put({
+      _id: _id,
+      value: {
+        ok: true,
+        time: new Date().getTime()
+      }
+    });
+  }) // ensure read works
+  .then(function () {
+    return pouch.get(_id);
+  }).then(function (doc) {
+    return recoveredDoc = doc;
+  }) // ensure remove works
+  .then(function () {
+    return pouch.remove(recoveredDoc);
+  }).then(function () {
+    return true;
+  }).then(function () {
+    if (recoveredDoc && recoveredDoc.value && recoveredDoc.value.ok) return true;else return false;
+  })["catch"](function () {
+    return false;
+  });
+  /**
+   * NOTICE:
+   * Do not remove the pouchdb-instance after the test
+   * The problem is that when this function is call in parallel,
+   * for example when you restore the tabs from a browser-session and open
+   * the same website multiple times at the same time,
+   * calling destroy would possibly crash the other call
+   */
+}
+var rxdb$7 = true;
+var prototypes$7 = {};
+var overwritable$3 = {
+  checkAdapter: checkAdapter
+};
+var RxDBAdapterCheckPlugin = {
+  name: 'adapter-check',
+  rxdb: rxdb$7,
+  prototypes: prototypes$7,
+  overwritable: overwritable$3
+};
+
+/**
+ * this plugin adds the json export/import capabilities to RxDB
+ */
+
+function dumpRxDatabase() {
+  var _this = this;
+
+  var decrypted = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+  var collections = arguments.length > 1 ? arguments[1] : undefined;
+  var json = {
+    name: this.name,
+    instanceToken: this.token,
+    encrypted: false,
+    passwordHash: null,
+    collections: []
+  };
+
+  if (this.password) {
+    json.passwordHash = hash(this.password);
+    if (decrypted) json.encrypted = false;else json.encrypted = true;
+  }
+
+  var useCollections = Object.keys(this.collections).filter(function (colName) {
+    return !collections || collections.includes(colName);
+  }).filter(function (colName) {
+    return colName.charAt(0) !== '_';
+  }).map(function (colName) {
+    return _this.collections[colName];
+  });
+  return Promise.all(useCollections.map(function (col) {
+    return col.dump(decrypted);
+  })).then(function (cols) {
+    json.collections = cols;
+    return json;
+  });
+}
+
+var importDumpRxDatabase = function importDumpRxDatabase(dump) {
+  var _this2 = this;
+
+  /**
+   * collections must be created before the import
+   * because we do not know about the other collection-settings here
+   */
+  var missingCollections = dump.collections.filter(function (col) {
+    return !_this2.collections[col.name];
+  }).map(function (col) {
+    return col.name;
+  });
+
+  if (missingCollections.length > 0) {
+    throw newRxError('JD1', {
+      missingCollections: missingCollections
+    });
+  }
+
+  return Promise.all(dump.collections.map(function (colDump) {
+    return _this2.collections[colDump.name].importDump(colDump);
+  }));
+};
+
+var dumpRxCollection = function dumpRxCollection() {
+  var decrypted = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+  var encrypted = !decrypted;
+  var json = {
+    name: this.name,
+    schemaHash: this.schema.hash,
+    encrypted: false,
+    passwordHash: null,
+    docs: []
+  };
+
+  if (this.database.password && encrypted) {
+    json.passwordHash = hash(this.database.password);
+    json.encrypted = true;
+  }
+
+  var query = createRxQuery('find', _getDefaultQuery(this), this);
+  return this._pouchFind(query, undefined, encrypted).then(function (docs) {
+    json.docs = docs.map(function (docData) {
+      delete docData._rev;
+      delete docData._attachments;
+      return docData;
+    });
+    return json;
+  });
+};
+
+function importDumpRxCollection(exportedJSON) {
+  var _this3 = this;
+
+  // check schemaHash
+  if (exportedJSON.schemaHash !== this.schema.hash) {
+    throw newRxError('JD2', {
+      schemaHash: exportedJSON.schemaHash,
+      own: this.schema.hash
+    });
+  } // check if passwordHash matches own
+
+
+  if (exportedJSON.encrypted && exportedJSON.passwordHash !== hash(this.database.password)) {
+    throw newRxError('JD3', {
+      passwordHash: exportedJSON.passwordHash,
+      own: hash(this.database.password)
+    });
+  }
+
+  var docs = exportedJSON.docs // decrypt
+  .map(function (doc) {
+    return _this3._crypter.decrypt(doc);
+  }) // validate schema
+  .map(function (doc) {
+    return _this3.schema.validate(doc);
+  }) // transform
+  .map(function (doc) {
+    return _this3._handleToPouch(doc);
+  });
+  var startTime;
+  return this.database.lockedRun( // write to disc
+  function () {
+    startTime = now();
+    return _this3.pouch.bulkDocs(docs);
+  }).then(function () {
+    var endTime = now();
+    docs.forEach(function (doc) {
+      // emit change events
+      var emitEvent = createInsertEvent(_this3, doc, startTime, endTime);
+
+      _this3.$emit(emitEvent);
+    });
+  });
+}
+
+var rxdb$8 = true;
+var prototypes$8 = {
+  RxDatabase: function RxDatabase(proto) {
+    proto.dump = dumpRxDatabase;
+    proto.importDump = importDumpRxDatabase;
+  },
+  RxCollection: function RxCollection(proto) {
+    proto.dump = dumpRxCollection;
+    proto.importDump = importDumpRxCollection;
+  }
+};
+var overwritable$4 = {};
+var RxDBJsonDumpPlugin = {
+  name: 'json-dump',
+  rxdb: rxdb$8,
+  prototypes: prototypes$8,
+  overwritable: overwritable$4
+};
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+var assertThisInitialized = _assertThisInitialized;
+
+addRxPlugin(RxDBWatchForChangesPlugin);
+var collectionCacheMap = new WeakMap();
+var collectionPromiseCacheMap = new WeakMap();
+var BULK_DOC_OPTIONS = {
+  new_edits: true
+};
+var BULK_DOC_OPTIONS_FALSE = {
+  new_edits: false
+};
+var InMemoryRxCollection = /*#__PURE__*/function (_RxCollectionBase) {
+  inheritsLoose(InMemoryRxCollection, _RxCollectionBase);
+
+  function InMemoryRxCollection(parentCollection) {
+    var _this;
+
+    var pouchSettings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    _this = _RxCollectionBase.call(this, parentCollection.database, parentCollection.name, toCleanSchema(parentCollection.schema), pouchSettings, // pouchSettings
+    {}, parentCollection._methods) || this;
+    _this._eventCounter = 0;
+    _this._isInMemory = true;
+    _this._parentCollection = parentCollection;
+
+    _this._parentCollection.onDestroy.then(function () {
+      return _this.destroy();
+    });
+
+    _this._crypter = createCrypter(_this.database.password, _this.schema);
+    _this._changeStreams = [];
+    /**
+     * runs on parentCollection.destroy()
+     * Cleans up everything to free up memory
+     */
+
+    _this.onDestroy.then(function () {
+      _this._changeStreams.forEach(function (stream) {
+        return stream.cancel();
+      });
+
+      _this.pouch.destroy();
+    }); // add orm functions and options from parent
+
+
+    _this.options = parentCollection.options;
+    Object.entries(parentCollection.statics).forEach(function (_ref) {
+      var funName = _ref[0],
+          fun = _ref[1];
+      Object.defineProperty(assertThisInitialized(_this), funName, {
+        get: function get() {
+          return fun.bind(assertThisInitialized(_this));
+        }
+      });
+    });
+    var storage = getRxStoragePouchDb('memory');
+    _this.pouch = storage.createStorageInstance('rxdb-in-memory', randomCouchString(10), 0);
+    _this._observable$ = new Subject();
+    _this._changeEventBuffer = createChangeEventBuffer(assertThisInitialized(_this));
+    var parentProto = Object.getPrototypeOf(parentCollection);
+    _this._oldPouchPut = parentProto._pouchPut.bind(assertThisInitialized(_this));
+    _this._nonPersistentRevisions = new Set();
+    _this._nonPersistentRevisionsSubject = new Subject(); // emits Set.size() when Set is changed
+
+    return _this;
+  }
+
+  var _proto = InMemoryRxCollection.prototype;
+
+  _proto.prepareChild = function prepareChild() {
+    var _this2 = this;
+
+    return setIndexes(this.schema, this.pouch).then(function () {
+      _this2._subs.push(_this2._observable$.subscribe(function (cE) {
+        // when data changes, send it to RxDocument in docCache
+        var doc = _this2._docCache.get(cE.documentId);
+
+        if (doc) doc._handleChangeEvent(cE);
+      }));
+    }) // initial sync parent's docs to own
+    .then(function () {
+      return replicateExistingDocuments(_this2._parentCollection, _this2);
+    }).then(function () {
+      /**
+       * call watchForChanges() on both sides,
+       * to ensure none-rxdb-changes like replication
+       * will fire into the change-event-stream
+       */
+      _this2._parentCollection.watchForChanges();
+
+      _this2.watchForChanges();
+      /**
+       * create an ongoing replications between both sides
+       */
+
+
+      var thisToParentSub = streamChangedDocuments(_this2).pipe(mergeMap(function (doc) {
+        return applyChangedDocumentToPouch(_this2._parentCollection, doc).then(function () {
+          return doc['_rev'];
+        });
+      })).subscribe(function (changeRev) {
+        _this2._nonPersistentRevisions["delete"](changeRev);
+
+        _this2._nonPersistentRevisionsSubject.next(_this2._nonPersistentRevisions.size);
+      });
+
+      _this2._subs.push(thisToParentSub);
+
+      var parentToThisSub = streamChangedDocuments(_this2._parentCollection).subscribe(function (doc) {
+        return applyChangedDocumentToPouch(_this2, doc);
+      });
+
+      _this2._subs.push(parentToThisSub);
+    });
+  }
+  /**
+   * waits until all writes are persistent
+   * in the parent collection
+   */
+  ;
+
+  _proto.awaitPersistence = function awaitPersistence() {
+    var _this3 = this;
+
+    if (this._nonPersistentRevisions.size === 0) return Promise.resolve();
+    return this._nonPersistentRevisionsSubject.pipe(filter(function () {
+      return _this3._nonPersistentRevisions.size === 0;
+    }), first()).toPromise();
+  }
+  /**
+   * To know which events are replicated and which are not,
+   * the _pouchPut is wrapped
+   * @overwrite
+   */
+  ;
+
+  _proto._pouchPut = function _pouchPut(obj, overwrite) {
+    var _this4 = this;
+
+    return this._oldPouchPut(obj, overwrite).then(function (ret) {
+      _this4._nonPersistentRevisions.add(ret.rev);
+
+      return ret;
+    });
+  };
+
+  _proto.$emit = function $emit(changeEvent) {
+    if (this._changeEventBuffer.hasChangeWithRevision(changeEvent.documentData && changeEvent.documentData._rev)) {
+      return;
+    }
+
+    this._observable$.next(changeEvent); // run compaction each 10 events
+
+
+    this._eventCounter++;
+
+    if (this._eventCounter === 10) {
+      this._eventCounter = 0;
+      this.pouch.compact();
+    }
+  }
+  /**
+   * @overwrite
+   * Replication on the inMemory is dangerous,
+   * replicate with it's parent instead
+   */
+  ;
+
+  _proto.sync = function sync() {
+    throw newRxError('IM2');
+  };
+
+  return InMemoryRxCollection;
+}(RxCollectionBase);
+/**
+ * returns a version of the schema that:
+ * - disabled the keyCompression
+ * - has no encryption
+ * - has no attachments
+ */
+
+function toCleanSchema(rxSchema) {
+  var newSchemaJson = clone(rxSchema.jsonSchema);
+  newSchemaJson.keyCompression = false;
+  delete newSchemaJson.properties._id;
+  delete newSchemaJson.properties._rev;
+  delete newSchemaJson.properties._attachments;
+
+  var removeEncryption = function removeEncryption(schema, complete) {
+    delete schema.encrypted;
+    Object.values(schema).filter(function (val) {
+      return typeof val === 'object';
+    }).forEach(function (val) {
+      return removeEncryption(val);
+    });
+  };
+
+  removeEncryption(newSchemaJson);
+  return createRxSchema(newSchemaJson);
+}
+/**
+ * replicates all documents from the parent to the inMemoryCollection
+ * @return Promise that resolves with an array of the docs data
+ */
+
+
+function replicateExistingDocuments(fromCollection, toCollection) {
+  return fromCollection.pouch.allDocs({
+    attachments: false,
+    include_docs: true
+  }).then(function (allRows) {
+    var docs = allRows.rows.map(function (row) {
+      return row.doc;
+    }).filter(function (doc) {
+      return !doc.language;
+    }) // do not replicate design-docs
+    .map(function (doc) {
+      return fromCollection._handleFromPouch(doc);
+    }) // swap back primary because keyCompression:false
+    .map(function (doc) {
+      return fromCollection.schema.swapPrimaryToId(doc);
+    });
+    if (docs.length === 0) return Promise.resolve([]); // nothing to replicate
+    else {
+        return toCollection.pouch.bulkDocs({
+          docs: docs
+        }, BULK_DOC_OPTIONS_FALSE).then(function () {
+          return docs;
+        });
+      }
+  });
+}
+/**
+ * sets the indexes from the schema at the pouchdb
+ */
+
+function setIndexes(schema, pouch) {
+  return Promise.all(schema.indexes.map(function (indexAr) {
+    var indexName = 'idx-rxdb-' + indexAr.join(',');
+    return pouch.createIndex({
+      ddoc: indexName,
+      name: indexName,
+      index: {
+        fields: indexAr
+      }
+    });
+  }));
+}
+/**
+ * returns an observable that streams all changes
+ * as plain documents that have no encryption or keyCompression.
+ * We use this to replicate changes from one collection to the other
+ * @param prevFilter can be used to filter changes before doing anything
+ * @return observable that emits document-data
+ */
+
+function streamChangedDocuments(rxCollection) {
+  var prevFilter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function (_i) {
+    return true;
+  };
+  if (!rxCollection._doNotEmitSet) rxCollection._doNotEmitSet = new Set();
+  var observable = fromEvent(rxCollection.pouch.changes({
+    since: 'now',
+    live: true,
+    include_docs: true
+  }), 'change').pipe(
+  /**
+   * we need this delay because with pouchdb 7.2.2
+   * it happened that _doNotEmitSet.add() from applyChangedDocumentToPouch()
+   * was called after the change was streamed downwards
+   * which then leads to a wrong detection
+   */
+  delay(0), map(function (changeAr) {
+    return changeAr[0];
+  }), // rxjs emits an array for whatever reason
+  filter(function (change) {
+    // changes on the doNotEmit-list shell not be fired
+    var emitFlag = change.id + ':' + change.doc._rev;
+    if (rxCollection._doNotEmitSet.has(emitFlag)) return false;else return true;
+  }), filter(function (change) {
+    return prevFilter(change);
+  }), map(function (change) {
+    return rxCollection._handleFromPouch(change.doc);
+  }));
+  return observable;
+}
+/**
+ * writes the doc-data into the pouchdb of the collection
+ * without changeing the revision
+ */
+
+function applyChangedDocumentToPouch(rxCollection, docData) {
+  if (!rxCollection._doNotEmitSet) rxCollection._doNotEmitSet = new Set();
+
+  var transformedDoc = rxCollection._handleToPouch(docData);
+
+  return rxCollection.pouch.get(transformedDoc._id).then(function (oldDoc) {
+    return transformedDoc._rev = oldDoc._rev;
+  })["catch"](function () {
+    // doc not found, do not use a revision
+    delete transformedDoc._rev;
+  }).then(function () {
+    return rxCollection.pouch.bulkDocs({
+      docs: [transformedDoc]
+    }, BULK_DOC_OPTIONS);
+  }).then(function (bulkRet) {
+    if (bulkRet.length > 0 && !bulkRet[0].ok) {
+      throw new Error(JSON.stringify(bulkRet[0]));
+    } // set the flag so this does not appear in the own event-stream again
+
+
+    var emitFlag = transformedDoc._id + ':' + bulkRet[0].rev;
+
+    rxCollection._doNotEmitSet.add(emitFlag); // remove from the list later to not have a memory-leak
+
+
+    setTimeout(function () {
+      return rxCollection._doNotEmitSet["delete"](emitFlag);
+    }, 30 * 1000);
+    return transformedDoc;
+  });
+}
+var INIT_DONE = false;
+/**
+ * called in the proto of RxCollection
+ */
+
+function spawnInMemory() {
+  var _this5 = this;
+
+  if (!INIT_DONE) {
+    INIT_DONE = true; // ensure memory-adapter is added
+
+    if (!PouchDB$1.adapters || !PouchDB$1.adapters.memory) throw newRxError('IM1');
+  }
+
+  if (collectionCacheMap.has(this)) {
+    // already exists for this collection -> wait until synced
+    return collectionPromiseCacheMap.get(this).then(function () {
+      return collectionCacheMap.get(_this5);
+    });
+  }
+
+  var col = new InMemoryRxCollection(this);
+  var preparePromise = col.prepareChild();
+  collectionCacheMap.set(this, col);
+  collectionPromiseCacheMap.set(this, preparePromise);
+  return preparePromise.then(function () {
+    return col;
+  });
+}
+var rxdb$9 = true;
+var prototypes$9 = {
+  RxCollection: function RxCollection(proto) {
+    proto.inMemory = spawnInMemory;
+  }
+};
+var RxDBInMemoryPlugin = {
+  name: 'in-memory',
+  rxdb: rxdb$9,
+  prototypes: prototypes$9
+};
+
+function ensureSchemaSupportsAttachments(doc) {
+  var schemaJson = doc.collection.schema.jsonSchema;
+
+  if (!schemaJson.attachments) {
+    throw newRxError('AT1', {
+      link: 'https://pubkey.github.io/rxdb/rx-attachment.html'
+    });
+  }
+}
+
+function resyncRxDocument(doc) {
+  var startTime = now();
+  return doc.collection.pouch.get(doc.primary).then(function (docDataFromPouch) {
+    var data = doc.collection._handleFromPouch(docDataFromPouch);
+
+    var endTime = now();
+    var changeEvent = createUpdateEvent(doc.collection, data, null, startTime, endTime, doc);
+    doc.$emit(changeEvent);
+  });
+}
+
+var blobBufferUtil = {
+  /**
+   * depending if we are on node or browser,
+   * we have to use Buffer(node) or Blob(browser)
+   */
+  createBlobBuffer: function createBlobBuffer(data, type) {
+    var blobBuffer;
+
+    if (isElectronRenderer) {
+      // if we are inside of electron-renderer, always use the node-buffer
+      return Buffer.from(data, {
+        type: type
+      });
+    }
+
+    try {
+      // for browsers
+      blobBuffer = new Blob([data], {
+        type: type
+      });
+    } catch (e) {
+      // for node
+      blobBuffer = Buffer.from(data, {
+        type: type
+      });
+    }
+
+    return blobBuffer;
+  },
+  toString: function toString(blobBuffer) {
+    if (blobBuffer instanceof Buffer) {
+      // node
+      return nextTick().then(function () {
+        return blobBuffer.toString();
+      });
+    }
+
+    return new Promise(function (res) {
+      // browsers
+      var reader = new FileReader();
+      reader.addEventListener('loadend', function (e) {
+        var text = e.target.result;
+        res(text);
+      });
+      var blobBufferType = Object.prototype.toString.call(blobBuffer);
+      /**
+       * in the electron-renderer we have a typed array insteaf of a blob
+       * so we have to transform it.
+       * @link https://github.com/pubkey/rxdb/issues/1371
+       */
+
+      if (blobBufferType === '[object Uint8Array]') {
+        blobBuffer = new Blob([blobBuffer]);
+      }
+
+      reader.readAsText(blobBuffer);
+    });
+  }
+};
+
+var _assignMethodsToAttachment = function _assignMethodsToAttachment(attachment) {
+  Object.entries(attachment.doc.collection.attachments).forEach(function (_ref) {
+    var funName = _ref[0],
+        fun = _ref[1];
+    Object.defineProperty(attachment, funName, {
+      get: function get() {
+        return fun.bind(attachment);
+      }
+    });
+  });
+};
+/**
+ * an RxAttachment is basically just the attachment-stub
+ * wrapped so that you can access the attachment-data
+ */
+
+
+var RxAttachment = /*#__PURE__*/function () {
+  function RxAttachment(_ref2) {
+    var doc = _ref2.doc,
+        id = _ref2.id,
+        type = _ref2.type,
+        length = _ref2.length,
+        digest = _ref2.digest,
+        rev = _ref2.rev;
+    this.doc = doc;
+    this.id = id;
+    this.type = type;
+    this.length = length;
+    this.digest = digest;
+    this.rev = rev;
+
+    _assignMethodsToAttachment(this);
+  }
+
+  var _proto = RxAttachment.prototype;
+
+  _proto.remove = function remove() {
+    var _this = this;
+
+    return this.doc.collection.pouch.removeAttachment(this.doc.primary, this.id, this.doc._data._rev).then(function () {
+      return resyncRxDocument(_this.doc);
+    });
+  }
+  /**
+   * returns the data for the attachment
+   */
+  ;
+
+  _proto.getData = function getData() {
+    var _this2 = this;
+
+    return this.doc.collection.pouch.getAttachment(this.doc.primary, this.id).then(function (data) {
+      if (shouldEncrypt(_this2.doc)) {
+        return blobBufferUtil.toString(data).then(function (dataString) {
+          return blobBufferUtil.createBlobBuffer(_this2.doc.collection._crypter._decryptValue(dataString), _this2.type);
+        });
+      } else return data;
+    });
+  };
+
+  _proto.getStringData = function getStringData() {
+    return this.getData().then(function (bufferBlob) {
+      return blobBufferUtil.toString(bufferBlob);
+    });
+  };
+
+  return RxAttachment;
+}();
+function fromPouchDocument(id, pouchDocAttachment, rxDocument) {
+  return new RxAttachment({
+    doc: rxDocument,
+    id: id,
+    type: pouchDocAttachment.content_type,
+    length: pouchDocAttachment.length,
+    digest: pouchDocAttachment.digest,
+    rev: pouchDocAttachment.revpos
+  });
+}
+
+function shouldEncrypt(doc) {
+  return !!doc.collection.schema.jsonSchema.attachments.encrypted;
+}
+
+function putAttachment(_x) {
+  return _putAttachment.apply(this, arguments);
+}
+/**
+ * get an attachment of the document by its id
+ */
+
+function _putAttachment() {
+  _putAttachment = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_ref3) {
+    var _this5 = this;
+
+    var id,
+        data,
+        _ref3$type,
+        type,
+        skipIfSame,
+        blobBuffer,
+        _args2 = arguments;
+
+    return regenerator.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            id = _ref3.id, data = _ref3.data, _ref3$type = _ref3.type, type = _ref3$type === void 0 ? 'text/plain' : _ref3$type;
+            skipIfSame = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : false;
+            ensureSchemaSupportsAttachments(this);
+
+            if (shouldEncrypt(this)) {
+              data = this.collection._crypter._encryptValue(data);
+            }
+
+            blobBuffer = blobBufferUtil.createBlobBuffer(data, type);
+            this._atomicQueue = this._atomicQueue.then( /*#__PURE__*/asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
+              var currentMeta, newHash;
+              return regenerator.wrap(function _callee$(_context) {
+                while (1) {
+                  switch (_context.prev = _context.next) {
+                    case 0:
+                      if (!(skipIfSame && _this5._data._attachments && _this5._data._attachments[id])) {
+                        _context.next = 7;
+                        break;
+                      }
+
+                      currentMeta = _this5._data._attachments[id];
+                      _context.next = 4;
+                      return pouchAttachmentBinaryHash(data);
+
+                    case 4:
+                      newHash = _context.sent;
+
+                      if (!(currentMeta.content_type === type && currentMeta.digest === newHash)) {
+                        _context.next = 7;
+                        break;
+                      }
+
+                      return _context.abrupt("return", _this5.getAttachment(id));
+
+                    case 7:
+                      return _context.abrupt("return", _this5.collection.pouch.putAttachment(_this5.primary, id, _this5._data._rev, blobBuffer, type).then(function () {
+                        return _this5.collection.pouch.get(_this5.primary);
+                      }).then(function (docData) {
+                        var attachmentData = docData._attachments[id];
+                        var attachment = fromPouchDocument(id, attachmentData, _this5);
+                        _this5._data._rev = docData._rev;
+                        _this5._data._attachments = docData._attachments;
+                        return resyncRxDocument(_this5).then(function () {
+                          return attachment;
+                        });
+                      }));
+
+                    case 8:
+                    case "end":
+                      return _context.stop();
+                  }
+                }
+              }, _callee);
+            })));
+            return _context2.abrupt("return", this._atomicQueue);
+
+          case 7:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2, this);
+  }));
+  return _putAttachment.apply(this, arguments);
+}
+
+function getAttachment(id) {
+  ensureSchemaSupportsAttachments(this);
+
+  var docData = this._dataSync$.getValue();
+
+  if (!docData._attachments || !docData._attachments[id]) return null;
+  var attachmentData = docData._attachments[id];
+  var attachment = fromPouchDocument(id, attachmentData, this);
+  return attachment;
+}
+/**
+ * returns all attachments of the document
+ */
+
+function allAttachments() {
+  var _this3 = this;
+
+  ensureSchemaSupportsAttachments(this);
+
+  var docData = this._dataSync$.getValue(); // if there are no attachments, the field is missing
+
+
+  if (!docData._attachments) return [];
+  return Object.keys(docData._attachments).map(function (id) {
+    return fromPouchDocument(id, docData._attachments[id], _this3);
+  });
+}
+function preMigrateDocument(action) {
+  delete action.migrated._attachments;
+  return action;
+}
+function postMigrateDocument(action) {
+  var primaryPath = action.oldCollection.schema.primaryPath;
+  var attachments = action.doc._attachments;
+  if (!attachments) return Promise.resolve(action);
+  var currentPromise = Promise.resolve();
+  Object.keys(attachments).forEach(function (id) {
+    var stubData = attachments[id];
+    var primary = action.doc[primaryPath];
+    currentPromise = currentPromise.then(function () {
+      return action.oldCollection.pouchdb.getAttachment(primary, id);
+    }).then(function (data) {
+      return blobBufferUtil.toString(data);
+    }).then(function (data) {
+      return action.newestCollection.pouch.putAttachment(primary, id, action.res.rev, blobBufferUtil.createBlobBuffer(data, stubData.content_type), stubData.content_type);
+    }).then(function (res) {
+      return action.res = res;
+    });
+  });
+  return currentPromise;
+}
+var rxdb$a = true;
+var prototypes$a = {
+  RxDocument: function RxDocument(proto) {
+    proto.putAttachment = putAttachment;
+    proto.getAttachment = getAttachment;
+    proto.allAttachments = allAttachments;
+    Object.defineProperty(proto, 'allAttachments$', {
+      get: function allAttachments$() {
+        var _this4 = this;
+
+        return this._dataSync$.pipe(map(function (data) {
+          if (!data['_attachments']) return {};
+          return data['_attachments'];
+        }), map(function (attachmentsData) {
+          return Object.entries(attachmentsData);
+        }), map(function (entries) {
+          return entries.map(function (_ref4) {
+            var id = _ref4[0],
+                attachmentData = _ref4[1];
+            return fromPouchDocument(id, attachmentData, _this4);
+          });
+        }));
+      }
+    });
+  }
+};
+var overwritable$5 = {};
+var hooks$2 = {
+  preMigrateDocument: preMigrateDocument,
+  postMigrateDocument: postMigrateDocument
+};
+var RxDBAttachmentsPlugin = {
+  name: 'attachments',
+  rxdb: rxdb$a,
+  prototypes: prototypes$a,
+  overwritable: overwritable$5,
+  hooks: hooks$2
+};
+
+var DOC_CACHE_BY_PARENT = new WeakMap();
+
+var _getDocCache = function _getDocCache(parent) {
+  if (!DOC_CACHE_BY_PARENT.has(parent)) {
+    DOC_CACHE_BY_PARENT.set(parent, createDocCache());
+  }
+
+  return DOC_CACHE_BY_PARENT.get(parent);
+};
+
+var CHANGE_SUB_BY_PARENT = new WeakMap();
+
+var _getChangeSub = function _getChangeSub(parent) {
+  if (!CHANGE_SUB_BY_PARENT.has(parent)) {
+    var sub = parent.$.pipe(filter(function (cE) {
+      return cE.isLocal;
+    })).subscribe(function (cE) {
+      var docCache = _getDocCache(parent);
+
+      var doc = docCache.get(cE.documentId);
+      if (doc) doc._handleChangeEvent(cE);
+    });
+
+    parent._subs.push(sub);
+
+    CHANGE_SUB_BY_PARENT.set(parent, sub);
+  }
+
+  return CHANGE_SUB_BY_PARENT.get(parent);
+};
+
+var RxDocumentParent = createRxDocumentConstructor();
+var RxLocalDocument = /*#__PURE__*/function (_RxDocumentParent) {
+  inheritsLoose(RxLocalDocument, _RxDocumentParent);
+
+  function RxLocalDocument(id, jsonData, parent) {
+    var _this;
+
+    _this = _RxDocumentParent.call(this, null, jsonData) || this;
+    _this.id = id;
+    _this.parent = parent;
+    return _this;
+  }
+
+  return RxLocalDocument;
+}(RxDocumentParent);
+
+var _getPouchByParent = function _getPouchByParent(parent) {
+  if (isInstanceOf$5(parent)) return parent.internalStore; // database
+  else return parent.pouch; // collection
+};
+
+var RxLocalDocumentPrototype = {
+  toPouchJson: function toPouchJson() {
+    var data = clone(this._data);
+    data._id = LOCAL_PREFIX + this.id;
+  },
+
+  get isLocal() {
+    return true;
+  },
+
+  get parentPouch() {
+    return _getPouchByParent(this.parent);
+  },
+
+  //
+  // overwrites
+  //
+  _handleChangeEvent: function _handleChangeEvent(changeEvent) {
+    if (changeEvent.documentId !== this.primary) {
+      return;
+    }
+
+    switch (changeEvent.operation) {
+      case 'UPDATE':
+        var newData = clone(changeEvent.documentData);
+
+        this._dataSync$.next(clone(newData));
+
+        break;
+
+      case 'DELETE':
+        // remove from docCache to assure new upserted RxDocuments will be a new instance
+        var docCache = _getDocCache(this.parent);
+
+        docCache["delete"](this.primary);
+
+        this._deleted$.next(true);
+
+        break;
+    }
+  },
+
+  get allAttachments$() {
+    // this is overwritten here because we cannot re-set getters on the prototype
+    throw newRxError('LD1', {
+      document: this
+    });
+  },
+
+  get primaryPath() {
+    return 'id';
+  },
+
+  get primary() {
+    return this.id;
+  },
+
+  get $() {
+    return this._dataSync$.asObservable();
+  },
+
+  $emit: function $emit(changeEvent) {
+    return this.parent.$emit(changeEvent);
+  },
+  get: function get(objPath) {
+    if (!this._data) return undefined;
+
+    if (typeof objPath !== 'string') {
+      throw newRxTypeError('LD2', {
+        objPath: objPath
+      });
+    }
+
+    var valueObj = objectPath.get(this._data, objPath);
+    valueObj = clone(valueObj);
+    return valueObj;
+  },
+  get$: function get$(path) {
+    if (path.includes('.item.')) {
+      throw newRxError('LD3', {
+        path: path
+      });
+    }
+
+    if (path === this.primaryPath) throw newRxError('LD4');
+    return this._dataSync$.pipe(map(function (data) {
+      return objectPath.get(data, path);
+    }), distinctUntilChanged());
+  },
+  set: function set(objPath, value) {
+    if (!value) {
+      // object path not set, overwrite whole data
+      var data = clone(objPath);
+      data._rev = this._data._rev;
+      this._data = data;
+      return this;
+    }
+
+    if (objPath === '_id') {
+      throw newRxError('LD5', {
+        objPath: objPath,
+        value: value
+      });
+    }
+
+    if (Object.is(this.get(objPath), value)) return;
+    objectPath.set(this._data, objPath, value);
+    return this;
+  },
+  _saveData: function _saveData(newData) {
+    var _this2 = this;
+
+    var oldData = this._dataSync$.getValue();
+
+    newData = clone(newData);
+    newData._id = LOCAL_PREFIX + this.id;
+    var startTime = now();
+    return this.parentPouch.put(newData).then(function (res) {
+      var endTime = now();
+      newData._rev = res.rev;
+      var changeEvent = new RxChangeEvent('UPDATE', _this2.id, clone(newData), isInstanceOf$5(_this2.parent) ? _this2.parent.token : _this2.parent.database.token, isInstanceOf$4(_this2.parent) ? _this2.parent.name : null, true, startTime, endTime, oldData, _this2);
+
+      _this2.$emit(changeEvent);
+    });
+  },
+  remove: function remove() {
+    var _this3 = this;
+
+    var removeId = LOCAL_PREFIX + this.id;
+    var startTime = now();
+    return this.parentPouch.remove(removeId, this._data._rev).then(function () {
+      _getDocCache(_this3.parent)["delete"](_this3.id);
+
+      var endTime = now();
+      var changeEvent = new RxChangeEvent('DELETE', _this3.id, clone(_this3._data), isInstanceOf$5(_this3.parent) ? _this3.parent.token : _this3.parent.database.token, isInstanceOf$4(_this3.parent) ? _this3.parent.name : null, true, startTime, endTime, null, _this3);
+
+      _this3.$emit(changeEvent);
+    });
+  }
+};
+var INIT_DONE$1 = false;
+
+var _init = function _init() {
+  if (INIT_DONE$1) return;else INIT_DONE$1 = true; // add functions of RxDocument
+
+  var docBaseProto = basePrototype;
+  var props = Object.getOwnPropertyNames(docBaseProto);
+  props.forEach(function (key) {
+    var exists = Object.getOwnPropertyDescriptor(RxLocalDocumentPrototype, key);
+    if (exists) return;
+    var desc = Object.getOwnPropertyDescriptor(docBaseProto, key);
+    Object.defineProperty(RxLocalDocumentPrototype, key, desc);
+  });
+  /**
+   * overwrite things that not work on local documents
+   * with throwing function
+   */
+
+  var getThrowingFun = function getThrowingFun(k) {
+    return function () {
+      throw newRxError('LD6', {
+        functionName: k
+      });
+    };
+  };
+
+  ['populate', 'update', 'putAttachment', 'getAttachment', 'allAttachments'].forEach(function (k) {
+    return RxLocalDocumentPrototype[k] = getThrowingFun(k);
+  });
+};
+
+RxLocalDocument.create = function (id, data, parent) {
+  _init();
+
+  _getChangeSub(parent);
+
+  var newDoc = new RxLocalDocument(id, data, parent);
+  newDoc.__proto__ = RxLocalDocumentPrototype;
+
+  _getDocCache(parent).set(id, newDoc);
+
+  return newDoc;
+};
+/**
+ * save the local-document-data
+ * throws if already exists
+ */
+
+
+function insertLocal(id, data) {
+  var _this4 = this;
+
+  if (isInstanceOf$4(this) && this._isInMemory) {
+    return this._parentCollection.insertLocal(id, data);
+  }
+
+  data = clone(data);
+  return this.getLocal(id).then(function (existing) {
+    if (existing) {
+      throw newRxError('LD7', {
+        id: id,
+        data: data
+      });
+    } // create new one
+
+
+    var pouch = _getPouchByParent(_this4);
+
+    var saveData = clone(data);
+    saveData._id = LOCAL_PREFIX + id;
+    var startTime = now();
+    return pouch.put(saveData).then(function (res) {
+      data._rev = res.rev;
+      var newDoc = RxLocalDocument.create(id, data, _this4);
+      var endTime = now();
+      var changeEvent = new RxChangeEvent('INSERT', id, clone(data), isInstanceOf$5(_this4) ? _this4.token : _this4.database.token, isInstanceOf$4(_this4) ? _this4.name : '', true, startTime, endTime, undefined, newDoc);
+
+      _this4.$emit(changeEvent);
+
+      return newDoc;
+    });
+  });
+}
+/**
+ * save the local-document-data
+ * overwrites existing if exists
+ */
+
+
+function upsertLocal(id, data) {
+  var _this5 = this;
+
+  if (isInstanceOf$4(this) && this._isInMemory) {
+    return this._parentCollection.upsertLocal(id, data);
+  }
+
+  return this.getLocal(id).then(function (existing) {
+    if (!existing) {
+      // create new one
+      var docPromise = _this5.insertLocal(id, data);
+
+      return docPromise;
+    } else {
+      // update existing
+      data._rev = existing._data._rev;
+      return existing.atomicUpdate(function () {
+        return data;
+      }).then(function () {
+        return existing;
+      });
+    }
+  });
+}
+
+function getLocal(id) {
+  var _this6 = this;
+
+  if (isInstanceOf$4(this) && this._isInMemory) return this._parentCollection.getLocal(id);
+
+  var pouch = _getPouchByParent(this);
+
+  var docCache = _getDocCache(this); // check in doc-cache
+
+
+  var found = docCache.get(id);
+  if (found) return Promise.resolve(found); // if not found, check in pouch
+
+  return pouch.get(LOCAL_PREFIX + id).then(function (docData) {
+    if (!docData) return null;
+    var doc = RxLocalDocument.create(id, docData, _this6);
+    return doc;
+  })["catch"](function () {
+    return null;
+  });
+}
+
+function getLocal$(id) {
+  var _this7 = this;
+
+  return this.$.pipe(startWith(null), mergeMap( /*#__PURE__*/function () {
+    var _ref = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(cE) {
+      var doc;
+      return regenerator.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              if (!cE) {
+                _context.next = 4;
+                break;
+              }
+
+              return _context.abrupt("return", {
+                changeEvent: cE
+              });
+
+            case 4:
+              _context.next = 6;
+              return _this7.getLocal(id);
+
+            case 6:
+              doc = _context.sent;
+              return _context.abrupt("return", {
+                doc: doc
+              });
+
+            case 8:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }));
+
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }()), mergeMap( /*#__PURE__*/function () {
+    var _ref2 = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(changeEventOrDoc) {
+      var cE, doc;
+      return regenerator.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              if (!changeEventOrDoc.changeEvent) {
+                _context2.next = 17;
+                break;
+              }
+
+              cE = changeEventOrDoc.changeEvent;
+
+              if (!(!cE.isLocal || cE.documentId !== id)) {
+                _context2.next = 6;
+                break;
+              }
+
+              return _context2.abrupt("return", {
+                use: false
+              });
+
+            case 6:
+              if (!cE.rxDocument) {
+                _context2.next = 10;
+                break;
+              }
+
+              _context2.t0 = cE.rxDocument;
+              _context2.next = 13;
+              break;
+
+            case 10:
+              _context2.next = 12;
+              return _this7.getLocal(id);
+
+            case 12:
+              _context2.t0 = _context2.sent;
+
+            case 13:
+              doc = _context2.t0;
+              return _context2.abrupt("return", {
+                use: true,
+                doc: doc
+              });
+
+            case 15:
+              _context2.next = 18;
+              break;
+
+            case 17:
+              return _context2.abrupt("return", {
+                use: true,
+                doc: changeEventOrDoc.doc
+              });
+
+            case 18:
+            case "end":
+              return _context2.stop();
+          }
+        }
+      }, _callee2);
+    }));
+
+    return function (_x2) {
+      return _ref2.apply(this, arguments);
+    };
+  }()), filter(function (filterFlagged) {
+    return filterFlagged.use;
+  }), map(function (filterFlagged) {
+    return filterFlagged.doc;
+  }));
+}
+
+var rxdb$b = true;
+var prototypes$b = {
+  RxCollection: function RxCollection(proto) {
+    proto.insertLocal = insertLocal;
+    proto.upsertLocal = upsertLocal;
+    proto.getLocal = getLocal;
+    proto.getLocal$ = getLocal$;
+  },
+  RxDatabase: function RxDatabase(proto) {
+    proto.insertLocal = insertLocal;
+    proto.upsertLocal = upsertLocal;
+    proto.getLocal = getLocal;
+    proto.getLocal$ = getLocal$;
+  }
+};
+var overwritable$6 = {};
+var RxDBLocalDocumentsPlugin = {
+  name: 'local-documents',
+  rxdb: rxdb$b,
+  prototypes: prototypes$b,
+  overwritable: overwritable$6
+};
+
+/**
+ * this is copied from
+ * @link https://github.com/aheckmann/mquery/blob/master/lib/utils.js
+ */
+
+/**
+ * @link https://github.com/aheckmann/mquery/commit/792e69fd0a7281a0300be5cade5a6d7c1d468ad4
+ */
+var SPECIAL_PROPERTIES = ['__proto__', 'constructor', 'prototype'];
+/**
+ * Merges 'from' into 'to' without overwriting existing properties.
+ */
+
+function merge$1(to, from) {
+  Object.keys(from).forEach(function (key) {
+    if (SPECIAL_PROPERTIES.includes(key)) {
+      return;
+    }
+
+    if (typeof to[key] === 'undefined') {
+      to[key] = from[key];
+    } else {
+      if (isObject$3(from[key])) merge$1(to[key], from[key]);else to[key] = from[key];
+    }
+  });
+}
+/**
+ * Determines if `arg` is an object.
+ */
+
+function isObject$3(arg) {
+  return '[object Object]' === arg.toString();
+}
+
+/**
+ * this is based on
+ * @link https://github.com/aheckmann/mquery/blob/master/lib/mquery.js
+ */
+var NoSqlQueryBuilderClass = /*#__PURE__*/function () {
+  /**
+   * MQuery constructor used for building queries.
+   *
+   * ####Example:
+   *     var query = new MQuery({ name: 'mquery' });
+   *     query.where('age').gte(21).exec(callback);
+   *
+   */
+  function NoSqlQueryBuilderClass(mangoQuery) {
+    this.options = {};
+    this._conditions = {};
+    this._fields = {};
+
+    if (mangoQuery) {
+      var queryBuilder = this;
+
+      if (mangoQuery.selector) {
+        queryBuilder.find(mangoQuery.selector);
+      }
+
+      if (mangoQuery.limit) {
+        queryBuilder.limit(mangoQuery.limit);
+      }
+
+      if (mangoQuery.skip) {
+        queryBuilder.skip(mangoQuery.skip);
+      }
+
+      if (mangoQuery.sort) {
+        mangoQuery.sort.forEach(function (s) {
+          return queryBuilder.sort(s);
+        });
+      }
+    }
+  }
+  /**
+   * Specifies a `path` for use with chaining.
+   */
+
+
+  var _proto = NoSqlQueryBuilderClass.prototype;
+
+  _proto.where = function where(_path, _val) {
+    if (!arguments.length) return this;
+    var type = typeof arguments[0];
+
+    if ('string' === type) {
+      this._path = arguments[0];
+
+      if (2 === arguments.length) {
+        this._conditions[this._path] = arguments[1];
+      }
+
+      return this;
+    }
+
+    if ('object' === type && !Array.isArray(arguments[0])) {
+      return this.merge(arguments[0]);
+    }
+
+    throw newRxTypeError('MQ1', {
+      path: arguments[0]
+    });
+  }
+  /**
+   * Specifies the complementary comparison value for paths specified with `where()`
+   * ####Example
+   *     User.where('age').equals(49);
+   */
+  ;
+
+  _proto.equals = function equals(val) {
+    this._ensurePath('equals');
+
+    var path = this._path;
+    this._conditions[path] = val;
+    return this;
+  }
+  /**
+   * Specifies the complementary comparison value for paths specified with `where()`
+   * This is alias of `equals`
+   */
+  ;
+
+  _proto.eq = function eq(val) {
+    this._ensurePath('eq');
+
+    var path = this._path;
+    this._conditions[path] = val;
+    return this;
+  }
+  /**
+   * Specifies arguments for an `$or` condition.
+   * ####Example
+   *     query.or([{ color: 'red' }, { status: 'emergency' }])
+   */
+  ;
+
+  _proto.or = function or(array) {
+    var or = this._conditions.$or || (this._conditions.$or = []);
+    if (!Array.isArray(array)) array = [array];
+    or.push.apply(or, array);
+    return this;
+  }
+  /**
+   * Specifies arguments for a `$nor` condition.
+   * ####Example
+   *     query.nor([{ color: 'green' }, { status: 'ok' }])
+   */
+  ;
+
+  _proto.nor = function nor(array) {
+    var nor = this._conditions.$nor || (this._conditions.$nor = []);
+    if (!Array.isArray(array)) array = [array];
+    nor.push.apply(nor, array);
+    return this;
+  }
+  /**
+   * Specifies arguments for a `$and` condition.
+   * ####Example
+   *     query.and([{ color: 'green' }, { status: 'ok' }])
+   * @see $and http://docs.mongodb.org/manual/reference/operator/and/
+   */
+  ;
+
+  _proto.and = function and(array) {
+    var and = this._conditions.$and || (this._conditions.$and = []);
+    if (!Array.isArray(array)) array = [array];
+    and.push.apply(and, array);
+    return this;
+  }
+  /**
+   * Specifies a `$mod` condition
+   */
+  ;
+
+  _proto.mod = function mod(_path, _val) {
+    var val;
+    var path;
+
+    if (1 === arguments.length) {
+      this._ensurePath('mod');
+
+      val = arguments[0];
+      path = this._path;
+    } else if (2 === arguments.length && !Array.isArray(arguments[1])) {
+      this._ensurePath('mod');
+
+      val = arguments.slice();
+      path = this._path;
+    } else if (3 === arguments.length) {
+      val = arguments.slice(1);
+      path = arguments[0];
+    } else {
+      val = arguments[1];
+      path = arguments[0];
+    }
+
+    var conds = this._conditions[path] || (this._conditions[path] = {});
+    conds.$mod = val;
+    return this;
+  }
+  /**
+   * Specifies an `$exists` condition
+   * ####Example
+   *     // { name: { $exists: true }}
+   *     Thing.where('name').exists()
+   *     Thing.where('name').exists(true)
+   *     Thing.find().exists('name')
+   */
+  ;
+
+  _proto.exists = function exists(_path, _val) {
+    var path;
+    var val;
+
+    if (0 === arguments.length) {
+      this._ensurePath('exists');
+
+      path = this._path;
+      val = true;
+    } else if (1 === arguments.length) {
+      if ('boolean' === typeof arguments[0]) {
+        this._ensurePath('exists');
+
+        path = this._path;
+        val = arguments[0];
+      } else {
+        path = arguments[0];
+        val = true;
+      }
+    } else if (2 === arguments.length) {
+      path = arguments[0];
+      val = arguments[1];
+    }
+
+    var conds = this._conditions[path] || (this._conditions[path] = {});
+    conds.$exists = val;
+    return this;
+  }
+  /**
+   * Specifies an `$elemMatch` condition
+   * ####Example
+   *     query.elemMatch('comment', { author: 'autobot', votes: {$gte: 5}})
+   *     query.where('comment').elemMatch({ author: 'autobot', votes: {$gte: 5}})
+   *     query.elemMatch('comment', function (elem) {
+   *       elem.where('author').equals('autobot');
+   *       elem.where('votes').gte(5);
+   *     })
+   *     query.where('comment').elemMatch(function (elem) {
+   *       elem.where({ author: 'autobot' });
+   *       elem.where('votes').gte(5);
+   *     })
+   */
+  ;
+
+  _proto.elemMatch = function elemMatch(_path, _criteria) {
+    if (null === arguments[0]) throw newRxTypeError('MQ2');
+    var fn;
+    var path;
+    var criteria;
+
+    if ('function' === typeof arguments[0]) {
+      this._ensurePath('elemMatch');
+
+      path = this._path;
+      fn = arguments[0];
+    } else if (isObject$3(arguments[0])) {
+      this._ensurePath('elemMatch');
+
+      path = this._path;
+      criteria = arguments[0];
+    } else if ('function' === typeof arguments[1]) {
+      path = arguments[0];
+      fn = arguments[1];
+    } else if (arguments[1] && isObject$3(arguments[1])) {
+      path = arguments[0];
+      criteria = arguments[1];
+    } else throw newRxTypeError('MQ2');
+
+    if (fn) {
+      criteria = new NoSqlQueryBuilderClass();
+      fn(criteria);
+      criteria = criteria._conditions;
+    }
+
+    var conds = this._conditions[path] || (this._conditions[path] = {});
+    conds.$elemMatch = criteria;
+    return this;
+  }
+  /**
+   * Sets the sort order
+   * If an object is passed, values allowed are 'asc', 'desc', 'ascending', 'descending', 1, and -1.
+   * If a string is passed, it must be a space delimited list of path names.
+   * The sort order of each path is ascending unless the path name is prefixed with `-` which will be treated as descending.
+   * ####Example
+   *     query.sort({ field: 'asc', test: -1 });
+   *     query.sort('field -test');
+   *     query.sort([['field', 1], ['test', -1]]);
+   */
+  ;
+
+  _proto.sort = function sort(arg) {
+    var _this = this;
+
+    if (!arg) return this;
+    var len;
+    var type = typeof arg; // .sort([['field', 1], ['test', -1]])
+
+    if (Array.isArray(arg)) {
+      len = arg.length;
+
+      for (var i = 0; i < arg.length; ++i) {
+        _pushArr(this.options, arg[i][0], arg[i][1]);
+      }
+
+      return this;
+    } // .sort('field -test')
+
+
+    if (1 === arguments.length && 'string' === type) {
+      arg = arg.split(/\s+/);
+      len = arg.length;
+
+      for (var _i = 0; _i < len; ++_i) {
+        var field = arg[_i];
+        if (!field) continue;
+        var ascend = '-' === field[0] ? -1 : 1;
+        if (ascend === -1) field = field.substring(1);
+        push(this.options, field, ascend);
+      }
+
+      return this;
+    } // .sort({ field: 1, test: -1 })
+
+
+    if (isObject$3(arg)) {
+      var keys = Object.keys(arg);
+      keys.forEach(function (field) {
+        return push(_this.options, field, arg[field]);
+      });
+      return this;
+    }
+
+    throw newRxTypeError('MQ3', {
+      args: arguments
+    });
+  }
+  /**
+   * Merges another MQuery or conditions object into this one.
+   *
+   * When a MQuery is passed, conditions, field selection and options are merged.
+   *
+   */
+  ;
+
+  _proto.merge = function merge(source) {
+    if (!source) {
+      return this;
+    }
+
+    if (!canMerge(source)) {
+      throw newRxTypeError('MQ4', {
+        source: source
+      });
+    }
+
+    if (source instanceof NoSqlQueryBuilderClass) {
+      // if source has a feature, apply it to ourselves
+      if (source._conditions) merge$1(this._conditions, source._conditions);
+
+      if (source._fields) {
+        if (!this._fields) this._fields = {};
+
+        merge$1(this._fields, source._fields);
+      }
+
+      if (source.options) {
+        if (!this.options) this.options = {};
+
+        merge$1(this.options, source.options);
+      }
+
+      if (source._distinct) this._distinct = source._distinct;
+      return this;
+    } // plain object
+
+
+    merge$1(this._conditions, source);
+
+    return this;
+  }
+  /**
+   * Finds documents.
+   * ####Example
+   *     query.find()
+   *     query.find({ name: 'Burning Lights' })
+   */
+  ;
+
+  _proto.find = function find(criteria) {
+    if (canMerge(criteria)) {
+      this.merge(criteria);
+    }
+
+    return this;
+  }
+  /**
+   * Make sure _path is set.
+   *
+   * @parmam {String} method
+   */
+  ;
+
+  _proto._ensurePath = function _ensurePath(method) {
+    if (!this._path) {
+      throw newRxError('MQ5', {
+        method: method
+      });
+    }
+  };
+
+  _proto.toJSON = function toJSON() {
+    var query = {
+      selector: this._conditions
+    };
+
+    if (this.options.skip) {
+      query.skip = this.options.skip;
+    }
+
+    if (this.options.limit) {
+      query.limit = this.options.limit;
+    }
+
+    if (this.options.sort) {
+      query.sort = mQuerySortToRxDBSort(this.options.sort);
+    }
+
+    return {
+      query: query,
+      path: this._path
+    };
+  };
+
+  return NoSqlQueryBuilderClass;
+}();
+function mQuerySortToRxDBSort(sort) {
+  return Object.entries(sort).map(function (_ref) {
+    var _part;
+
+    var k = _ref[0],
+        v = _ref[1];
+    var direction = v === 1 ? 'asc' : 'desc';
+    var part = (_part = {}, _part[k] = direction, _part);
+    return part;
+  });
+}
+/**
+ * Because some prototype-methods are generated,
+ * we have to define the type of NoSqlQueryBuilder here
+ */
+
+/**
+ * limit, skip, maxScan, batchSize, comment
+ *
+ * Sets these associated options.
+ *
+ *     query.comment('feed query');
+ */
+var OTHER_MANGO_ATTRIBUTES = ['limit', 'skip', 'maxScan', 'batchSize', 'comment'];
+OTHER_MANGO_ATTRIBUTES.forEach(function (method) {
+  NoSqlQueryBuilderClass.prototype[method] = function (v) {
+    this.options[method] = v;
+    return this;
+  };
+});
+/**
+ * gt, gte, lt, lte, ne, in, nin, all, regex, size, maxDistance
+ *
+ *     Thing.where('type').nin(array)
+ */
+
+var OTHER_MANGO_OPERATORS = ['gt', 'gte', 'lt', 'lte', 'ne', 'in', 'nin', 'all', 'regex', 'size'];
+OTHER_MANGO_OPERATORS.forEach(function ($conditional) {
+  NoSqlQueryBuilderClass.prototype[$conditional] = function () {
+    var path;
+    var val;
+
+    if (1 === arguments.length) {
+      this._ensurePath($conditional);
+
+      val = arguments[0];
+      path = this._path;
+    } else {
+      val = arguments[1];
+      path = arguments[0];
+    }
+
+    var conds = this._conditions[path] === null || typeof this._conditions[path] === 'object' ? this._conditions[path] : this._conditions[path] = {};
+    conds['$' + $conditional] = val;
+    return this;
+  };
+});
+
+function push(opts, field, value) {
+  if (Array.isArray(opts.sort)) {
+    throw newRxTypeError('MQ6', {
+      opts: opts,
+      field: field,
+      value: value
+    });
+  }
+
+  if (value && value.$meta) {
+    var sort = opts.sort || (opts.sort = {});
+    sort[field] = {
+      $meta: value.$meta
+    };
+    return;
+  }
+
+  var val = String(value || 1).toLowerCase();
+
+  if (!/^(?:ascending|asc|descending|desc|1|-1)$/.test(val)) {
+    if (Array.isArray(value)) value = '[' + value + ']';
+    throw newRxTypeError('MQ7', {
+      field: field,
+      value: value
+    });
+  } // store `sort` in a sane format
+
+
+  var s = opts.sort || (opts.sort = {});
+  var valueStr = value.toString().replace('asc', '1').replace('ascending', '1').replace('desc', '-1').replace('descending', '-1');
+  s[field] = parseInt(valueStr, 10);
+}
+
+function _pushArr(opts, field, value) {
+  opts.sort = opts.sort || [];
+
+  if (!Array.isArray(opts.sort)) {
+    throw newRxTypeError('MQ8', {
+      opts: opts,
+      field: field,
+      value: value
+    });
+  }
+  /*    const valueStr = value.toString()
+          .replace('asc', '1')
+          .replace('ascending', '1')
+          .replace('desc', '-1')
+          .replace('descending', '-1');*/
+
+
+  opts.sort.push([field, value]);
+}
+/**
+ * Determines if `conds` can be merged using `mquery().merge()`
+ */
+
+
+function canMerge(conds) {
+  return conds instanceof NoSqlQueryBuilderClass || isObject$3(conds);
+}
+function createQueryBuilder(query) {
+  return new NoSqlQueryBuilderClass(query);
+}
+
+var RXQUERY_OTHER_FLAG = 'queryBuilderPath';
+function runBuildingStep(rxQuery, functionName, value) {
+  var queryBuilder = createQueryBuilder(clone(rxQuery.mangoQuery));
+
+  if (rxQuery.other[RXQUERY_OTHER_FLAG]) {
+    queryBuilder._path = rxQuery.other[RXQUERY_OTHER_FLAG];
+  }
+
+  queryBuilder[functionName](value); // run
+
+  var queryBuilderJson = queryBuilder.toJSON();
+  var newQuery = new RxQueryBase(rxQuery.op, queryBuilderJson.query, rxQuery.collection);
+
+  if (queryBuilderJson.path) {
+    newQuery.other[RXQUERY_OTHER_FLAG] = queryBuilderJson.path;
+  }
+
+  var tunneled = tunnelQueryCache(newQuery);
+  return tunneled;
+}
+function applyBuildingStep(proto, functionName) {
+  proto[functionName] = function (value) {
+    return runBuildingStep(this, functionName, value);
+  };
+}
+var RxDBQueryBuilderPlugin = {
+  name: 'query-builder',
+  rxdb: true,
+  prototypes: {
+    RxQuery: function RxQuery(proto) {
+      ['where', 'equals', 'eq', 'or', 'nor', 'and', 'mod', 'exists', 'elemMatch', 'sort'].forEach(function (attribute) {
+        applyBuildingStep(proto, attribute);
+      });
+      OTHER_MANGO_ATTRIBUTES.forEach(function (attribute) {
+        applyBuildingStep(proto, attribute);
+      });
+      OTHER_MANGO_OPERATORS.forEach(function (operator) {
+        applyBuildingStep(proto, operator);
+      });
+    }
+  }
+};
+
+/**
+ * this is the default rxdb-export
+ * It has a batteries-included guarantee.
+ * It basically just rxdb-core with some default plugins
+ */
+addRxPlugin(RxDBDevModePlugin);
+addRxPlugin(RxDBValidatePlugin);
+addRxPlugin(RxDBKeyCompressionPlugin);
+addRxPlugin(RxDBMigrationPlugin);
+addRxPlugin(RxDBLeaderElectionPlugin);
+addRxPlugin(RxDBEncryptionPlugin);
+addRxPlugin(RxDBUpdatePlugin);
+addRxPlugin(RxDBWatchForChangesPlugin);
+addRxPlugin(RxDBReplicationPlugin);
+addRxPlugin(RxDBAdapterCheckPlugin);
+addRxPlugin(RxDBJsonDumpPlugin);
+addRxPlugin(RxDBInMemoryPlugin);
+addRxPlugin(RxDBAttachmentsPlugin);
+addRxPlugin(RxDBLocalDocumentsPlugin);
+addRxPlugin(RxDBQueryBuilderPlugin); // re-export things from core
 
 export { addRxPlugin, createRxDatabase };

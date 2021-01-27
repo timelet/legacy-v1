@@ -1,6 +1,6 @@
 import { _ as _extends } from './extends-7477639a.js';
 import { r as react } from './index-8f144fe1.js';
-import { c as createCommonjsModule } from './_commonjsHelpers-f5d70792.js';
+import './index-4bda1d4e.js';
 import { r as red } from './red-359464ee.js';
 import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fd576625.js';
 
@@ -154,84 +154,6 @@ function deepmerge(target, source) {
   return output;
 }
 
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
-
-var ReactPropTypesSecret_1 = ReactPropTypesSecret;
-
-function emptyFunction() {}
-function emptyFunctionWithReset() {}
-emptyFunctionWithReset.resetWarningCache = emptyFunction;
-
-var factoryWithThrowingShims = function() {
-  function shim(props, propName, componentName, location, propFullName, secret) {
-    if (secret === ReactPropTypesSecret_1) {
-      // It is still safe when called from React.
-      return;
-    }
-    var err = new Error(
-      'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
-      'Use PropTypes.checkPropTypes() to call them. ' +
-      'Read more at http://fb.me/use-check-prop-types'
-    );
-    err.name = 'Invariant Violation';
-    throw err;
-  }  shim.isRequired = shim;
-  function getShim() {
-    return shim;
-  }  // Important!
-  // Keep this list in sync with production version in `./factoryWithTypeCheckers.js`.
-  var ReactPropTypes = {
-    array: shim,
-    bool: shim,
-    func: shim,
-    number: shim,
-    object: shim,
-    string: shim,
-    symbol: shim,
-
-    any: shim,
-    arrayOf: getShim,
-    element: shim,
-    elementType: shim,
-    instanceOf: getShim,
-    node: shim,
-    objectOf: getShim,
-    oneOf: getShim,
-    oneOfType: getShim,
-    shape: getShim,
-    exact: getShim,
-
-    checkPropTypes: emptyFunctionWithReset,
-    resetWarningCache: emptyFunction
-  };
-
-  ReactPropTypes.PropTypes = ReactPropTypes;
-
-  return ReactPropTypes;
-};
-
-var propTypes = createCommonjsModule(function (module) {
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-{
-  // By explicitly using `prop-types` you are opting into new production behavior.
-  // http://fb.me/prop-types-in-prod
-  module.exports = factoryWithThrowingShims();
-}
-});
-
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -308,6 +230,32 @@ function hexToRgb(color) {
   return colors ? "rgb".concat(colors.length === 4 ? 'a' : '', "(").concat(colors.map(function (n, index) {
     return index < 3 ? parseInt(n, 16) : Math.round(parseInt(n, 16) / 255 * 1000) / 1000;
   }).join(', '), ")") : '';
+}
+
+function intToHex(int) {
+  var hex = int.toString(16);
+  return hex.length === 1 ? "0".concat(hex) : hex;
+}
+/**
+ * Converts a color from CSS rgb format to CSS hex format.
+ *
+ * @param {string} color - RGB color, i.e. rgb(n, n, n)
+ * @returns {string} A CSS rgb color string, i.e. #nnnnnn
+ */
+
+
+function rgbToHex(color) {
+  // Idempotent
+  if (color.indexOf('#') === 0) {
+    return color;
+  }
+
+  var _decomposeColor = decomposeColor(color),
+      values = _decomposeColor.values;
+
+  return "#".concat(values.map(function (n) {
+    return intToHex(n);
+  }).join(''));
 }
 /**
  * Converts a color from hsl format to rgb format.
@@ -438,6 +386,19 @@ function getLuminance(color) {
   }); // Truncate at 3 digits
 
   return Number((0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]).toFixed(3));
+}
+/**
+ * Darken or lighten a color, depending on its luminance.
+ * Light colors are darkened, dark colors are lightened.
+ *
+ * @param {string} color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla()
+ * @param {number} coefficient=0.15 - multiplier in the range 0 - 1
+ * @returns {string} A CSS color string. Hex input values are returned as rgb
+ */
+
+function emphasize(color) {
+  var coefficient = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.15;
+  return getLuminance(color) > 0.5 ? darken(color, coefficient) : lighten(color, coefficient);
 }
 /**
  * Set the absolute transparency of a color.
@@ -5405,4 +5366,4 @@ function createSvgIcon(path, displayName) {
   return /*#__PURE__*/react.memo( /*#__PURE__*/react.forwardRef(Component));
 }
 
-export { duration as A, SvgIcon$1 as B, StylesProvider as S, ThemeContext as T, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, defaultTheme as d, createMuiTheme as e, _unsupportedIterableToArray as f, _inheritsLoose as g, _objectWithoutPropertiesLoose as h, _assertThisInitialized as i, _toConsumableArray as j, fade as k, _createClass as l, getThemeProps as m, nested as n, formatMuiErrorMessage as o, createSvgIcon as p, _typeof as q, mergeClasses as r, lighten as s, darken as t, useTheme as u, deepmerge as v, withStyles$1 as w, propTypes as x, makeStyles as y, zIndex as z };
+export { jssPreset as A, hexToRgb as B, rgbToHex as C, hslToRgb as D, decomposeColor as E, recomposeColor as F, getContrastRatio as G, getLuminance as H, emphasize as I, darken as J, lighten as K, easing as L, SvgIcon$1 as M, StylesProvider as S, ThemeContext as T, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, duration as d, createMuiTheme as e, fade as f, getThemeProps as g, defaultTheme as h, _unsupportedIterableToArray as i, _inheritsLoose as j, _objectWithoutPropertiesLoose as k, _assertThisInitialized as l, _toConsumableArray as m, nested as n, _createClass as o, formatMuiErrorMessage as p, createSvgIcon as q, _typeof as r, mergeClasses as s, deepmerge as t, useTheme as u, SheetsRegistry as v, withStyles$1 as w, createGenerateClassName as x, makeStyles as y, zIndex as z };
