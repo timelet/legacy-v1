@@ -11,6 +11,7 @@ import enMessages from "../i18n/en.json.proxy.js";
 import DefaultLayout from "../layout/default/DefaultLayout.js";
 import {theme} from "../style.js";
 import Router from "../layout/default/Router.js";
+import ServiceWorkerIntegration from "../components/ServiceWorkerIntegration.js";
 export default function App() {
   const [database, setDatabase] = useState();
   useEffect(() => {
@@ -31,5 +32,5 @@ export default function App() {
     theme
   }, /* @__PURE__ */ React.createElement(MuiPickersUtilsProvider, {
     utils: DateFnsUtils
-  }, /* @__PURE__ */ React.createElement(BrowserRouter, null, /* @__PURE__ */ React.createElement(DefaultLayout, null, /* @__PURE__ */ React.createElement(Router, null))))))));
+  }, /* @__PURE__ */ React.createElement(BrowserRouter, null, /* @__PURE__ */ React.createElement(ServiceWorkerIntegration, null), /* @__PURE__ */ React.createElement(DefaultLayout, null, /* @__PURE__ */ React.createElement(Router, null))))))));
 }

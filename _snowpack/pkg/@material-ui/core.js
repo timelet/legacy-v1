@@ -1,14 +1,16 @@
-export { V as ListItemIcon, _ as MenuItem, T as ThemeProvider, w as withTheme } from '../common/MenuItem-08dda66c.js';
-import { P as Paper, u as useTheme, T as Transition, g as getTransitionProps, r as reflow, M as Modal, a as Typography } from '../common/TextField-411530ab.js';
-export { I as IconButton, d as MenuList, P as Paper, b as TextField, c as Toolbar, a as Typography } from '../common/TextField-411530ab.js';
-import { w as withStyles, _ as _objectWithoutProperties, c as clsx, a as capitalize, b as _defineProperty, f as fade, d as duration, g as getThemeProps } from '../common/createSvgIcon-a7ae7e83.js';
-export { S as StylesProvider, e as createMuiTheme } from '../common/createSvgIcon-a7ae7e83.js';
+import { C as ClickAwayListener } from '../common/MenuItem-12269dbd.js';
+export { V as ListItemIcon, _ as MenuItem, T as ThemeProvider, c as unstable_createMuiStrictModeTheme, w as withTheme } from '../common/MenuItem-12269dbd.js';
+import { P as Paper, T as Typography, u as useTheme, a as Transition, g as getTransitionProps, r as reflow, M as Modal, G as Grow } from '../common/TextField-4fc0b07a.js';
+export { B as Button, I as IconButton, d as MenuList, P as Paper, b as TextField, c as Toolbar, T as Typography } from '../common/TextField-4fc0b07a.js';
+import { w as withStyles, _ as _objectWithoutProperties, c as clsx, a as capitalize, b as _defineProperty, f as fade, d as duration, e as emphasize, g as getThemeProps } from '../common/createSvgIcon-2c0a731f.js';
+export { S as StylesProvider } from '../common/createSvgIcon-2c0a731f.js';
 import { _ as _extends } from '../common/extends-7477639a.js';
 import { r as react } from '../common/index-8f144fe1.js';
 import '../common/index-4bda1d4e.js';
 import { r as reactDom } from '../common/index-821eef78.js';
-import { B as Backdrop } from '../common/Backdrop-b1d7ae40.js';
-import { u as useForkRef, d as debounce, a as useIsFocusVisible, b as useEventCallback, o as ownerDocument } from '../common/useIsFocusVisible-4c435ae6.js';
+import { B as Backdrop } from '../common/DialogContent-456d0999.js';
+export { D as Dialog, b as DialogActions, a as DialogContent } from '../common/DialogContent-456d0999.js';
+import { u as useForkRef, d as debounce, a as useIsFocusVisible, b as useEventCallback, c as createChainedFunction, o as ownerDocument } from '../common/useIsFocusVisible-919e76d8.js';
 import '../common/hoist-non-react-statics.cjs-fd576625.js';
 import '../common/_commonjsHelpers-f5d70792.js';
 import '../common/red-359464ee.js';
@@ -200,7 +202,35 @@ var Container$1 = withStyles(styles$1, {
   name: 'MuiContainer'
 })(Container);
 
-var styles$2 = function styles(theme) {
+var styles$2 = {
+  /* Styles applied to the root element. */
+  root: {
+    margin: 0,
+    padding: '16px 24px',
+    flex: '0 0 auto'
+  }
+};
+var DialogTitle = /*#__PURE__*/react.forwardRef(function DialogTitle(props, ref) {
+  var children = props.children,
+      classes = props.classes,
+      className = props.className,
+      _props$disableTypogra = props.disableTypography,
+      disableTypography = _props$disableTypogra === void 0 ? false : _props$disableTypogra,
+      other = _objectWithoutProperties(props, ["children", "classes", "className", "disableTypography"]);
+
+  return /*#__PURE__*/react.createElement("div", _extends({
+    className: clsx(classes.root, className),
+    ref: ref
+  }, other), disableTypography ? children : /*#__PURE__*/react.createElement(Typography, {
+    component: "h2",
+    variant: "h6"
+  }, children));
+});
+var DialogTitle$1 = withStyles(styles$2, {
+  name: 'MuiDialogTitle'
+})(DialogTitle);
+
+var styles$3 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {
@@ -274,7 +304,7 @@ var Divider = /*#__PURE__*/react.forwardRef(function Divider(props, ref) {
     ref: ref
   }, other));
 });
-var Divider$1 = withStyles(styles$2, {
+var Divider$1 = withStyles(styles$3, {
   name: 'MuiDivider'
 })(Divider);
 
@@ -486,7 +516,7 @@ var Slide = /*#__PURE__*/react.forwardRef(function Slide(props, ref) {
   });
 });
 
-var styles$3 = function styles(theme) {
+var styles$4 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {},
@@ -669,12 +699,12 @@ var Drawer = /*#__PURE__*/react.forwardRef(function Drawer(props, ref) {
     ref: ref
   }, other, ModalProps), slidingDrawer);
 });
-var Drawer$1 = withStyles(styles$3, {
+var Drawer$1 = withStyles(styles$4, {
   name: 'MuiDrawer',
   flip: false
 })(Drawer);
 
-var styles$4 = {
+var styles$5 = {
   /* Styles applied to the root element. */
   root: {},
 
@@ -789,7 +819,7 @@ var Link = /*#__PURE__*/react.forwardRef(function Link(props, ref) {
     variant: variant
   }, other));
 });
-var Link$1 = withStyles(styles$4, {
+var Link$1 = withStyles(styles$5, {
   name: 'MuiLink'
 })(Link);
 
@@ -829,7 +859,295 @@ function NoSsr(props) {
   return /*#__PURE__*/react.createElement(react.Fragment, null, mountedState ? children : fallback);
 }
 
-var styles$5 = function styles(theme) {
+var styles$6 = function styles(theme) {
+  var emphasis = theme.palette.type === 'light' ? 0.8 : 0.98;
+  var backgroundColor = emphasize(theme.palette.background.default, emphasis);
+  return {
+    /* Styles applied to the root element. */
+    root: _extends({}, theme.typography.body2, _defineProperty({
+      color: theme.palette.getContrastText(backgroundColor),
+      backgroundColor: backgroundColor,
+      display: 'flex',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      padding: '6px 16px',
+      borderRadius: theme.shape.borderRadius,
+      flexGrow: 1
+    }, theme.breakpoints.up('sm'), {
+      flexGrow: 'initial',
+      minWidth: 288
+    })),
+
+    /* Styles applied to the message wrapper element. */
+    message: {
+      padding: '8px 0'
+    },
+
+    /* Styles applied to the action wrapper element if `action` is provided. */
+    action: {
+      display: 'flex',
+      alignItems: 'center',
+      marginLeft: 'auto',
+      paddingLeft: 16,
+      marginRight: -8
+    }
+  };
+};
+var SnackbarContent = /*#__PURE__*/react.forwardRef(function SnackbarContent(props, ref) {
+  var action = props.action,
+      classes = props.classes,
+      className = props.className,
+      message = props.message,
+      _props$role = props.role,
+      role = _props$role === void 0 ? 'alert' : _props$role,
+      other = _objectWithoutProperties(props, ["action", "classes", "className", "message", "role"]);
+
+  return /*#__PURE__*/react.createElement(Paper, _extends({
+    role: role,
+    square: true,
+    elevation: 6,
+    className: clsx(classes.root, className),
+    ref: ref
+  }, other), /*#__PURE__*/react.createElement("div", {
+    className: classes.message
+  }, message), action ? /*#__PURE__*/react.createElement("div", {
+    className: classes.action
+  }, action) : null);
+});
+var SnackbarContent$1 = withStyles(styles$6, {
+  name: 'MuiSnackbarContent'
+})(SnackbarContent);
+
+var styles$7 = function styles(theme) {
+  var top1 = {
+    top: 8
+  };
+  var bottom1 = {
+    bottom: 8
+  };
+  var right = {
+    justifyContent: 'flex-end'
+  };
+  var left = {
+    justifyContent: 'flex-start'
+  };
+  var top3 = {
+    top: 24
+  };
+  var bottom3 = {
+    bottom: 24
+  };
+  var right3 = {
+    right: 24
+  };
+  var left3 = {
+    left: 24
+  };
+  var center = {
+    left: '50%',
+    right: 'auto',
+    transform: 'translateX(-50%)'
+  };
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      zIndex: theme.zIndex.snackbar,
+      position: 'fixed',
+      display: 'flex',
+      left: 8,
+      right: 8,
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'top', 'center' }}`. */
+    anchorOriginTopCenter: _extends({}, top1, _defineProperty({}, theme.breakpoints.up('sm'), _extends({}, top3, center))),
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'bottom', 'center' }}`. */
+    anchorOriginBottomCenter: _extends({}, bottom1, _defineProperty({}, theme.breakpoints.up('sm'), _extends({}, bottom3, center))),
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'top', 'right' }}`. */
+    anchorOriginTopRight: _extends({}, top1, right, _defineProperty({}, theme.breakpoints.up('sm'), _extends({
+      left: 'auto'
+    }, top3, right3))),
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'bottom', 'right' }}`. */
+    anchorOriginBottomRight: _extends({}, bottom1, right, _defineProperty({}, theme.breakpoints.up('sm'), _extends({
+      left: 'auto'
+    }, bottom3, right3))),
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'top', 'left' }}`. */
+    anchorOriginTopLeft: _extends({}, top1, left, _defineProperty({}, theme.breakpoints.up('sm'), _extends({
+      right: 'auto'
+    }, top3, left3))),
+
+    /* Styles applied to the root element if `anchorOrigin={{ 'bottom', 'left' }}`. */
+    anchorOriginBottomLeft: _extends({}, bottom1, left, _defineProperty({}, theme.breakpoints.up('sm'), _extends({
+      right: 'auto'
+    }, bottom3, left3)))
+  };
+};
+var Snackbar = /*#__PURE__*/react.forwardRef(function Snackbar(props, ref) {
+  var action = props.action,
+      _props$anchorOrigin = props.anchorOrigin;
+  _props$anchorOrigin = _props$anchorOrigin === void 0 ? {
+    vertical: 'bottom',
+    horizontal: 'center'
+  } : _props$anchorOrigin;
+
+  var vertical = _props$anchorOrigin.vertical,
+      horizontal = _props$anchorOrigin.horizontal,
+      _props$autoHideDurati = props.autoHideDuration,
+      autoHideDuration = _props$autoHideDurati === void 0 ? null : _props$autoHideDurati,
+      children = props.children,
+      classes = props.classes,
+      className = props.className,
+      ClickAwayListenerProps = props.ClickAwayListenerProps,
+      ContentProps = props.ContentProps,
+      _props$disableWindowB = props.disableWindowBlurListener,
+      disableWindowBlurListener = _props$disableWindowB === void 0 ? false : _props$disableWindowB,
+      message = props.message,
+      onClose = props.onClose,
+      onEnter = props.onEnter,
+      onEntered = props.onEntered,
+      onEntering = props.onEntering,
+      onExit = props.onExit,
+      onExited = props.onExited,
+      onExiting = props.onExiting,
+      onMouseEnter = props.onMouseEnter,
+      onMouseLeave = props.onMouseLeave,
+      open = props.open,
+      resumeHideDuration = props.resumeHideDuration,
+      _props$TransitionComp = props.TransitionComponent,
+      TransitionComponent = _props$TransitionComp === void 0 ? Grow : _props$TransitionComp,
+      _props$transitionDura = props.transitionDuration,
+      transitionDuration = _props$transitionDura === void 0 ? {
+    enter: duration.enteringScreen,
+    exit: duration.leavingScreen
+  } : _props$transitionDura,
+      TransitionProps = props.TransitionProps,
+      other = _objectWithoutProperties(props, ["action", "anchorOrigin", "autoHideDuration", "children", "classes", "className", "ClickAwayListenerProps", "ContentProps", "disableWindowBlurListener", "message", "onClose", "onEnter", "onEntered", "onEntering", "onExit", "onExited", "onExiting", "onMouseEnter", "onMouseLeave", "open", "resumeHideDuration", "TransitionComponent", "transitionDuration", "TransitionProps"]);
+
+  var timerAutoHide = react.useRef();
+
+  var _React$useState = react.useState(true),
+      exited = _React$useState[0],
+      setExited = _React$useState[1];
+
+  var handleClose = useEventCallback(function () {
+    if (onClose) {
+      onClose.apply(void 0, arguments);
+    }
+  });
+  var setAutoHideTimer = useEventCallback(function (autoHideDurationParam) {
+    if (!onClose || autoHideDurationParam == null) {
+      return;
+    }
+
+    clearTimeout(timerAutoHide.current);
+    timerAutoHide.current = setTimeout(function () {
+      handleClose(null, 'timeout');
+    }, autoHideDurationParam);
+  });
+  react.useEffect(function () {
+    if (open) {
+      setAutoHideTimer(autoHideDuration);
+    }
+
+    return function () {
+      clearTimeout(timerAutoHide.current);
+    };
+  }, [open, autoHideDuration, setAutoHideTimer]); // Pause the timer when the user is interacting with the Snackbar
+  // or when the user hide the window.
+
+  var handlePause = function handlePause() {
+    clearTimeout(timerAutoHide.current);
+  }; // Restart the timer when the user is no longer interacting with the Snackbar
+  // or when the window is shown back.
+
+
+  var handleResume = react.useCallback(function () {
+    if (autoHideDuration != null) {
+      setAutoHideTimer(resumeHideDuration != null ? resumeHideDuration : autoHideDuration * 0.5);
+    }
+  }, [autoHideDuration, resumeHideDuration, setAutoHideTimer]);
+
+  var handleMouseEnter = function handleMouseEnter(event) {
+    if (onMouseEnter) {
+      onMouseEnter(event);
+    }
+
+    handlePause();
+  };
+
+  var handleMouseLeave = function handleMouseLeave(event) {
+    if (onMouseLeave) {
+      onMouseLeave(event);
+    }
+
+    handleResume();
+  };
+
+  var handleClickAway = function handleClickAway(event) {
+    if (onClose) {
+      onClose(event, 'clickaway');
+    }
+  };
+
+  var handleExited = function handleExited() {
+    setExited(true);
+  };
+
+  var handleEnter = function handleEnter() {
+    setExited(false);
+  };
+
+  react.useEffect(function () {
+    if (!disableWindowBlurListener && open) {
+      window.addEventListener('focus', handleResume);
+      window.addEventListener('blur', handlePause);
+      return function () {
+        window.removeEventListener('focus', handleResume);
+        window.removeEventListener('blur', handlePause);
+      };
+    }
+
+    return undefined;
+  }, [disableWindowBlurListener, handleResume, open]); // So we only render active snackbars.
+
+  if (!open && exited) {
+    return null;
+  }
+
+  return /*#__PURE__*/react.createElement(ClickAwayListener, _extends({
+    onClickAway: handleClickAway
+  }, ClickAwayListenerProps), /*#__PURE__*/react.createElement("div", _extends({
+    className: clsx(classes.root, classes["anchorOrigin".concat(capitalize(vertical)).concat(capitalize(horizontal))], className),
+    onMouseEnter: handleMouseEnter,
+    onMouseLeave: handleMouseLeave,
+    ref: ref
+  }, other), /*#__PURE__*/react.createElement(TransitionComponent, _extends({
+    appear: true,
+    in: open,
+    onEnter: createChainedFunction(handleEnter, onEnter),
+    onEntered: onEntered,
+    onEntering: onEntering,
+    onExit: onExit,
+    onExited: createChainedFunction(handleExited, onExited),
+    onExiting: onExiting,
+    timeout: transitionDuration,
+    direction: vertical === 'top' ? 'down' : 'up'
+  }, TransitionProps), children || /*#__PURE__*/react.createElement(SnackbarContent$1, _extends({
+    message: message,
+    action: action
+  }, ContentProps)))));
+});
+var Snackbar$1 = withStyles(styles$7, {
+  flip: false,
+  name: 'MuiSnackbar'
+})(Snackbar);
+
+var styles$8 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {
@@ -874,7 +1192,7 @@ var SwipeArea = /*#__PURE__*/react.forwardRef(function SwipeArea(props, ref) {
     style: _defineProperty({}, isHorizontal(anchor) ? 'width' : 'height', width)
   }, other));
 });
-var SwipeArea$1 = withStyles(styles$5, {
+var SwipeArea$1 = withStyles(styles$8, {
   name: 'PrivateSwipeArea'
 })(SwipeArea);
 
@@ -1355,4 +1673,4 @@ var SwipeableDrawer = /*#__PURE__*/react.forwardRef(function SwipeableDrawer(inP
   }, SwipeAreaProps))));
 });
 
-export { AppBar$1 as AppBar, Container$1 as Container, Divider$1 as Divider, Link$1 as Link, SwipeableDrawer };
+export { AppBar$1 as AppBar, Container$1 as Container, DialogTitle$1 as DialogTitle, Divider$1 as Divider, Link$1 as Link, Snackbar$1 as Snackbar, SwipeableDrawer };

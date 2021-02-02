@@ -5083,9 +5083,11 @@ var FormattedMessage = /** @class */ (function (_super) {
         return (react.createElement(Context.Consumer, null, function (intl) {
             invariantIntlContext(intl);
             var formatMessage = intl.formatMessage, _a = intl.textComponent, Text = _a === void 0 ? react.Fragment : _a;
-            var _b = _this.props, id = _b.id, description = _b.description, defaultMessage = _b.defaultMessage, values = _b.values, children = _b.children, _c = _b.tagName, Component = _c === void 0 ? Text : _c;
+            var _b = _this.props, id = _b.id, description = _b.description, defaultMessage = _b.defaultMessage, values = _b.values, children = _b.children, _c = _b.tagName, Component = _c === void 0 ? Text : _c, ignoreTag = _b.ignoreTag;
             var descriptor = { id: id, description: description, defaultMessage: defaultMessage };
-            var nodes = formatMessage(descriptor, values);
+            var nodes = formatMessage(descriptor, values, {
+                ignoreTag: ignoreTag,
+            });
             if (!Array.isArray(nodes)) {
                 nodes = [nodes];
             }

@@ -23,7 +23,9 @@ export default function MenuDrawer({title}) {
   const [open, setOpen] = React.useState(false);
   const location = useLocation();
   React.useEffect(() => {
-    setOpen(false);
+    if (open) {
+      setOpen(false);
+    }
   }, [location]);
   const toggleDrawer = () => {
     setOpen(!open);

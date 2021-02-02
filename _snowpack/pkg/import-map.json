@@ -18,7 +18,14 @@
     "react-hook-form": "./react-hook-form.js",
     "react-intl": "./react-intl.js",
     "react-router-dom": "./react-router-dom.js",
+    "react-use": "./react-use.js",
     "rxdb": "./rxdb.js",
-    "uuid": "./uuid.js"
+    "uuid": "./uuid.js",
+    "workbox-cacheable-response": "./workbox-cacheable-response.js",
+    "workbox-expiration": "./workbox-expiration.js",
+    "workbox-precaching": "./workbox-precaching.js",
+    "workbox-routing": "./workbox-routing.js",
+    "workbox-strategies": "./workbox-strategies.js",
+    "workbox-window": "./workbox-window.js"
   }
 }

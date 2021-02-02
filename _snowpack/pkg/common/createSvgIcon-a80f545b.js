@@ -1,6 +1,6 @@
 import { c as createCommonjsModule } from './_commonjsHelpers-f5d70792.js';
-import { a as capitalize, q as createSvgIcon$1 } from './createSvgIcon-a7ae7e83.js';
-import { e as createChainedFunction, d as debounce, i as isMuiElement, o as ownerDocument, c as ownerWindow, s as setRef, f as useControlled, b as useEventCallback, u as useForkRef, a as useIsFocusVisible } from './useIsFocusVisible-4c435ae6.js';
+import { a as capitalize, s as createSvgIcon$1 } from './createSvgIcon-2c0a731f.js';
+import { c as createChainedFunction, d as debounce, i as isMuiElement, o as ownerDocument, e as ownerWindow, s as setRef, f as useControlled, b as useEventCallback, u as useForkRef, a as useIsFocusVisible } from './useIsFocusVisible-919e76d8.js';
 import { u as useId } from './unstable_useId-cb546235.js';
 
 function deprecatedPropType(validator, reason) {
