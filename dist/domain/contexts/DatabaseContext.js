@@ -1,4 +1,4 @@
-import React, {createContext, useContext} from "../../_snowpack/pkg/react.js";
+import React, {createContext, useContext} from "../../../_snowpack/pkg/react.js";
 const DatabaseContext = createContext(void 0);
 export function useDatabase() {
   return useContext(DatabaseContext);

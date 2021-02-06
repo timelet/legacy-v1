@@ -26,6 +26,7 @@ export default function EntryDisplay({entries, loading, update, stop}) {
     }
     return null;
   };
+  const renderDateTime = (params) => /* @__PURE__ */ React.createElement("span", null, params.value ? `${intl.formatDate(params.value)} ${intl.formatTime(params.value)}` : intl.formatMessage({id: "label.undefined", defaultMessage: "Undefined", description: "An undefined value"}));
   const columns = [
     {
       field: "entryId",
@@ -41,13 +42,14 @@ export default function EntryDisplay({entries, loading, update, stop}) {
     {
       field: "startedAt",
       headerName: intl.formatMessage({id: "label.startedAt", defaultMessage: "Started at"}),
-      width: 180
+      width: 180,
+      renderCell: renderDateTime
     },
     {
       field: "endedAt",
       headerName: intl.formatMessage({id: "label.endedAt", defaultMessage: "Ended at"}),
       width: 180,
-      renderCell: (params) => /* @__PURE__ */ React.createElement("span", null, params.value ? params.value : intl.formatMessage({id: "label.undefined", defaultMessage: "Undefined", description: "An undefined value"}))
+      renderCell: renderDateTime
     },
     {
       field: "duration",

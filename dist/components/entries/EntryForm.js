@@ -24,6 +24,8 @@ export default function EntryForm({entry, update}) {
   const toggleDialog = () => setOpen(!open);
   React.useEffect(() => {
     reset(entry);
+    setStartedAt(new Date(entry.startedAt));
+    setEndedAt(entry.endedAt ? new Date(entry.endedAt) : null);
   }, [entry]);
   const onSubmit = (data) => {
     const updatedEntry = {
@@ -51,8 +53,7 @@ export default function EntryForm({entry, update}) {
     inputRef: register,
     label: intl.formatMessage({
       id: "label.description",
-      defaultMessage: "Description",
-      description: "Label for a multiline description"
+      defaultMessage: "Description"
     }),
     multiline: true,
     required: true
@@ -69,8 +70,7 @@ export default function EntryForm({entry, update}) {
     }),
     label: intl.formatMessage({
       id: "label.startedAt",
-      defaultMessage: "Started at",
-      description: "Label which indicates the starting date and time of an activity"
+      defaultMessage: "Started at"
     }),
     required: true
   }), /* @__PURE__ */ React.createElement(KeyboardDateTimePicker, {
@@ -87,8 +87,7 @@ export default function EntryForm({entry, update}) {
     }),
     label: intl.formatMessage({
       id: "label.endedAt",
-      defaultMessage: "Ended at",
-      description: "Label which indicates the ending date and time of an activity"
+      defaultMessage: "Ended at"
     })
   })), /* @__PURE__ */ React.createElement(DialogActions, null, /* @__PURE__ */ React.createElement(Button, {
     color: "secondary",

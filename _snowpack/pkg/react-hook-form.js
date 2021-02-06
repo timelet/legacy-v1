@@ -120,7 +120,7 @@ var removeAllEventListeners = (ref, validateWithStateUpdate) => {
 
 const defaultReturn = {
     isValid: false,
-    value: '',
+    value: null,
 };
 var getRadioValue = (options) => Array.isArray(options)
     ? options.reduce((previous, option) => option && option.ref.checked
@@ -168,7 +168,7 @@ var getCheckboxValue = (options) => {
     return defaultResult;
 };
 
-function getFieldValue(fieldsRef, name, shallowFieldsStateRef, excludeDisabled) {
+function getFieldValue(fieldsRef, name, shallowFieldsStateRef, excludeDisabled, shouldKeepRawValue) {
     const field = fieldsRef.current[name];
     if (field) {
         const { ref: { value, disabled }, ref, valueAsNumber, valueAsDate, setValueAs, } = field;
@@ -187,13 +187,17 @@ function getFieldValue(fieldsRef, name, shallowFieldsStateRef, excludeDisabled) 
         if (isCheckBoxInput(ref)) {
             return getCheckboxValue(field.options).value;
         }
-        return valueAsNumber
-            ? +value
-            : valueAsDate
-                ? ref.valueAsDate
-                : setValueAs
-                    ? setValueAs(value)
-                    : value;
+        return shouldKeepRawValue
+            ? value
+            : valueAsNumber
+                ? value === ''
+                    ? NaN
+                    : +value
+                : valueAsDate
+                    ? ref.valueAsDate
+                    : setValueAs
+                        ? setValueAs(value)
+                        : value;
     }
     if (shallowFieldsStateRef) {
         return get(shallowFieldsStateRef.current, name);
@@ -500,7 +504,7 @@ var validateField = async (fieldsRef, validateAllFieldCriteria, { ref, ref: { va
         }
     }
     if (validate) {
-        const fieldValue = getFieldValue(fieldsRef, name, shallowFieldsStateRef);
+        const fieldValue = getFieldValue(fieldsRef, name, shallowFieldsStateRef, false, true);
         const validateRef = isRadioOrCheckbox && options ? options[0].ref : ref;
         if (isFunction(validate)) {
             const result = await validate(fieldValue);
@@ -1062,14 +1066,9 @@ function useForm({ mode = VALIDATION_MODE.onSubmit, reValidateMode = VALIDATION_
             : watchFieldsRef.current;
         let fieldValues = getFieldsValues(fieldsRef, cloneObject(shallowFieldsStateRef.current), shouldUnregister, false, fieldNames);
         if (isString(fieldNames)) {
-            if (fieldArrayNamesRef.current.has(fieldNames)) {
-                const fieldArrayValue = get(fieldArrayValuesRef.current, fieldNames, []);
-                fieldValues =
-                    !fieldArrayValue.length ||
-                        fieldArrayValue.length !==
-                            compact(get(fieldValues, fieldNames, [])).length
-                        ? fieldArrayValuesRef.current
-                        : fieldValues;
+            const parentNodeName = getFieldArrayParentName(fieldNames) || fieldNames;
+            if (fieldArrayNamesRef.current.has(parentNodeName)) {
+                fieldValues = Object.assign(Object.assign({}, fieldArrayValuesRef.current), fieldValues);
             }
             return assignWatchFields(fieldValues, fieldNames, watchFields, isUndefined(get(defaultValuesRef.current, fieldNames))
                 ? defaultValue
@@ -1343,7 +1342,163 @@ function useForm({ mode = VALIDATION_MODE.onSubmit, reValidateMode = VALIDATION_
         handleSubmit, reset: react.useCallback(reset, []), clearErrors: react.useCallback(clearErrors, []), setError: react.useCallback(setError, []), errors: formState.errors }, commonProps);
 }
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+function __rest(s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+}
+
 const FormContext = react.createContext(null);
 FormContext.displayName = 'RHFContext';
+const useFormContext = () => react.useContext(FormContext);
 
-export { useForm };
+var getInputValue = (event) => isPrimitive(event) ||
+    !isObject(event.target) ||
+    (isObject(event.target) && !event.type)
+    ? event
+    : isUndefined(event.target.value)
+        ? event.target.checked
+        : event.target.value;
+
+function useController({ name, rules, defaultValue, control, onFocus, }) {
+    const methods = useFormContext();
+    const { defaultValuesRef, setValue, register, unregister, trigger, mode, reValidateMode: { isReValidateOnBlur, isReValidateOnChange }, formState, formStateRef: { current: { isSubmitted, touched, errors }, }, updateFormState, readFormStateRef, fieldsRef, fieldArrayNamesRef, shallowFieldsStateRef, } = control || methods.control;
+    const isNotFieldArray = !isNameInFieldArray(fieldArrayNamesRef.current, name);
+    const getInitialValue = () => !isUndefined(get(shallowFieldsStateRef.current, name)) && isNotFieldArray
+        ? get(shallowFieldsStateRef.current, name)
+        : isUndefined(defaultValue)
+            ? get(defaultValuesRef.current, name)
+            : defaultValue;
+    const [value, setInputStateValue] = react.useState(getInitialValue());
+    const valueRef = react.useRef(value);
+    const ref = react.useRef({
+        focus: () => null,
+    });
+    const onFocusRef = react.useRef(onFocus ||
+        (() => {
+            if (isFunction(ref.current.focus)) {
+                ref.current.focus();
+            }
+        }));
+    const shouldValidate = react.useCallback((isBlurEvent) => !skipValidation(Object.assign({ isBlurEvent,
+        isReValidateOnBlur,
+        isReValidateOnChange,
+        isSubmitted, isTouched: !!get(touched, name) }, mode)), [
+        isReValidateOnBlur,
+        isReValidateOnChange,
+        isSubmitted,
+        touched,
+        name,
+        mode,
+    ]);
+    const commonTask = react.useCallback(([event]) => {
+        const data = getInputValue(event);
+        setInputStateValue(data);
+        valueRef.current = data;
+        return data;
+    }, []);
+    const registerField = react.useCallback((shouldUpdateValue) => {
+        if (fieldsRef.current[name]) {
+            fieldsRef.current[name] = Object.assign({ ref: fieldsRef.current[name].ref }, rules);
+        }
+        else {
+            register(Object.defineProperties({
+                name,
+                focus: onFocusRef.current,
+            }, {
+                value: {
+                    set(data) {
+                        setInputStateValue(data);
+                        valueRef.current = data;
+                    },
+                    get() {
+                        return valueRef.current;
+                    },
+                },
+            }), rules);
+            shouldUpdateValue = isUndefined(get(defaultValuesRef.current, name));
+        }
+        shouldUpdateValue &&
+            isNotFieldArray &&
+            setInputStateValue(getInitialValue());
+    }, [rules, name, register]);
+    react.useEffect(() => () => unregister(name), [name]);
+    react.useEffect(() => {
+        registerField();
+    }, [registerField]);
+    react.useEffect(() => {
+        !fieldsRef.current[name] && registerField(true);
+    });
+    const onBlur = react.useCallback(() => {
+        if (readFormStateRef.current.touched && !get(touched, name)) {
+            set(touched, name, true);
+            updateFormState({
+                touched,
+            });
+        }
+        shouldValidate(true) && trigger(name);
+    }, [name, updateFormState, shouldValidate, trigger, readFormStateRef]);
+    const onChange = react.useCallback((...event) => setValue(name, commonTask(event), {
+        shouldValidate: shouldValidate(),
+        shouldDirty: true,
+    }), [setValue, name, shouldValidate]);
+    return {
+        field: {
+            onChange,
+            onBlur,
+            name,
+            value,
+            ref,
+        },
+        meta: Object.defineProperties({
+            invalid: !!get(errors, name),
+        }, {
+            isDirty: {
+                get() {
+                    return !!get(formState.dirtyFields, name);
+                },
+            },
+            isTouched: {
+                get() {
+                    return !!get(formState.touched, name);
+                },
+            },
+        }),
+    };
+}
+
+const Controller = (props) => {
+    const { rules, as, render, defaultValue, control, onFocus } = props, rest = __rest(props, ["rules", "as", "render", "defaultValue", "control", "onFocus"]);
+    const { field, meta } = useController(props);
+    const componentProps = Object.assign(Object.assign({}, rest), field);
+    return as
+        ? react.isValidElement(as)
+            ? react.cloneElement(as, componentProps)
+            : react.createElement(as, componentProps)
+        : render
+            ? render(field, meta)
+            : null;
+};
+
+export { Controller, useForm };
