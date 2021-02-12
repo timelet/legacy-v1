@@ -1,11 +1,13 @@
-import { h as createMuiTheme, i as deepmerge, u as useTheme, n as nested, T as ThemeContext, _ as _objectWithoutProperties, j as defaultTheme, w as withStyles, c as clsx, b as _defineProperty } from './createSvgIcon-2c0a731f.js';
+import { h as createMuiTheme, i as deepmerge, u as useTheme, n as nested, T as ThemeContext, _ as _objectWithoutProperties, j as defaultTheme, w as withStyles, c as clsx, b as _defineProperty } from './createSvgIcon-62eb273b.js';
 import { _ as _extends } from './extends-7477639a.js';
 import { r as react } from './index-8f144fe1.js';
 import './index-4bda1d4e.js';
 import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fd576625.js';
 import { r as reactDom } from './index-821eef78.js';
-import { u as useForkRef, b as useEventCallback, o as ownerDocument, i as isMuiElement } from './useIsFocusVisible-919e76d8.js';
-import { L as ListContext, f as ButtonBase } from './TextField-db2f9a67.js';
+import { o as ownerDocument, i as isMuiElement } from './ownerWindow-e2d6e813.js';
+import { u as useForkRef, b as useEventCallback } from './useIsFocusVisible-2abbdd38.js';
+import { L as ListContext } from './TextField-5a00fbd4.js';
+import { B as ButtonBase } from './Portal-4d3d5673.js';
 
 function createMuiStrictModeTheme(options) {
   for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -412,41 +414,6 @@ var ListItem$1 = withStyles(styles, {
 var styles$1 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
-    root: {
-      minWidth: 56,
-      color: theme.palette.action.active,
-      flexShrink: 0,
-      display: 'inline-flex'
-    },
-
-    /* Styles applied to the root element when the parent `ListItem` uses `alignItems="flex-start"`. */
-    alignItemsFlexStart: {
-      marginTop: 8
-    }
-  };
-};
-/**
- * A simple wrapper to apply `List` styles to an `Icon` or `SvgIcon`.
- */
-
-var ListItemIcon = /*#__PURE__*/react.forwardRef(function ListItemIcon(props, ref) {
-  var classes = props.classes,
-      className = props.className,
-      other = _objectWithoutProperties(props, ["classes", "className"]);
-
-  var context = react.useContext(ListContext);
-  return /*#__PURE__*/react.createElement("div", _extends({
-    className: clsx(classes.root, className, context.alignItems === 'flex-start' && classes.alignItemsFlexStart),
-    ref: ref
-  }, other));
-});
-var V = withStyles(styles$1, {
-  name: 'MuiListItemIcon'
-})(ListItemIcon);
-
-var styles$2 = function styles(theme) {
-  return {
-    /* Styles applied to the root element. */
     root: _extends({}, theme.typography.body1, _defineProperty({
       minHeight: 48,
       paddingTop: 6,
@@ -506,8 +473,44 @@ var MenuItem = /*#__PURE__*/react.forwardRef(function MenuItem(props, ref) {
     ref: ref
   }, other));
 });
-var _ = withStyles(styles$2, {
+var _ = withStyles(styles$1, {
   name: 'MuiMenuItem'
 })(MenuItem);
 
-export { ClickAwayListener as C, ThemeProvider as T, V, _, createMuiStrictModeTheme as c, withTheme as w };
+var useEnhancedEffect$1 = typeof window !== 'undefined' && "production" !== 'test' ? react.useLayoutEffect : react.useEffect;
+/**
+ * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
+ *
+ * This component can be useful in a variety of situations:
+ * - Escape hatch for broken dependencies not supporting SSR.
+ * - Improve the time-to-first paint on the client by only rendering above the fold.
+ * - Reduce the rendering time on the server.
+ * - Under too heavy server load, you can turn on service degradation.
+ */
+
+function NoSsr(props) {
+  var children = props.children,
+      _props$defer = props.defer,
+      defer = _props$defer === void 0 ? false : _props$defer,
+      _props$fallback = props.fallback,
+      fallback = _props$fallback === void 0 ? null : _props$fallback;
+
+  var _React$useState = react.useState(false),
+      mountedState = _React$useState[0],
+      setMountedState = _React$useState[1];
+
+  useEnhancedEffect$1(function () {
+    if (!defer) {
+      setMountedState(true);
+    }
+  }, [defer]);
+  react.useEffect(function () {
+    if (defer) {
+      setMountedState(true);
+    }
+  }, [defer]); // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
+
+  return /*#__PURE__*/react.createElement(react.Fragment, null, mountedState ? children : fallback);
+}
+
+export { ClickAwayListener as C, NoSsr as N, ThemeProvider as T, _, createMuiStrictModeTheme as c, withTheme as w };

@@ -1,16 +1,19 @@
-import { C as ClickAwayListener } from '../common/MenuItem-33a9eb8b.js';
-export { V as ListItemIcon, _ as MenuItem, T as ThemeProvider, c as unstable_createMuiStrictModeTheme, w as withTheme } from '../common/MenuItem-33a9eb8b.js';
-import { P as Paper, T as Typography, u as useTheme, a as Transition, g as getTransitionProps, r as reflow, M as Modal, G as Grow } from '../common/TextField-db2f9a67.js';
-export { B as Button, C as CircularProgress, c as FormControl, F as FormHelperText, I as IconButton, N as InputLabel, e as MenuList, P as Paper, H as Select, b as TextField, d as Toolbar, T as Typography } from '../common/TextField-db2f9a67.js';
-import { w as withStyles, _ as _objectWithoutProperties, c as clsx, a as capitalize, b as _defineProperty, f as fade, d as duration, e as emphasize, g as getThemeProps } from '../common/createSvgIcon-2c0a731f.js';
-export { S as StylesProvider } from '../common/createSvgIcon-2c0a731f.js';
+import { C as ClickAwayListener, N as NoSsr } from '../common/NoSsr-3400e2a6.js';
+export { _ as MenuItem, T as ThemeProvider, c as unstable_createMuiStrictModeTheme, w as withTheme } from '../common/NoSsr-3400e2a6.js';
+import { T as Typography, u as useTheme, a as Transition, g as getTransitionProps, r as reflow, M as Modal, L as ListContext, G as Grow } from '../common/TextField-5a00fbd4.js';
+export { B as Button, C as CircularProgress, c as FormControl, F as FormHelperText, N as InputLabel, e as MenuList, H as Select, b as TextField, d as Toolbar, T as Typography } from '../common/TextField-5a00fbd4.js';
+import { w as withStyles, _ as _objectWithoutProperties, c as clsx, a as capitalize, b as _defineProperty, f as fade, d as duration, e as emphasize, g as getThemeProps } from '../common/createSvgIcon-62eb273b.js';
+export { S as StylesProvider } from '../common/createSvgIcon-62eb273b.js';
 import { _ as _extends } from '../common/extends-7477639a.js';
 import { r as react } from '../common/index-8f144fe1.js';
 import '../common/index-4bda1d4e.js';
 import { r as reactDom } from '../common/index-821eef78.js';
-import { B as Backdrop } from '../common/DialogContent-2f428f27.js';
-export { D as Dialog, b as DialogActions, a as DialogContent } from '../common/DialogContent-2f428f27.js';
-import { u as useForkRef, d as debounce, a as useIsFocusVisible, b as useEventCallback, c as createChainedFunction, o as ownerDocument } from '../common/useIsFocusVisible-919e76d8.js';
+import { P as Paper } from '../common/Portal-4d3d5673.js';
+export { I as IconButton, P as Paper } from '../common/Portal-4d3d5673.js';
+import { B as Backdrop } from '../common/DialogContent-dba5be15.js';
+export { D as Dialog, b as DialogActions, a as DialogContent } from '../common/DialogContent-dba5be15.js';
+import { d as debounce, o as ownerDocument } from '../common/ownerWindow-e2d6e813.js';
+import { u as useForkRef, a as useIsFocusVisible, b as useEventCallback, c as createChainedFunction } from '../common/useIsFocusVisible-2abbdd38.js';
 import '../common/hoist-non-react-statics.cjs-fd576625.js';
 import '../common/_commonjsHelpers-f5d70792.js';
 import '../common/red-359464ee.js';
@@ -205,6 +208,24 @@ var Container$1 = withStyles(styles$1, {
 var styles$2 = {
   /* Styles applied to the root element. */
   root: {
+    marginBottom: 12
+  }
+};
+var DialogContentText = /*#__PURE__*/react.forwardRef(function DialogContentText(props, ref) {
+  return /*#__PURE__*/react.createElement(Typography, _extends({
+    component: "p",
+    variant: "body1",
+    color: "textSecondary",
+    ref: ref
+  }, props));
+});
+var DialogContentText$1 = withStyles(styles$2, {
+  name: 'MuiDialogContentText'
+})(DialogContentText);
+
+var styles$3 = {
+  /* Styles applied to the root element. */
+  root: {
     margin: 0,
     padding: '16px 24px',
     flex: '0 0 auto'
@@ -226,11 +247,11 @@ var DialogTitle = /*#__PURE__*/react.forwardRef(function DialogTitle(props, ref)
     variant: "h6"
   }, children));
 });
-var DialogTitle$1 = withStyles(styles$2, {
+var DialogTitle$1 = withStyles(styles$3, {
   name: 'MuiDialogTitle'
 })(DialogTitle);
 
-var styles$3 = function styles(theme) {
+var styles$4 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {
@@ -304,7 +325,7 @@ var Divider = /*#__PURE__*/react.forwardRef(function Divider(props, ref) {
     ref: ref
   }, other));
 });
-var Divider$1 = withStyles(styles$3, {
+var Divider$1 = withStyles(styles$4, {
   name: 'MuiDivider'
 })(Divider);
 
@@ -516,7 +537,7 @@ var Slide = /*#__PURE__*/react.forwardRef(function Slide(props, ref) {
   });
 });
 
-var styles$4 = function styles(theme) {
+var styles$5 = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {},
@@ -699,12 +720,12 @@ var Drawer = /*#__PURE__*/react.forwardRef(function Drawer(props, ref) {
     ref: ref
   }, other, ModalProps), slidingDrawer);
 });
-var Drawer$1 = withStyles(styles$4, {
+var Drawer$1 = withStyles(styles$5, {
   name: 'MuiDrawer',
   flip: false
 })(Drawer);
 
-var styles$5 = {
+var styles$6 = {
   /* Styles applied to the root element. */
   root: {},
 
@@ -819,47 +840,46 @@ var Link = /*#__PURE__*/react.forwardRef(function Link(props, ref) {
     variant: variant
   }, other));
 });
-var Link$1 = withStyles(styles$5, {
+var Link$1 = withStyles(styles$6, {
   name: 'MuiLink'
 })(Link);
 
-var useEnhancedEffect = typeof window !== 'undefined' && "production" !== 'test' ? react.useLayoutEffect : react.useEffect;
+var styles$7 = function styles(theme) {
+  return {
+    /* Styles applied to the root element. */
+    root: {
+      minWidth: 56,
+      color: theme.palette.action.active,
+      flexShrink: 0,
+      display: 'inline-flex'
+    },
+
+    /* Styles applied to the root element when the parent `ListItem` uses `alignItems="flex-start"`. */
+    alignItemsFlexStart: {
+      marginTop: 8
+    }
+  };
+};
 /**
- * NoSsr purposely removes components from the subject of Server Side Rendering (SSR).
- *
- * This component can be useful in a variety of situations:
- * - Escape hatch for broken dependencies not supporting SSR.
- * - Improve the time-to-first paint on the client by only rendering above the fold.
- * - Reduce the rendering time on the server.
- * - Under too heavy server load, you can turn on service degradation.
+ * A simple wrapper to apply `List` styles to an `Icon` or `SvgIcon`.
  */
 
-function NoSsr(props) {
-  var children = props.children,
-      _props$defer = props.defer,
-      defer = _props$defer === void 0 ? false : _props$defer,
-      _props$fallback = props.fallback,
-      fallback = _props$fallback === void 0 ? null : _props$fallback;
+var ListItemIcon = /*#__PURE__*/react.forwardRef(function ListItemIcon(props, ref) {
+  var classes = props.classes,
+      className = props.className,
+      other = _objectWithoutProperties(props, ["classes", "className"]);
 
-  var _React$useState = react.useState(false),
-      mountedState = _React$useState[0],
-      setMountedState = _React$useState[1];
+  var context = react.useContext(ListContext);
+  return /*#__PURE__*/react.createElement("div", _extends({
+    className: clsx(classes.root, className, context.alignItems === 'flex-start' && classes.alignItemsFlexStart),
+    ref: ref
+  }, other));
+});
+var V = withStyles(styles$7, {
+  name: 'MuiListItemIcon'
+})(ListItemIcon);
 
-  useEnhancedEffect(function () {
-    if (!defer) {
-      setMountedState(true);
-    }
-  }, [defer]);
-  react.useEffect(function () {
-    if (defer) {
-      setMountedState(true);
-    }
-  }, [defer]); // We need the Fragment here to force react-docgen to recognise NoSsr as a component.
-
-  return /*#__PURE__*/react.createElement(react.Fragment, null, mountedState ? children : fallback);
-}
-
-var styles$6 = function styles(theme) {
+var styles$8 = function styles(theme) {
   var emphasis = theme.palette.type === 'light' ? 0.8 : 0.98;
   var backgroundColor = emphasize(theme.palette.background.default, emphasis);
   return {
@@ -914,11 +934,11 @@ var SnackbarContent = /*#__PURE__*/react.forwardRef(function SnackbarContent(pro
     className: classes.action
   }, action) : null);
 });
-var SnackbarContent$1 = withStyles(styles$6, {
+var SnackbarContent$1 = withStyles(styles$8, {
   name: 'MuiSnackbarContent'
 })(SnackbarContent);
 
-var styles$7 = function styles(theme) {
+var styles$9 = function styles(theme) {
   var top1 = {
     top: 8
   };
@@ -1142,12 +1162,12 @@ var Snackbar = /*#__PURE__*/react.forwardRef(function Snackbar(props, ref) {
     action: action
   }, ContentProps)))));
 });
-var Snackbar$1 = withStyles(styles$7, {
+var Snackbar$1 = withStyles(styles$9, {
   flip: false,
   name: 'MuiSnackbar'
 })(Snackbar);
 
-var styles$8 = function styles(theme) {
+var styles$a = function styles(theme) {
   return {
     /* Styles applied to the root element. */
     root: {
@@ -1192,7 +1212,7 @@ var SwipeArea = /*#__PURE__*/react.forwardRef(function SwipeArea(props, ref) {
     style: _defineProperty({}, isHorizontal(anchor) ? 'width' : 'height', width)
   }, other));
 });
-var SwipeArea$1 = withStyles(styles$8, {
+var SwipeArea$1 = withStyles(styles$a, {
   name: 'PrivateSwipeArea'
 })(SwipeArea);
 
@@ -1290,7 +1310,7 @@ var transitionDurationDefault = {
   enter: duration.enteringScreen,
   exit: duration.leavingScreen
 };
-var useEnhancedEffect$1 = typeof window !== 'undefined' ? react.useLayoutEffect : react.useEffect;
+var useEnhancedEffect = typeof window !== 'undefined' ? react.useLayoutEffect : react.useEffect;
 var SwipeableDrawer = /*#__PURE__*/react.forwardRef(function SwipeableDrawer(inProps, ref) {
   var theme = useTheme();
   var props = getThemeProps({
@@ -1344,7 +1364,7 @@ var SwipeableDrawer = /*#__PURE__*/react.forwardRef(function SwipeableDrawer(inP
 
   var calculatedDurationRef = react.useRef(); // Use a ref so the open value used is always up to date inside useCallback.
 
-  useEnhancedEffect$1(function () {
+  useEnhancedEffect(function () {
     calculatedDurationRef.current = null;
   }, [open]);
   var setPosition = react.useCallback(function (translate) {
@@ -1673,4 +1693,4 @@ var SwipeableDrawer = /*#__PURE__*/react.forwardRef(function SwipeableDrawer(inP
   }, SwipeAreaProps))));
 });
 
-export { AppBar$1 as AppBar, Container$1 as Container, DialogTitle$1 as DialogTitle, Divider$1 as Divider, Link$1 as Link, Snackbar$1 as Snackbar, SwipeableDrawer };
+export { AppBar$1 as AppBar, Container$1 as Container, DialogContentText$1 as DialogContentText, DialogTitle$1 as DialogTitle, Divider$1 as Divider, Link$1 as Link, V as ListItemIcon, Snackbar$1 as Snackbar, SwipeableDrawer };

@@ -22,8 +22,7 @@ export default function Header() {
     to: RoutePaths.DASHBOARD
   }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "app.title",
-    defaultMessage: "Timelet",
-    description: "Application name"
+    defaultMessage: "Timelet"
   })));
   return /* @__PURE__ */ React.createElement(AppBar, {
     position: "static"

@@ -21,6 +21,11 @@ export default function EntryForm({entry, update}) {
   const [startedAt, setStartedAt] = React.useState(new Date(entry.startedAt));
   const [endedAt, setEndedAt] = React.useState(entry.endedAt ? new Date(entry.endedAt) : null);
   const {reset, register, handleSubmit} = useForm({defaultValues: entry});
+  const dateTimeFormat = intl.formatMessage({
+    id: "format.datetime",
+    defaultMessage: "yyyy/MM/dd HH:mm",
+    description: "Format which represents date time"
+  });
   const toggleDialog = () => setOpen(!open);
   React.useEffect(() => {
     reset(entry);
@@ -31,8 +36,8 @@ export default function EntryForm({entry, update}) {
     const updatedEntry = {
       entryId: entry.entryId,
       description: data.description,
-      startedAt: new Date(data.startedAt).toISOString(),
-      endedAt: data.endedAt ? new Date(data.endedAt).toISOString() : void 0
+      startedAt: startedAt.toISOString(),
+      endedAt: endedAt?.toISOString() ?? void 0
     };
     update(updatedEntry);
     toggleDialog();
@@ -59,15 +64,10 @@ export default function EntryForm({entry, update}) {
     required: true
   }), /* @__PURE__ */ React.createElement(KeyboardDateTimePicker, {
     name: "startedAt",
-    inputRef: register,
-    onChange: (date) => setStartedAt(date),
+    onChange: (date) => date ? setStartedAt(date) : null,
     value: startedAt,
     ampm: false,
-    format: intl.formatMessage({
-      id: "format.datetime",
-      defaultMessage: "yyyy/MM/dd HH:mm",
-      description: "Format which represents date time"
-    }),
+    format: dateTimeFormat,
     label: intl.formatMessage({
       id: "label.startedAt",
       defaultMessage: "Started at"
@@ -75,16 +75,11 @@ export default function EntryForm({entry, update}) {
     required: true
   }), /* @__PURE__ */ React.createElement(KeyboardDateTimePicker, {
     name: "endedAt",
-    inputRef: register,
     clearable: true,
     onChange: (date) => setEndedAt(date),
     value: endedAt,
     ampm: false,
-    format: intl.formatMessage({
-      id: "format.datetime",
-      defaultMessage: "yyyy/MM/dd HH:mm",
-      description: "Format which represents date time"
-    }),
+    format: dateTimeFormat,
     label: intl.formatMessage({
       id: "label.endedAt",
       defaultMessage: "Ended at"
@@ -94,14 +89,12 @@ export default function EntryForm({entry, update}) {
     onClick: toggleDialog
   }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "action.cancel",
-    defaultMessage: "Cancel",
-    description: "Cancel an action"
+    defaultMessage: "Cancel"
   })), /* @__PURE__ */ React.createElement(Button, {
     color: "primary",
     type: "submit"
   }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "action.submit",
-    defaultMessage: "Submit",
-    description: "Submit a form"
+    defaultMessage: "Submit"
   }))))));
 }

@@ -1,7 +1,3 @@
-var global = (typeof global !== "undefined" ? global :
-  typeof self !== "undefined" ? self :
-  typeof window !== "undefined" ? window : {});
-
 /* SNOWPACK PROCESS POLYFILL (based on https://github.com/calvinmetcalf/node-process-es6) */
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
@@ -229,4 +225,4 @@ var process = {
   uptime: uptime
 };
 
-export { global as g, process as p };
+export { process as p };

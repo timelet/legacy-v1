@@ -10,15 +10,15 @@ export async function initializeDatabase() {
     name: DATABASE_NAME,
     adapter: "indexeddb"
   });
-  try {
-    await database.insertLocal(SETTINGS_DOCUMENT_ID, defaultSettings);
-  } catch (e) {
-  }
   await database.addCollections({
     entries: entryCreatorBase,
     profiles: profileCreatorBase
   });
   configureEntryCollection(database.entries);
   configureProfileCollection(database.profiles);
+  try {
+    await database.insertLocal(SETTINGS_DOCUMENT_ID, defaultSettings);
+  } catch (e) {
+  }
   return database;
 }

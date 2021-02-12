@@ -72,7 +72,6 @@ export default function ProfileForm({profiles, currentProfile, saveProfile, sele
     disabled: !formState.isDirty
   }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "action.submit",
-    defaultMessage: "Submit",
-    description: "Submit a form"
+    defaultMessage: "Submit"
   }))));
 }

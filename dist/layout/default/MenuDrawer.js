@@ -6,6 +6,7 @@ import MenuIcon from "../../../_snowpack/pkg/@material-ui/icons/Menu.js";
 import CloseIcon from "../../../_snowpack/pkg/@material-ui/icons/Close.js";
 import CategoryIcon from "../../../_snowpack/pkg/@material-ui/icons/Category.js";
 import SettingsIcon from "../../../_snowpack/pkg/@material-ui/icons/Settings.js";
+import TagsIcon from "../../../_snowpack/pkg/@material-ui/icons/LocalOffer.js";
 import styled from "../../../_snowpack/pkg/@emotion/styled.js";
 import {FormattedMessage} from "../../../_snowpack/pkg/react-intl.js";
 import {Link, useLocation} from "../../../_snowpack/pkg/react-router-dom.js";
@@ -15,6 +16,10 @@ const DrawerContainer = styled.nav`
   flex-direction: column;
   height: 100%;
   width: 15rem;
+
+  a {
+    line-height: 2;
+  }
 `;
 const StyledMenuList = styled(MenuList)`
   flex-grow: 1;
@@ -44,21 +49,28 @@ export default function MenuDrawer({title}) {
     color: "inherit",
     "aria-label": "close menu",
     onClick: toggleDrawer
-  }, /* @__PURE__ */ React.createElement(CloseIcon, null)), title), /* @__PURE__ */ React.createElement(Divider, null), /* @__PURE__ */ React.createElement(StyledMenuList, null, /* @__PURE__ */ React.createElement(MenuItem, {
+  }, /* @__PURE__ */ React.createElement(CloseIcon, null)), title), /* @__PURE__ */ React.createElement(Divider, null), /* @__PURE__ */ React.createElement(StyledMenuList, null, /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement(MenuItem, {
     component: Link,
     to: RoutePaths.CATEGORIES
   }, /* @__PURE__ */ React.createElement(ListItemIcon, null, /* @__PURE__ */ React.createElement(CategoryIcon, null)), /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "label.categories",
     defaultMessage: "Categories",
     description: "Label for entry categories"
-  })), /* @__PURE__ */ React.createElement(MenuItem, {
+  }))), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement(MenuItem, {
+    component: Link,
+    to: RoutePaths.TAGS
+  }, /* @__PURE__ */ React.createElement(ListItemIcon, null, /* @__PURE__ */ React.createElement(TagsIcon, null)), /* @__PURE__ */ React.createElement(FormattedMessage, {
+    id: "label.tags",
+    defaultMessage: "Tags",
+    description: "Label for tags"
+  }))), /* @__PURE__ */ React.createElement("li", null, /* @__PURE__ */ React.createElement(MenuItem, {
     component: Link,
     to: RoutePaths.SETTINGS
   }, /* @__PURE__ */ React.createElement(ListItemIcon, null, /* @__PURE__ */ React.createElement(SettingsIcon, null)), /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "label.settings",
     defaultMessage: "Settings",
     description: "Label for system settings"
-  }))), /* @__PURE__ */ React.createElement(Divider, null), /* @__PURE__ */ React.createElement(Toolbar, null, /* @__PURE__ */ React.createElement(FormattedMessage, {
+  })))), /* @__PURE__ */ React.createElement(Divider, null), /* @__PURE__ */ React.createElement(Toolbar, null, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "version",
     defaultMessage: "Version {version}",
     values: {version: __SNOWPACK_ENV__.SNOWPACK_PUBLIC_PACKAGE_VERSION},

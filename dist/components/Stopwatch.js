@@ -1,12 +1,15 @@
-import {formatDistanceToNowStrict} from "../../_snowpack/pkg/date-fns.js";
+import {differenceInSeconds} from "../../_snowpack/pkg/date-fns.js";
 import React from "../../_snowpack/pkg/react.js";
 import {useInterval} from "../../_snowpack/pkg/react-use.js";
+import Duration from "./Duration.js";
 export default function Stopwatch({from}) {
-  const fromDate = new Date(from);
-  const formatDuration = (_fromDate) => `${formatDistanceToNowStrict(_fromDate, {unit: "minute"})}`;
-  const [duration, setDuration] = React.useState(formatDuration(fromDate));
+  const fromDateTime = new Date(from);
+  const formatDuration = (_fromDateTime) => differenceInSeconds(new Date(), _fromDateTime);
+  const [duration, setDuration] = React.useState(formatDuration(fromDateTime));
   useInterval(() => {
-    setDuration(formatDuration(fromDate));
+    setDuration(formatDuration(fromDateTime));
   }, 1e3);
-  return /* @__PURE__ */ React.createElement("span", null, duration);
+  return /* @__PURE__ */ React.createElement(Duration, {
+    seconds: duration
+  });
 }

@@ -4,3 +4,9 @@ export const createSubscriptionEffect = (subscribe) => () => {
     subscription?.unsubscribe();
   };
 };
+export const createAsyncSubscriptionEffect = (subscribe) => () => {
+  const subscription = subscribe();
+  return function cleanUp() {
+    subscription.then((sub) => sub?.unsubscribe());
+  };
+};

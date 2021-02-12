@@ -1,14 +1,17 @@
-import {CircularProgress} from "../../_snowpack/pkg/@material-ui/core.js";
+import {CircularProgress, Typography} from "../../_snowpack/pkg/@material-ui/core.js";
 import React from "../../_snowpack/pkg/react.js";
-import {FormattedMessage} from "../../_snowpack/pkg/react-intl.js";
+import {FormattedMessage, useIntl} from "../../_snowpack/pkg/react-intl.js";
+import saveFile from "../../_snowpack/pkg/save-as-file.js";
+import {format} from "../../_snowpack/pkg/date-fns.js";
+import StorageManagement from "../components/settings/StorageManagement.js";
 import ProfileForm from "../components/settings/ProfileForm.js";
-import {useDatabase} from "../domain/contexts/DatabaseContext.js";
+import {useDatabase} from "../contexts/DatabaseContext.js";
 import {SETTINGS_DOCUMENT_ID} from "../domain/documents/settingsDocument.js";
 import ContentContainer from "../layout/default/ContentContainer.js";
 import ContentElement from "../layout/default/ContentElement.js";
-import ContentTitle from "../layout/default/ContentTitle.js";
 import {createSubscriptionEffect} from "../utils/rxdb.js";
 export default function Settings() {
+  const intl = useIntl();
   const database = useDatabase();
   const [profiles, setProfiles] = React.useState([]);
   const [currentProfile, setCurrentProfile] = React.useState();
@@ -24,13 +27,36 @@ export default function Settings() {
     const query = database?.profiles.findOne({selector: {profileId: profile.profileId}});
     await query?.update({$set: profile});
   };
-  return /* @__PURE__ */ React.createElement(ContentContainer, null, /* @__PURE__ */ React.createElement(ContentTitle, null, /* @__PURE__ */ React.createElement(FormattedMessage, {
+  const exportDump = async () => {
+    const dump = await database?.dump();
+    if (dump) {
+      const filename = `${intl.formatMessage({id: "app.title", defaultMessage: "Timelet"})}-${format(new Date(), "yyyy-MM-dd_HH-mm")}.json`.toLowerCase();
+      const type = "text/plain;charset=utf-8";
+      const file = new Blob([JSON.stringify(dump)], {type});
+      saveFile(file, filename);
+    }
+  };
+  return /* @__PURE__ */ React.createElement(ContentContainer, null, /* @__PURE__ */ React.createElement(Typography, {
+    variant: "h2"
+  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "title.settings",
     defaultMessage: "Settings"
-  })), /* @__PURE__ */ React.createElement(ContentElement, null, currentProfile ? /* @__PURE__ */ React.createElement(ProfileForm, {
+  })), /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(Typography, {
+    variant: "h3"
+  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
+    id: "title.profiles",
+    defaultMessage: "Profiles"
+  })), currentProfile ? /* @__PURE__ */ React.createElement(ProfileForm, {
     profiles,
     currentProfile,
     selectProfile,
     saveProfile
-  }) : /* @__PURE__ */ React.createElement(CircularProgress, null)));
+  }) : /* @__PURE__ */ React.createElement(CircularProgress, null)), /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(Typography, {
+    variant: "h3"
+  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
+    id: "title.storage",
+    defaultMessage: "Storage"
+  })), /* @__PURE__ */ React.createElement(StorageManagement, {
+    exportDump
+  })));
 }

@@ -6,7 +6,7 @@ import {MuiPickersUtilsProvider} from "../../_snowpack/pkg/@material-ui/pickers.
 import DateFnsUtils from "../../_snowpack/pkg/@date-io/date-fns.js";
 import {BrowserRouter} from "../../_snowpack/pkg/react-router-dom.js";
 import {getUserLocale} from "../../_snowpack/pkg/get-user-locale.js";
-import {DatabaseProvider} from "../domain/contexts/DatabaseContext.js";
+import {DatabaseProvider} from "../contexts/DatabaseContext.js";
 import {initializeDatabase} from "../database.js";
 import enMessages from "../i18n/en.json.proxy.js";
 import deMessages from "../i18n/de.json.proxy.js";

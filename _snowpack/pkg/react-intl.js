@@ -4827,8 +4827,9 @@ function createIntl(config, cache) {
                     (!existingMessagesContainAst && mergingMessagesContainAst))) {
                 config.onError(new InvalidConfigError("Cannot mix AST & non-AST messages for locale " + resolvedConfig.locale));
             }
-            // @ts-expect-error this is fine
-            resolvedConfig.messages = __assign(__assign({}, resolvedConfig.messages), messages);
+            Object.keys(messages).forEach(function (k) {
+                resolvedConfig.messages[k] = messages[k];
+            });
         } });
 }
 
