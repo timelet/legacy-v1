@@ -1,8 +1,8 @@
 import { _ as _extends } from './extends-7477639a.js';
-import { r as react } from './index-8f144fe1.js';
-import './index-4bda1d4e.js';
+import { r as react } from './index-45809189.js';
+import './index-c103191b.js';
 import { r as red } from './red-359464ee.js';
-import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fd576625.js';
+import { h as hoistNonReactStatics_cjs } from './hoist-non-react-statics.cjs-fec7e822.js';
 
 var common = {
   black: '#000',
@@ -314,7 +314,7 @@ function decomposeColor(color) {
   var type = color.substring(0, marker);
 
   if (['rgb', 'rgba', 'hsl', 'hsla'].indexOf(type) === -1) {
-    throw new Error( formatMuiErrorMessage(3, color));
+    throw new Error(formatMuiErrorMessage(3, color));
   }
 
   var values = color.substring(marker + 1, color.length - 1).split(',');
@@ -753,11 +753,11 @@ function createPalette(palette) {
     }
 
     if (!color.main) {
-      throw new Error( formatMuiErrorMessage(4, mainShade));
+      throw new Error(formatMuiErrorMessage(4, mainShade));
     }
 
     if (typeof color.main !== 'string') {
-      throw new Error( formatMuiErrorMessage(5, JSON.stringify(color.main)));
+      throw new Error(formatMuiErrorMessage(5, JSON.stringify(color.main)));
     }
 
     addLightOrDark(color, 'light', lightShade, tonalOffset);
@@ -1251,10 +1251,19 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
   subClass.prototype.constructor = subClass;
-  subClass.__proto__ = superClass;
+  _setPrototypeOf(subClass, superClass);
 }
 
 function _assertThisInitialized(self) {
@@ -4532,7 +4541,7 @@ function supportedProperty(prop, options) {
   // For server-side rendering.
   if (!el) return prop; // Remove cache for benchmark tests or return property from the cache.
 
-  if ( cache$1[prop] != null) {
+  if (cache$1[prop] != null) {
     return cache$1[prop];
   } // Check if 'transition' or 'transform' natively supported in browser.
 
@@ -4611,7 +4620,7 @@ function supportedValue(property, value) {
 
   var cacheKey = property + prefixedValue; // Remove cache for benchmark tests or return value from cache.
 
-  if ( cache$1$1[cacheKey] != null) {
+  if (cache$1$1[cacheKey] != null) {
     return cache$1$1[cacheKey];
   } // IE can even throw an error in some cases, for e.g. style.content = 'bar'.
 
@@ -5257,7 +5266,7 @@ function withStyles$1(stylesOrCreator, options) {
 // We only handle the first word.
 function capitalize(string) {
   if (typeof string !== 'string') {
-    throw new Error( formatMuiErrorMessage(7));
+    throw new Error(formatMuiErrorMessage(7));
   }
 
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -5366,4 +5375,4 @@ function createSvgIcon(path, displayName) {
   return /*#__PURE__*/react.memo( /*#__PURE__*/react.forwardRef(Component));
 }
 
-export { makeStyles as A, jssPreset as B, hexToRgb as C, rgbToHex as D, hslToRgb as E, decomposeColor as F, recomposeColor as G, getContrastRatio as H, getLuminance as I, darken as J, lighten as K, easing as L, SvgIcon$1 as M, StylesProvider as S, ThemeContext as T, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, duration as d, emphasize as e, fade as f, getThemeProps as g, createMuiTheme as h, deepmerge as i, defaultTheme as j, _inheritsLoose as k, _objectWithoutPropertiesLoose as l, _createClass as m, nested as n, _toConsumableArray as o, formatMuiErrorMessage as p, createSvgIcon as q, _typeof as r, mergeClasses as s, _unsupportedIterableToArray as t, useTheme as u, _assertThisInitialized as v, withStyles$1 as w, SheetsRegistry as x, createGenerateClassName as y, zIndex as z };
+export { makeStyles as A, jssPreset as B, hexToRgb as C, rgbToHex as D, hslToRgb as E, decomposeColor as F, recomposeColor as G, getContrastRatio as H, getLuminance as I, darken as J, lighten as K, easing as L, _setPrototypeOf as M, SvgIcon$1 as N, StylesProvider as S, ThemeContext as T, _objectWithoutProperties as _, capitalize as a, _defineProperty as b, clsx as c, duration as d, emphasize as e, fade as f, getThemeProps as g, createMuiTheme as h, deepmerge as i, defaultTheme as j, _inheritsLoose as k, _objectWithoutPropertiesLoose as l, _createClass as m, nested as n, _toConsumableArray as o, formatMuiErrorMessage as p, createSvgIcon as q, _typeof as r, mergeClasses as s, _unsupportedIterableToArray as t, useTheme as u, _assertThisInitialized as v, withStyles$1 as w, SheetsRegistry as x, createGenerateClassName as y, zIndex as z };

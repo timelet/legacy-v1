@@ -1,32 +1,41 @@
+import styled from "../../../_snowpack/pkg/@emotion/styled.js";
 import {IconButton} from "../../../_snowpack/pkg/@material-ui/core.js";
 import {DataGrid} from "../../../_snowpack/pkg/@material-ui/data-grid.js";
-import {Stop as StopIcon, Delete as DeleteIcon} from "../../../_snowpack/pkg/@material-ui/icons.js";
+import {Stop as StopIcon, Delete as DeleteIcon, PlayArrow as PlayIcon, Timer as RecordIcon} from "../../../_snowpack/pkg/@material-ui/icons.js";
 import React from "../../../_snowpack/pkg/react.js";
 import {useIntl} from "../../../_snowpack/pkg/react-intl.js";
 import ConfirmDialog from "../ConfirmDialog.js";
 import InteractiveDuration from "../InteractiveDuration.js";
 import EntryForm from "./EntryForm.js";
+const StyledRecordIcon = styled(RecordIcon)`
+  margin-right: 0.2rem;
+`;
 const defaultSortModel = [
   {
     field: "startedAt",
     sort: "desc"
   }
 ];
-export default function EntryDisplay({entries, loading, update, remove, stop}) {
+export default function EntryDisplay({entries, categories, tags, loading, update, remove, stop, copy}) {
   const intl = useIntl();
   const renderStopButton = (params) => /* @__PURE__ */ React.createElement(IconButton, {
-    disabled: !!params.getValue("endedAt"),
     onClick: () => {
       const entryId = params.getValue("entryId")?.toString();
-      if (entryId && stop) {
-        stop(entryId);
+      if (entryId) {
+        if (params.getValue("endedAt")) {
+          copy(entryId);
+        } else {
+          stop(entryId);
+        }
       }
     }
-  }, /* @__PURE__ */ React.createElement(StopIcon, null));
+  }, params.getValue("endedAt") ? /* @__PURE__ */ React.createElement(PlayIcon, null) : /* @__PURE__ */ React.createElement(StopIcon, null));
   const renderEditButton = (params) => {
     const currentEntry = entries.find((e) => e.entryId === params.getValue("entryId"));
     return currentEntry ? /* @__PURE__ */ React.createElement(EntryForm, {
       entry: currentEntry,
+      categories,
+      tags,
       update
     }) : null;
   };
@@ -47,14 +56,19 @@ export default function EntryDisplay({entries, loading, update, remove, stop}) {
       hide: true
     },
     {
-      field: "description",
-      headerName: intl.formatMessage({id: "label.description", defaultMessage: "Description"}),
-      flex: 0.5
-    },
-    {
       field: "category",
       headerName: intl.formatMessage({id: "label.category", defaultMessage: "Category"}),
       flex: 0.2
+    },
+    {
+      field: "tag",
+      headerName: intl.formatMessage({id: "label.tag", defaultMessage: "Tag"}),
+      flex: 0.2
+    },
+    {
+      field: "description",
+      headerName: intl.formatMessage({id: "label.description", defaultMessage: "Description"}),
+      flex: 0.5
     },
     {
       field: "startedAt",
@@ -66,16 +80,20 @@ export default function EntryDisplay({entries, loading, update, remove, stop}) {
       field: "endedAt",
       headerName: intl.formatMessage({id: "label.endedAt", defaultMessage: "Ended at"}),
       width: 180,
-      renderCell: renderDateTime
+      renderCell: renderDateTime,
+      hide: true
     },
     {
       field: "duration",
       headerName: intl.formatMessage({id: "label.duration", defaultMessage: "Duration"}),
       width: 130,
-      renderCell: (params) => /* @__PURE__ */ React.createElement(InteractiveDuration, {
+      renderCell: (params) => /* @__PURE__ */ React.createElement(React.Fragment, null, params.getValue("endedAt")?.toString() ? null : /* @__PURE__ */ React.createElement(StyledRecordIcon, {
+        color: "primary",
+        fontSize: "small"
+      }), /* @__PURE__ */ React.createElement(InteractiveDuration, {
         from: params.getValue("startedAt")?.toString() || "",
         to: params.getValue("endedAt")?.toString()
-      })
+      }))
     },
     {
       field: "actions",
@@ -90,6 +108,7 @@ export default function EntryDisplay({entries, loading, update, remove, stop}) {
     columns,
     rows: entries,
     loading,
-    sortModel: defaultSortModel
+    sortModel: defaultSortModel,
+    density: "compact"
   });
 }

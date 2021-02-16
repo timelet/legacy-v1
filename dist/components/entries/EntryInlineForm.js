@@ -9,7 +9,8 @@ import {useIntl} from "../../../_snowpack/pkg/react-intl.js";
 const StyledForm = withTheme(styled.form`
     display: grid;
     grid-template-areas:
-      'category description submit'
+      'category tags submit'
+      'description description submit'
       'startedAt endedAt submit';
     grid-template-columns: 1fr 1fr 60px;
 
@@ -24,7 +25,10 @@ const StyledForm = withTheme(styled.form`
       margin-right: ${({theme}) => theme.spacing(2)}px;
     }
   `);
-export default function EntryInlineForm({categories, create}) {
+const DescriptionTextField = styled(TextField)`
+  grid-area: description;
+`;
+export default function EntryInlineForm({categories, tags, create}) {
   const intl = useIntl();
   const [startedAt, setStartedAt] = React.useState(null);
   const [endedAt, setEndedAt] = React.useState(null);
@@ -33,6 +37,7 @@ export default function EntryInlineForm({categories, create}) {
   const onSubmit = (data) => {
     const entry = {
       category: data.category,
+      tag: data.tag,
       description: data.description,
       startedAt: startedAt?.toISOString() ?? new Date().toISOString(),
       endedAt: endedAt?.toISOString() ?? void 0
@@ -57,15 +62,27 @@ export default function EntryInlineForm({categories, create}) {
       }),
       required: true
     })
-  }), /* @__PURE__ */ React.createElement(TextField, {
+  }), /* @__PURE__ */ React.createElement(Autocomplete, {
+    autoComplete: true,
+    options: [...tags],
+    getOptionLabel: (option) => option.name,
+    renderInput: (params) => /* @__PURE__ */ React.createElement(TextField, {
+      ...params,
+      name: "tag",
+      inputRef: register,
+      label: intl.formatMessage({
+        id: "label.tag",
+        defaultMessage: "Tag"
+      })
+    })
+  }), /* @__PURE__ */ React.createElement(DescriptionTextField, {
     name: "description",
     inputRef: register,
     label: intl.formatMessage({
       id: "label.description",
       defaultMessage: "Description"
     }),
-    multiline: true,
-    required: true
+    multiline: true
   }), /* @__PURE__ */ React.createElement(KeyboardDateTimePicker, {
     name: "startedAt",
     inputRef: register,

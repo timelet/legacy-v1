@@ -1,5 +1,5 @@
 import { q as quotaErrorCallbacks, c as cacheNames } from './quotaErrorCallbacks-a2ecdbb9.js';
-import { W as WorkboxError } from './WorkboxError-257cfda9.js';
+import { W as WorkboxError } from './WorkboxError-8042740c.js';
 import './_version-d16c6209.js';
 
 /*
@@ -22,7 +22,7 @@ const getFriendlyURL = (url) => {
   license that can be found in the LICENSE file or at
   https://opensource.org/licenses/MIT.
 */
-const logger = ( null );
+const logger = (null );
 
 /*
   Copyright 2020 Google LLC

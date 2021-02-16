@@ -1,5 +1,5 @@
 import './_version-d16c6209.js';
-import { W as WorkboxError } from './WorkboxError-257cfda9.js';
+import { W as WorkboxError } from './WorkboxError-8042740c.js';
 
 // @ts-ignore
 try {

@@ -1,8 +1,7 @@
-import { c as createCommonjsModule, a as commonjsGlobal, d as commonjsRequire } from './common/_commonjsHelpers-f5d70792.js';
+import { c as createCommonjsModule, a as commonjsGlobal } from './common/_commonjsHelpers-37fa8da4.js';
 import { p as process } from './common/process-2545f00a.js';
-import { k as require$$0, s as sparkMd5, n as clone$2, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise$1, h as binaryMd5, a5 as explainError, u as uuid, a6 as defaultBackOff, f as filterChange } from './common/index.es-b75fa26d.js';
+import { k as require$$0, s as sparkMd5, n as clone$2, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise$1, h as binaryMd5, a5 as explainError, u as uuid, a6 as defaultBackOff, f as filterChange } from './common/index.es-11f6800c.js';
 import { g as global } from './common/polyfill-node:global-21e5c503.js';
-import { i as interopRequireDefault } from './common/interopRequireDefault-be3aec80.js';
 
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
@@ -596,14 +595,6 @@ var functionBind = Function.prototype.bind || implementation$1;
 
 var src = functionBind.call(Function.call, Object.prototype.hasOwnProperty);
 
-/* globals
-	AggregateError,
-	Atomics,
-	FinalizationRegistry,
-	SharedArrayBuffer,
-	WeakRef,
-*/
-
 var undefined$1;
 
 var $SyntaxError = SyntaxError;
@@ -613,8 +604,7 @@ var $TypeError = TypeError;
 // eslint-disable-next-line consistent-return
 var getEvalledConstructor = function (expressionSyntax) {
 	try {
-		// eslint-disable-next-line no-new-func
-		return Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
+		return $Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
 	} catch (e) {}
 };
 
@@ -651,9 +641,7 @@ var hasSymbols$1 = hasSymbols();
 
 var getProto = Object.getPrototypeOf || function (x) { return x.__proto__; }; // eslint-disable-line no-proto
 
-var asyncGenFunction = getEvalledConstructor('async function* () {}');
-var asyncGenFunctionPrototype = asyncGenFunction ? asyncGenFunction.prototype : undefined$1;
-var asyncGenPrototype = asyncGenFunctionPrototype ? asyncGenFunctionPrototype.prototype : undefined$1;
+var needsEval = {};
 
 var TypedArray = typeof Uint8Array === 'undefined' ? undefined$1 : getProto(Uint8Array);
 
@@ -663,10 +651,10 @@ var INTRINSICS = {
 	'%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined$1 : ArrayBuffer,
 	'%ArrayIteratorPrototype%': hasSymbols$1 ? getProto([][Symbol.iterator]()) : undefined$1,
 	'%AsyncFromSyncIteratorPrototype%': undefined$1,
-	'%AsyncFunction%': getEvalledConstructor('async function () {}'),
-	'%AsyncGenerator%': asyncGenFunctionPrototype,
-	'%AsyncGeneratorFunction%': asyncGenFunction,
-	'%AsyncIteratorPrototype%': asyncGenPrototype ? getProto(asyncGenPrototype) : undefined$1,
+	'%AsyncFunction%': needsEval,
+	'%AsyncGenerator%': needsEval,
+	'%AsyncGeneratorFunction%': needsEval,
+	'%AsyncIteratorPrototype%': needsEval,
 	'%Atomics%': typeof Atomics === 'undefined' ? undefined$1 : Atomics,
 	'%BigInt%': typeof BigInt === 'undefined' ? undefined$1 : BigInt,
 	'%Boolean%': Boolean,
@@ -683,7 +671,7 @@ var INTRINSICS = {
 	'%Float64Array%': typeof Float64Array === 'undefined' ? undefined$1 : Float64Array,
 	'%FinalizationRegistry%': typeof FinalizationRegistry === 'undefined' ? undefined$1 : FinalizationRegistry,
 	'%Function%': $Function,
-	'%GeneratorFunction%': getEvalledConstructor('function* () {}'),
+	'%GeneratorFunction%': needsEval,
 	'%Int8Array%': typeof Int8Array === 'undefined' ? undefined$1 : Int8Array,
 	'%Int16Array%': typeof Int16Array === 'undefined' ? undefined$1 : Int16Array,
 	'%Int32Array%': typeof Int32Array === 'undefined' ? undefined$1 : Int32Array,
@@ -722,6 +710,31 @@ var INTRINSICS = {
 	'%WeakMap%': typeof WeakMap === 'undefined' ? undefined$1 : WeakMap,
 	'%WeakRef%': typeof WeakRef === 'undefined' ? undefined$1 : WeakRef,
 	'%WeakSet%': typeof WeakSet === 'undefined' ? undefined$1 : WeakSet
+};
+
+var doEval = function doEval(name) {
+	var value;
+	if (name === '%AsyncFunction%') {
+		value = getEvalledConstructor('async function () {}');
+	} else if (name === '%GeneratorFunction%') {
+		value = getEvalledConstructor('function* () {}');
+	} else if (name === '%AsyncGeneratorFunction%') {
+		value = getEvalledConstructor('async function* () {}');
+	} else if (name === '%AsyncGenerator%') {
+		var fn = doEval('%AsyncGeneratorFunction%');
+		if (fn) {
+			value = fn.prototype;
+		}
+	} else if (name === '%AsyncIteratorPrototype%') {
+		var gen = doEval('%AsyncGenerator%');
+		if (gen) {
+			value = getProto(gen.prototype);
+		}
+	}
+
+	INTRINSICS[name] = value;
+
+	return value;
 };
 
 var LEGACY_ALIASES = {
@@ -814,6 +827,9 @@ var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
 
 	if (src(INTRINSICS, intrinsicName)) {
 		var value = INTRINSICS[intrinsicName];
+		if (value === needsEval) {
+			value = doEval(intrinsicName);
+		}
 		if (typeof value === 'undefined' && !allowMissing) {
 			throw new $TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
 		}
@@ -1098,14 +1114,14 @@ var objectIs = polyfill$1;
 
 var hasSymbols$3 = hasSymbols();
 var hasToStringTag$1 = hasSymbols$3 && typeof Symbol.toStringTag === 'symbol';
-var hasOwnProperty;
-var regexExec;
+var has$1;
+var $exec;
 var isRegexMarker;
 var badStringifier;
 
 if (hasToStringTag$1) {
-	hasOwnProperty = Function.call.bind(Object.prototype.hasOwnProperty);
-	regexExec = Function.call.bind(RegExp.prototype.exec);
+	has$1 = callBound('Object.prototype.hasOwnProperty');
+	$exec = callBound('RegExp.prototype.exec');
 	isRegexMarker = {};
 
 	var throwRegexMarker = function () {
@@ -1121,7 +1137,7 @@ if (hasToStringTag$1) {
 	}
 }
 
-var toStr$4 = Object.prototype.toString;
+var $toString$1 = callBound('Object.prototype.toString');
 var gOPD = Object.getOwnPropertyDescriptor;
 var regexClass = '[object RegExp]';
 
@@ -1133,13 +1149,13 @@ var isRegex = hasToStringTag$1
 		}
 
 		var descriptor = gOPD(value, 'lastIndex');
-		var hasLastIndexDataProperty = descriptor && hasOwnProperty(descriptor, 'value');
+		var hasLastIndexDataProperty = descriptor && has$1(descriptor, 'value');
 		if (!hasLastIndexDataProperty) {
 			return false;
 		}
 
 		try {
-			regexExec(value, badStringifier);
+			$exec(value, badStringifier);
 		} catch (e) {
 			return e === isRegexMarker;
 		}
@@ -1150,7 +1166,7 @@ var isRegex = hasToStringTag$1
 			return false;
 		}
 
-		return toStr$4.call(value) === regexClass;
+		return $toString$1(value) === regexClass;
 	};
 
 var $Object = Object;
@@ -1250,7 +1266,7 @@ var tryDateObject = function tryDateGetDayCall(value) {
 	}
 };
 
-var toStr$5 = Object.prototype.toString;
+var toStr$4 = Object.prototype.toString;
 var dateClass = '[object Date]';
 var hasToStringTag$2 = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 
@@ -1258,7 +1274,7 @@ var isDateObject = function isDateObject(value) {
 	if (typeof value !== 'object' || value === null) {
 		return false;
 	}
-	return hasToStringTag$2 ? tryDateObject(value) : toStr$5.call(value) === dateClass;
+	return hasToStringTag$2 ? tryDateObject(value) : toStr$4.call(value) === dateClass;
 };
 
 var strValue = String.prototype.valueOf;
@@ -1270,7 +1286,7 @@ var tryStringObject = function tryStringObject(value) {
 		return false;
 	}
 };
-var toStr$6 = Object.prototype.toString;
+var toStr$5 = Object.prototype.toString;
 var strClass = '[object String]';
 var hasToStringTag$3 = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 
@@ -1281,7 +1297,7 @@ var isString = function isString(value) {
 	if (typeof value !== 'object') {
 		return false;
 	}
-	return hasToStringTag$3 ? tryStringObject(value) : toStr$6.call(value) === strClass;
+	return hasToStringTag$3 ? tryStringObject(value) : toStr$5.call(value) === strClass;
 };
 
 var numToStr = Number.prototype.toString;
@@ -1293,7 +1309,7 @@ var tryNumberObject = function tryNumberObject(value) {
 		return false;
 	}
 };
-var toStr$7 = Object.prototype.toString;
+var toStr$6 = Object.prototype.toString;
 var numClass = '[object Number]';
 var hasToStringTag$4 = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 
@@ -1304,11 +1320,11 @@ var isNumberObject = function isNumberObject(value) {
 	if (typeof value !== 'object') {
 		return false;
 	}
-	return hasToStringTag$4 ? tryNumberObject(value) : toStr$7.call(value) === numClass;
+	return hasToStringTag$4 ? tryNumberObject(value) : toStr$6.call(value) === numClass;
 };
 
 var $boolToStr = callBound('Boolean.prototype.toString');
-var $toString$1 = callBound('Object.prototype.toString');
+var $toString$2 = callBound('Object.prototype.toString');
 
 var tryBooleanObject = function booleanBrandCheck(value) {
 	try {
@@ -1328,7 +1344,7 @@ var isBooleanObject = function isBoolean(value) {
 	if (value === null || typeof value !== 'object') {
 		return false;
 	}
-	return hasToStringTag$5 && Symbol.toStringTag in value ? tryBooleanObject(value) : $toString$1(value) === boolClass;
+	return hasToStringTag$5 && Symbol.toStringTag in value ? tryBooleanObject(value) : $toString$2(value) === boolClass;
 };
 
 var isSymbol = createCommonjsModule(function (module) {
@@ -1856,24 +1872,24 @@ var inspectSymbol = inspectCustom && isSymbol$1(inspectCustom) ? inspectCustom :
 var objectInspect = function inspect_(obj, options, depth, seen) {
     var opts = options || {};
 
-    if (has$1(opts, 'quoteStyle') && (opts.quoteStyle !== 'single' && opts.quoteStyle !== 'double')) {
+    if (has$2(opts, 'quoteStyle') && (opts.quoteStyle !== 'single' && opts.quoteStyle !== 'double')) {
         throw new TypeError('option "quoteStyle" must be "single" or "double"');
     }
     if (
-        has$1(opts, 'maxStringLength') && (typeof opts.maxStringLength === 'number'
+        has$2(opts, 'maxStringLength') && (typeof opts.maxStringLength === 'number'
             ? opts.maxStringLength < 0 && opts.maxStringLength !== Infinity
             : opts.maxStringLength !== null
         )
     ) {
         throw new TypeError('option "maxStringLength", if provided, must be a positive integer, Infinity, or `null`');
     }
-    var customInspect = has$1(opts, 'customInspect') ? opts.customInspect : true;
+    var customInspect = has$2(opts, 'customInspect') ? opts.customInspect : true;
     if (typeof customInspect !== 'boolean') {
         throw new TypeError('option "customInspect", if provided, must be `true` or `false`');
     }
 
     if (
-        has$1(opts, 'indent')
+        has$2(opts, 'indent')
         && opts.indent !== null
         && opts.indent !== '\t'
         && !(parseInt(opts.indent, 10) === opts.indent && opts.indent > 0)
@@ -1927,7 +1943,7 @@ var objectInspect = function inspect_(obj, options, depth, seen) {
             var newOpts = {
                 depth: opts.depth
             };
-            if (has$1(opts, 'quoteStyle')) {
+            if (has$2(opts, 'quoteStyle')) {
                 newOpts.quoteStyle = opts.quoteStyle;
             }
             return inspect_(value, newOpts, depth + 1, seen);
@@ -2027,22 +2043,22 @@ function quote(s) {
     return String(s).replace(/"/g, '&quot;');
 }
 
-function isArray(obj) { return toStr$8(obj) === '[object Array]'; }
-function isDate(obj) { return toStr$8(obj) === '[object Date]'; }
-function isRegExp(obj) { return toStr$8(obj) === '[object RegExp]'; }
-function isError(obj) { return toStr$8(obj) === '[object Error]'; }
-function isSymbol$1(obj) { return toStr$8(obj) === '[object Symbol]'; }
-function isString$1(obj) { return toStr$8(obj) === '[object String]'; }
-function isNumber(obj) { return toStr$8(obj) === '[object Number]'; }
-function isBigInt(obj) { return toStr$8(obj) === '[object BigInt]'; }
-function isBoolean(obj) { return toStr$8(obj) === '[object Boolean]'; }
+function isArray(obj) { return toStr$7(obj) === '[object Array]'; }
+function isDate(obj) { return toStr$7(obj) === '[object Date]'; }
+function isRegExp(obj) { return toStr$7(obj) === '[object RegExp]'; }
+function isError(obj) { return toStr$7(obj) === '[object Error]'; }
+function isSymbol$1(obj) { return toStr$7(obj) === '[object Symbol]'; }
+function isString$1(obj) { return toStr$7(obj) === '[object String]'; }
+function isNumber(obj) { return toStr$7(obj) === '[object Number]'; }
+function isBigInt(obj) { return toStr$7(obj) === '[object BigInt]'; }
+function isBoolean(obj) { return toStr$7(obj) === '[object Boolean]'; }
 
 var hasOwn = Object.prototype.hasOwnProperty || function (key) { return key in this; };
-function has$1(obj, key) {
+function has$2(obj, key) {
     return hasOwn.call(obj, key);
 }
 
-function toStr$8(obj) {
+function toStr$7(obj) {
     return objectToString.call(obj);
 }
 
@@ -2206,11 +2222,11 @@ function arrObjKeys(obj, inspect) {
     if (isArr) {
         xs.length = obj.length;
         for (var i = 0; i < obj.length; i++) {
-            xs[i] = has$1(obj, i) ? inspect(obj[i], obj) : '';
+            xs[i] = has$2(obj, i) ? inspect(obj[i], obj) : '';
         }
     }
     for (var key in obj) { // eslint-disable-line no-restricted-syntax
-        if (!has$1(obj, key)) { continue; } // eslint-disable-line no-restricted-syntax, no-continue
+        if (!has$2(obj, key)) { continue; } // eslint-disable-line no-restricted-syntax, no-continue
         if (isArr && String(Number(key)) === key && key < obj.length) { continue; } // eslint-disable-line no-restricted-syntax, no-continue
         if ((/[^\w$]/).test(key)) {
             xs.push(inspect(key, obj) + ': ' + inspect(obj[key], obj));
@@ -2424,7 +2440,7 @@ if ($gOPD$2) {
 
 var getOwnPropertyDescriptor = $gOPD$2;
 
-var $toString$2 = callBound('Object.prototype.toString');
+var $toString$3 = callBound('Object.prototype.toString');
 var hasSymbols$4 = hasSymbols();
 var hasToStringTag$6 = hasSymbols$4 && typeof Symbol.toStringTag === 'symbol';
 
@@ -2473,14 +2489,14 @@ var tryTypedArrays = function tryAllTypedArrays(value) {
 var isTypedArray = function isTypedArray(value) {
 	if (!value || typeof value !== 'object') { return false; }
 	if (!hasToStringTag$6) {
-		var tag = $slice($toString$2(value), 8, -1);
+		var tag = $slice($toString$3(value), 8, -1);
 		return $indexOf$1(typedArrays, tag) > -1;
 	}
 	if (!getOwnPropertyDescriptor) { return false; }
 	return tryTypedArrays(value);
 };
 
-var $toString$3 = callBound('Object.prototype.toString');
+var $toString$4 = callBound('Object.prototype.toString');
 var hasSymbols$5 = hasSymbols();
 var hasToStringTag$7 = hasSymbols$5 && typeof Symbol.toStringTag === 'symbol';
 
@@ -2527,7 +2543,7 @@ var tryTypedArrays$1 = function tryAllTypedArrays(value) {
 
 var whichTypedArray = function whichTypedArray(value) {
 	if (!isTypedArray(value)) { return false; }
-	if (!hasToStringTag$7) { return $slice$1($toString$3(value), 8, -1); }
+	if (!hasToStringTag$7) { return $slice$1($toString$4(value), 8, -1); }
 	return tryTypedArrays$1(value);
 };
 
@@ -5253,7 +5269,7 @@ clone.__getRegExpFlags = __getRegExpFlags;
 return clone;
 })();
 
-if ( module.exports) {
+if (module.exports) {
   module.exports = clone;
 }
 });
@@ -6652,7 +6668,7 @@ var runtime = (function (exports) {
   // as the regeneratorRuntime namespace. Otherwise create a new empty
   // object. Either way, the resulting object will be used to initialize
   // the regeneratorRuntime variable at the top of this file.
-   module.exports 
+  module.exports 
 ));
 
 try {
@@ -7326,7 +7342,7 @@ var Observable = /*@__PURE__*/ (function () {
 }());
 function getPromiseCtor(promiseCtor) {
     if (!promiseCtor) {
-        promiseCtor =  Promise;
+        promiseCtor = Promise;
     }
     if (!promiseCtor) {
         throw new Error('no Promise impl found');
@@ -18561,36 +18577,22 @@ function _tryIdleCall(idleQueue) {
   }, 0);
 }
 
-var util = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.isPromise = isPromise;
-exports.sleep = sleep;
-exports.randomInt = randomInt;
-exports.randomToken = randomToken;
-exports.microSeconds = microSeconds;
-exports.isNode = void 0;
-
 /**
  * returns true if the given object is a promise
  */
-function isPromise(obj) {
+function isPromise$1(obj) {
   if (obj && typeof obj.then === 'function') {
     return true;
   } else {
     return false;
   }
 }
-
 function sleep(time) {
   if (!time) time = 0;
   return new Promise(function (res) {
     return setTimeout(res, time);
   });
 }
-
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -18598,11 +18600,9 @@ function randomInt(min, max) {
  * https://stackoverflow.com/a/8084248
  */
 
-
-function randomToken() {
+function randomToken$1() {
   return Math.random().toString(36).substring(2);
 }
-
 var lastMs = 0;
 var additional = 0;
 /**
@@ -18631,32 +18631,11 @@ function microSeconds() {
  * @link https://github.com/iliakan/detect-node/blob/master/index.js
  */
 
-
 var isNode = Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]';
-exports.isNode = isNode;
-});
 
-var native_1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.create = create;
-exports.close = close;
-exports.postMessage = postMessage;
-exports.onMessage = onMessage;
-exports.canBeUsed = canBeUsed;
-exports.averageResponseTime = averageResponseTime;
-exports["default"] = exports.type = exports.microSeconds = void 0;
-
-
-
-var microSeconds = util.microSeconds;
-exports.microSeconds = microSeconds;
+var microSeconds$1 = microSeconds;
 var type = 'native';
-exports.type = type;
-
-function create(channelName) {
+function create$1(channelName) {
   var state = {
     messagesCallback: null,
     bc: new BroadcastChannel(channelName),
@@ -18672,26 +18651,22 @@ function create(channelName) {
 
   return state;
 }
-
 function close(channelState) {
   channelState.bc.close();
   channelState.subFns = [];
 }
-
 function postMessage(channelState, messageJson) {
   channelState.bc.postMessage(messageJson, false);
 }
-
 function onMessage(channelState, fn) {
   channelState.messagesCallback = fn;
 }
-
 function canBeUsed() {
   /**
    * in the electron-renderer, isNode will be true even if we are in browser-context
    * so we also check if window is undefined
    */
-  if (util.isNode && typeof window === 'undefined') return false;
+  if (isNode && typeof window === 'undefined') return false;
 
   if (typeof BroadcastChannel === 'function') {
     if (BroadcastChannel._pubkey) {
@@ -18701,30 +18676,19 @@ function canBeUsed() {
     return true;
   } else return false;
 }
-
 function averageResponseTime() {
   return 150;
 }
-
-var _default = {
-  create: create,
+var NativeMethod = {
+  create: create$1,
   close: close,
   onMessage: onMessage,
   postMessage: postMessage,
   canBeUsed: canBeUsed,
   type: type,
   averageResponseTime: averageResponseTime,
-  microSeconds: microSeconds
+  microSeconds: microSeconds$1
 };
-exports["default"] = _default;
-});
-
-var obliviousSet = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
 
 /**
  * this is a set which automatically forgets
@@ -18738,7 +18702,7 @@ var ObliviousSet = function ObliviousSet(ttl) {
   this.has = set.has.bind(set);
 
   this.add = function (value) {
-    timeMap.set(value, now());
+    timeMap.set(value, now$1());
     set.add(value);
 
     _removeTooOldValues();
@@ -18750,7 +18714,7 @@ var ObliviousSet = function ObliviousSet(ttl) {
   };
 
   function _removeTooOldValues() {
-    var olderThen = now() - ttl;
+    var olderThen = now$1() - ttl;
     var iterator = set[Symbol.iterator]();
 
     while (true) {
@@ -18770,20 +18734,9 @@ var ObliviousSet = function ObliviousSet(ttl) {
   }
 };
 
-function now() {
+function now$1() {
   return new Date().getTime();
 }
-
-var _default = ObliviousSet;
-exports["default"] = _default;
-});
-
-var options = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.fillOptionsWithDefaults = fillOptionsWithDefaults;
 
 function fillOptionsWithDefaults() {
   var originalOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -18809,49 +18762,16 @@ function fillOptionsWithDefaults() {
   if (typeof options.node.useFastPath === 'undefined') options.node.useFastPath = true;
   return options;
 }
-});
-
-var indexedDb = createCommonjsModule(function (module, exports) {
-
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getIdb = getIdb;
-exports.createDatabase = createDatabase;
-exports.writeMessage = writeMessage;
-exports.getAllMessages = getAllMessages;
-exports.getMessagesHigherThan = getMessagesHigherThan;
-exports.removeMessageById = removeMessageById;
-exports.getOldMessages = getOldMessages;
-exports.cleanOldMessages = cleanOldMessages;
-exports.create = create;
-exports.close = close;
-exports.postMessage = postMessage;
-exports.onMessage = onMessage;
-exports.canBeUsed = canBeUsed;
-exports.averageResponseTime = averageResponseTime;
-exports["default"] = exports.type = exports.microSeconds = void 0;
-
-
-
-var _obliviousSet = interopRequireDefault(obliviousSet);
-
-
 
 /**
  * this method uses indexeddb to store the messages
  * There is currently no observerAPI for idb
  * @link https://github.com/w3c/IndexedDB/issues/51
  */
-var microSeconds = util.microSeconds;
-exports.microSeconds = microSeconds;
+var microSeconds$2 = microSeconds;
 var DB_PREFIX = 'pubkey.broadcast-channel-0-';
 var OBJECT_STORE_ID = 'messages';
-var type = 'idb';
-exports.type = type;
-
+var type$1 = 'idb';
 function getIdb() {
   if (typeof indexedDB !== 'undefined') return indexedDB;
 
@@ -18863,7 +18783,6 @@ function getIdb() {
 
   return false;
 }
-
 function createDatabase(channelName) {
   var IndexedDB = getIdb(); // create table
 
@@ -18894,7 +18813,6 @@ function createDatabase(channelName) {
  * so other readers can find it
  */
 
-
 function writeMessage(db, readerUuid, messageJson) {
   var time = new Date().getTime();
   var writeObject = {
@@ -18916,25 +18834,6 @@ function writeMessage(db, readerUuid, messageJson) {
     objectStore.add(writeObject);
   });
 }
-
-function getAllMessages(db) {
-  var objectStore = db.transaction(OBJECT_STORE_ID).objectStore(OBJECT_STORE_ID);
-  var ret = [];
-  return new Promise(function (res) {
-    objectStore.openCursor().onsuccess = function (ev) {
-      var cursor = ev.target.result;
-
-      if (cursor) {
-        ret.push(cursor.value); //alert("Name for SSN " + cursor.key + " is " + cursor.value.name);
-
-        cursor["continue"]();
-      } else {
-        res(ret);
-      }
-    };
-  });
-}
-
 function getMessagesHigherThan(db, lastCursorId) {
   var objectStore = db.transaction(OBJECT_STORE_ID).objectStore(OBJECT_STORE_ID);
   var ret = [];
@@ -18968,7 +18867,6 @@ function getMessagesHigherThan(db, lastCursorId) {
     };
   });
 }
-
 function removeMessageById(db, id) {
   var request = db.transaction([OBJECT_STORE_ID], 'readwrite').objectStore(OBJECT_STORE_ID)["delete"](id);
   return new Promise(function (res) {
@@ -18977,7 +18875,6 @@ function removeMessageById(db, id) {
     };
   });
 }
-
 function getOldMessages(db, ttl) {
   var olderThen = new Date().getTime() - ttl;
   var objectStore = db.transaction(OBJECT_STORE_ID).objectStore(OBJECT_STORE_ID);
@@ -19004,7 +18901,6 @@ function getOldMessages(db, ttl) {
     };
   });
 }
-
 function cleanOldMessages(db, ttl) {
   return getOldMessages(db, ttl).then(function (tooOld) {
     return Promise.all(tooOld.map(function (msgObj) {
@@ -19012,23 +18908,22 @@ function cleanOldMessages(db, ttl) {
     }));
   });
 }
-
-function create(channelName, options$1) {
-  options$1 = (0, options.fillOptionsWithDefaults)(options$1);
+function create$2(channelName, options) {
+  options = fillOptionsWithDefaults(options);
   return createDatabase(channelName).then(function (db) {
     var state = {
       closed: false,
       lastCursorId: 0,
       channelName: channelName,
-      options: options$1,
-      uuid: (0, util.randomToken)(),
+      options: options,
+      uuid: randomToken$1(),
 
       /**
        * emittedMessagesIds
        * contains all messages that have been emitted before
        * @type {ObliviousSet}
        */
-      eMIs: new _obliviousSet["default"](options$1.idb.ttl * 2),
+      eMIs: new ObliviousSet(options.idb.ttl * 2),
       // ensures we do not read messages in parrallel
       writeBlockPromise: Promise.resolve(),
       messagesCallback: null,
@@ -19044,7 +18939,7 @@ function create(channelName, options$1) {
 
     db.onclose = function () {
       state.closed = true;
-      if (options$1.idb.onclose) options$1.idb.onclose();
+      if (options.idb.onclose) options.idb.onclose();
     };
     /**
      * if service-workers are used,
@@ -19062,7 +18957,7 @@ function create(channelName, options$1) {
 function _readLoop(state) {
   if (state.closed) return;
   readNewMessages(state).then(function () {
-    return (0, util.sleep)(state.options.idb.fallbackInterval);
+    return sleep(state.options.idb.fallbackInterval);
   }).then(function () {
     return _readLoop(state);
   });
@@ -19118,77 +19013,45 @@ function readNewMessages(state) {
   });
 }
 
-function close(channelState) {
+function close$1(channelState) {
   channelState.closed = true;
   channelState.db.close();
 }
-
-function postMessage(channelState, messageJson) {
+function postMessage$1(channelState, messageJson) {
   channelState.writeBlockPromise = channelState.writeBlockPromise.then(function () {
     return writeMessage(channelState.db, channelState.uuid, messageJson);
   }).then(function () {
-    if ((0, util.randomInt)(0, 10) === 0) {
+    if (randomInt(0, 10) === 0) {
       /* await (do not await) */
       cleanOldMessages(channelState.db, channelState.options.idb.ttl);
     }
   });
   return channelState.writeBlockPromise;
 }
-
-function onMessage(channelState, fn, time) {
+function onMessage$1(channelState, fn, time) {
   channelState.messagesCallbackTime = time;
   channelState.messagesCallback = fn;
   readNewMessages(channelState);
 }
-
-function canBeUsed() {
-  if (util.isNode) return false;
+function canBeUsed$1() {
+  if (isNode) return false;
   var idb = getIdb();
   if (!idb) return false;
   return true;
 }
-
-function averageResponseTime(options) {
+function averageResponseTime$1(options) {
   return options.idb.fallbackInterval * 2;
 }
-
-var _default = {
-  create: create,
-  close: close,
-  onMessage: onMessage,
-  postMessage: postMessage,
-  canBeUsed: canBeUsed,
-  type: type,
-  averageResponseTime: averageResponseTime,
-  microSeconds: microSeconds
+var IndexeDbMethod = {
+  create: create$2,
+  close: close$1,
+  onMessage: onMessage$1,
+  postMessage: postMessage$1,
+  canBeUsed: canBeUsed$1,
+  type: type$1,
+  averageResponseTime: averageResponseTime$1,
+  microSeconds: microSeconds$2
 };
-exports["default"] = _default;
-});
-
-var localstorage = createCommonjsModule(function (module, exports) {
-
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getLocalStorage = getLocalStorage;
-exports.storageKey = storageKey;
-exports.postMessage = postMessage;
-exports.addStorageEventListener = addStorageEventListener;
-exports.removeStorageEventListener = removeStorageEventListener;
-exports.create = create;
-exports.close = close;
-exports.onMessage = onMessage;
-exports.canBeUsed = canBeUsed;
-exports.averageResponseTime = averageResponseTime;
-exports["default"] = exports.type = exports.microSeconds = void 0;
-
-var _obliviousSet = interopRequireDefault(obliviousSet);
-
-
-
-
 
 /**
  * A localStorage-only method which uses localstorage and its 'storage'-event
@@ -19197,16 +19060,13 @@ var _obliviousSet = interopRequireDefault(obliviousSet);
  * @link https://caniuse.com/#feat=namevalue-storage
  * @link https://caniuse.com/#feat=indexeddb
  */
-var microSeconds = util.microSeconds;
-exports.microSeconds = microSeconds;
+var microSeconds$3 = microSeconds;
 var KEY_PREFIX = 'pubkey.broadcastChannel-';
-var type = 'localstorage';
+var type$2 = 'localstorage';
 /**
  * copied from crosstab
  * @link https://github.com/tejacques/crosstab/blob/master/src/crosstab.js#L32
  */
-
-exports.type = type;
 
 function getLocalStorage() {
   var localStorage;
@@ -19222,7 +19082,6 @@ function getLocalStorage() {
 
   return localStorage;
 }
-
 function storageKey(channelName) {
   return KEY_PREFIX + channelName;
 }
@@ -19231,13 +19090,12 @@ function storageKey(channelName) {
 * and fires the storage-event so other readers can find it
 */
 
-
-function postMessage(channelState, messageJson) {
+function postMessage$2(channelState, messageJson) {
   return new Promise(function (res) {
-    (0, util.sleep)().then(function () {
+    sleep().then(function () {
       var key = storageKey(channelState.channelName);
       var writeObj = {
-        token: (0, util.randomToken)(),
+        token: randomToken$1(),
         time: new Date().getTime(),
         data: messageJson,
         uuid: channelState.uuid
@@ -19259,7 +19117,6 @@ function postMessage(channelState, messageJson) {
     });
   });
 }
-
 function addStorageEventListener(channelName, fn) {
   var key = storageKey(channelName);
 
@@ -19272,26 +19129,24 @@ function addStorageEventListener(channelName, fn) {
   window.addEventListener('storage', listener);
   return listener;
 }
-
 function removeStorageEventListener(listener) {
   window.removeEventListener('storage', listener);
 }
+function create$3(channelName, options) {
+  options = fillOptionsWithDefaults(options);
 
-function create(channelName, options$1) {
-  options$1 = (0, options.fillOptionsWithDefaults)(options$1);
-
-  if (!canBeUsed()) {
+  if (!canBeUsed$2()) {
     throw new Error('BroadcastChannel: localstorage cannot be used');
   }
 
-  var uuid = (0, util.randomToken)();
+  var uuid = randomToken$1();
   /**
    * eMIs
    * contains all messages that have been emitted before
    * @type {ObliviousSet}
    */
 
-  var eMIs = new _obliviousSet["default"](options$1.localstorage.removeTimeout);
+  var eMIs = new ObliviousSet(options.localstorage.removeTimeout);
   var state = {
     channelName: channelName,
     uuid: uuid,
@@ -19312,18 +19167,15 @@ function create(channelName, options$1) {
   });
   return state;
 }
-
-function close(channelState) {
+function close$2(channelState) {
   removeStorageEventListener(channelState.listener);
 }
-
-function onMessage(channelState, fn, time) {
+function onMessage$2(channelState, fn, time) {
   channelState.messagesCallbackTime = time;
   channelState.messagesCallback = fn;
 }
-
-function canBeUsed() {
-  if (util.isNode) return false;
+function canBeUsed$2() {
+  if (isNode) return false;
   var ls = getLocalStorage();
   if (!ls) return false;
 
@@ -19340,8 +19192,7 @@ function canBeUsed() {
 
   return true;
 }
-
-function averageResponseTime() {
+function averageResponseTime$2() {
   var defaultTime = 120;
   var userAgent = navigator.userAgent.toLowerCase();
 
@@ -19352,42 +19203,21 @@ function averageResponseTime() {
 
   return defaultTime;
 }
-
-var _default = {
-  create: create,
-  close: close,
-  onMessage: onMessage,
-  postMessage: postMessage,
-  canBeUsed: canBeUsed,
-  type: type,
-  averageResponseTime: averageResponseTime,
-  microSeconds: microSeconds
+var LocalstorageMethod = {
+  create: create$3,
+  close: close$2,
+  onMessage: onMessage$2,
+  postMessage: postMessage$2,
+  canBeUsed: canBeUsed$2,
+  type: type$2,
+  averageResponseTime: averageResponseTime$2,
+  microSeconds: microSeconds$3
 };
-exports["default"] = _default;
-});
 
-var simulate = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.create = create;
-exports.close = close;
-exports.postMessage = postMessage;
-exports.onMessage = onMessage;
-exports.canBeUsed = canBeUsed;
-exports.averageResponseTime = averageResponseTime;
-exports["default"] = exports.type = exports.microSeconds = void 0;
-
-
-
-var microSeconds = util.microSeconds;
-exports.microSeconds = microSeconds;
-var type = 'simulate';
-exports.type = type;
+var microSeconds$4 = microSeconds;
+var type$3 = 'simulate';
 var SIMULATE_CHANNELS = new Set();
-
-function create(channelName) {
+function create$4(channelName) {
   var state = {
     name: channelName,
     messagesCallback: null
@@ -19395,12 +19225,10 @@ function create(channelName) {
   SIMULATE_CHANNELS.add(state);
   return state;
 }
-
-function close(channelState) {
+function close$3(channelState) {
   SIMULATE_CHANNELS["delete"](channelState);
 }
-
-function postMessage(channelState, messageJson) {
+function postMessage$3(channelState, messageJson) {
   return new Promise(function (res) {
     return setTimeout(function () {
       var channelArray = Array.from(SIMULATE_CHANNELS);
@@ -19417,75 +19245,52 @@ function postMessage(channelState, messageJson) {
     }, 5);
   });
 }
-
-function onMessage(channelState, fn) {
+function onMessage$3(channelState, fn) {
   channelState.messagesCallback = fn;
 }
-
-function canBeUsed() {
+function canBeUsed$3() {
   return true;
 }
-
-function averageResponseTime() {
+function averageResponseTime$3() {
   return 5;
 }
-
-var _default = {
-  create: create,
-  close: close,
-  onMessage: onMessage,
-  postMessage: postMessage,
-  canBeUsed: canBeUsed,
-  type: type,
-  averageResponseTime: averageResponseTime,
-  microSeconds: microSeconds
+var SimulateMethod = {
+  create: create$4,
+  close: close$3,
+  onMessage: onMessage$3,
+  postMessage: postMessage$3,
+  canBeUsed: canBeUsed$3,
+  type: type$3,
+  averageResponseTime: averageResponseTime$3,
+  microSeconds: microSeconds$4
 };
-exports["default"] = _default;
-});
 
-var methodChooser = createCommonjsModule(function (module, exports) {
-
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.chooseMethod = chooseMethod;
-
-var _native = interopRequireDefault(native_1);
-
-var _indexedDb = interopRequireDefault(indexedDb);
-
-var _localstorage = interopRequireDefault(localstorage);
-
-var _simulate = interopRequireDefault(simulate);
-
-
-
-// order is important
-var METHODS = [_native["default"], // fastest
-_indexedDb["default"], _localstorage["default"]];
+var METHODS = [NativeMethod, // fastest
+IndexeDbMethod, LocalstorageMethod];
 /**
  * The NodeMethod is loaded lazy
  * so it will not get bundled in browser-builds
  */
 
-if (util.isNode) {
-  /**
-   * we use the non-transpiled code for nodejs
-   * because it runs faster
-   */
-  var NodeMethod = commonjsRequire();
-  /**
-   * this will be false for webpackbuilds
-   * which will shim the node-method with an empty object {}
-   */
+// if (isNode) {
+//   /**
+//    * we use the non-transpiled code for nodejs
+//    * because it runs faster
+//    */
+//   var NodeMethod = require('../../src/methods/' + // use this hack so that browserify and others
+//   // do not import the node-method by default
+//   // when bundling.
+//   'node.js');
+//   /**
+//    * this will be false for webpackbuilds
+//    * which will shim the node-method with an empty object {}
+//    */
 
 
-  if (typeof NodeMethod.canBeUsed === 'function') {
-    METHODS.push(NodeMethod);
-  }
-}
+//   if (typeof NodeMethod.canBeUsed === 'function') {
+//     METHODS.push(NodeMethod);
+//   }
+// }
 
 function chooseMethod(options) {
   var chooseMethods = [].concat(options.methods, METHODS).filter(Boolean); // directly chosen
@@ -19493,7 +19298,7 @@ function chooseMethod(options) {
   if (options.type) {
     if (options.type === 'simulate') {
       // only use simulate-method if directly chosen
-      return _simulate["default"];
+      return SimulateMethod;
     }
 
     var ret = chooseMethods.find(function (m) {
@@ -19507,7 +19312,7 @@ function chooseMethod(options) {
    */
 
 
-  if (!options.webWorkerSupport && !util.isNode) {
+  if (!options.webWorkerSupport && !isNode) {
     chooseMethods = chooseMethods.filter(function (m) {
       return m.type !== 'idb';
     });
@@ -19520,32 +19325,12 @@ function chooseMethod(options) {
     return m.type;
   })));else return useMethod;
 }
-});
 
-var broadcastChannel = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.clearNodeFolder = clearNodeFolder;
-exports.enforceOptions = enforceOptions;
-exports.BroadcastChannel = void 0;
-
-
-
-
-
-
-
-var BroadcastChannel = function BroadcastChannel(name, options$1) {
+var BroadcastChannel$1 = function BroadcastChannel(name, options) {
   this.name = name;
 
-  if (ENFORCED_OPTIONS) {
-    options$1 = ENFORCED_OPTIONS;
-  }
-
-  this.options = (0, options.fillOptionsWithDefaults)(options$1);
-  this.method = (0, methodChooser.chooseMethod)(this.options); // isListening
+  this.options = fillOptionsWithDefaults(options);
+  this.method = chooseMethod(this.options); // isListening
 
   this._iL = false;
   /**
@@ -19585,40 +19370,9 @@ var BroadcastChannel = function BroadcastChannel(name, options$1) {
  * See methods/native.js
  */
 
+BroadcastChannel$1._pubkey = true;
 
-exports.BroadcastChannel = BroadcastChannel;
-BroadcastChannel._pubkey = true;
-/**
- * clears the tmp-folder if is node
- * @return {Promise<boolean>} true if has run, false if not node
- */
-
-function clearNodeFolder(options$1) {
-  options$1 = (0, options.fillOptionsWithDefaults)(options$1);
-  var method = (0, methodChooser.chooseMethod)(options$1);
-
-  if (method.type === 'node') {
-    return method.clearNodeFolder().then(function () {
-      return true;
-    });
-  } else {
-    return Promise.resolve(false);
-  }
-}
-/**
- * if set, this method is enforced,
- * no mather what the options are
- */
-
-
-var ENFORCED_OPTIONS;
-
-function enforceOptions(options) {
-  ENFORCED_OPTIONS = options;
-} // PROTOTYPE
-
-
-BroadcastChannel.prototype = {
+BroadcastChannel$1.prototype = {
   postMessage: function postMessage(msg) {
     if (this.closed) {
       throw new Error('BroadcastChannel.postMessage(): ' + 'Cannot post message after channel has closed');
@@ -19703,7 +19457,7 @@ function _post(broadcastChannel, type, msg) {
 function _prepareChannel(channel) {
   var maybePromise = channel.method.create(channel.name, channel.options);
 
-  if ((0, util.isPromise)(maybePromise)) {
+  if (isPromise$1(maybePromise)) {
     channel._prepP = maybePromise;
     maybePromise.then(function (s) {
       // used in tests to simulate slow runtime
@@ -19771,7 +19525,6 @@ function _stopListening(channel) {
     channel.method.onMessage(channel._state, null, time);
   }
 }
-});
 
 /* global WorkerGlobalScope */
 function add(fn) {
@@ -19808,7 +19561,7 @@ var BrowserMethod = {
   add: add
 };
 
-var USE_METHOD =  BrowserMethod;
+var USE_METHOD = BrowserMethod;
 var LISTENERS = new Set();
 var startedListening = false;
 
@@ -19847,41 +19600,19 @@ function removeAll() {
 function getSize() {
   return LISTENERS.size;
 }
-var index = {
+var unload = {
   add: add$1,
   runAll: runAll,
   removeAll: removeAll,
   getSize: getSize
 };
 
-var es = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  add: add$1,
-  runAll: runAll,
-  removeAll: removeAll,
-  getSize: getSize,
-  'default': index
-});
-
-var leaderElection = createCommonjsModule(function (module, exports) {
-
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.createLeaderElection = createLeaderElection;
-
-
-
-var _unload = interopRequireDefault(es);
-
 var LeaderElection = function LeaderElection(channel, options) {
   this._channel = channel;
   this._options = options;
   this.isLeader = false;
   this.isDead = false;
-  this.token = (0, util.randomToken)();
+  this.token = randomToken$1();
   this._isApl = false; // _isApplying
 
   this._reApply = false; // things to clean up
@@ -19930,12 +19661,12 @@ LeaderElection.prototype = {
 
     var ret = _sendMessage(this, 'apply') // send out that this one is applying
     .then(function () {
-      return (0, util.sleep)(_this._options.responseTime);
+      return sleep(_this._options.responseTime);
     }) // let others time to respond
     .then(function () {
       if (stopCriteria) return Promise.reject(new Error());else return _sendMessage(_this, 'apply');
     }).then(function () {
-      return (0, util.sleep)(_this._options.responseTime);
+      return sleep(_this._options.responseTime);
     }) // let others time to respond
     .then(function () {
       if (stopCriteria) return Promise.reject(new Error());else return _sendMessage(_this);
@@ -20049,8 +19780,7 @@ function _sendMessage(leaderElector, action) {
 
 function _beLeader(leaderElector) {
   leaderElector.isLeader = true;
-
-  var unloadFn = _unload["default"].add(function () {
+  var unloadFn = unload.add(function () {
     return leaderElector.die();
   });
 
@@ -20069,7 +19799,7 @@ function _beLeader(leaderElector) {
   return _sendMessage(leaderElector, 'tell');
 }
 
-function fillOptionsWithDefaults(options, channel) {
+function fillOptionsWithDefaults$1(options, channel) {
   if (!options) options = {};
   options = JSON.parse(JSON.stringify(options));
 
@@ -20089,7 +19819,7 @@ function createLeaderElection(channel, options) {
     throw new Error('BroadcastChannel already has a leader-elector');
   }
 
-  options = fillOptionsWithDefaults(options, channel);
+  options = fillOptionsWithDefaults$1(options, channel);
   var elector = new LeaderElection(channel, options);
 
   channel._befC.push(function () {
@@ -20099,38 +19829,6 @@ function createLeaderElection(channel, options) {
   channel._leaderElector = elector;
   return elector;
 }
-});
-
-var es$1 = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "BroadcastChannel", {
-  enumerable: true,
-  get: function get() {
-    return broadcastChannel.BroadcastChannel;
-  }
-});
-Object.defineProperty(exports, "clearNodeFolder", {
-  enumerable: true,
-  get: function get() {
-    return broadcastChannel.clearNodeFolder;
-  }
-});
-Object.defineProperty(exports, "enforceOptions", {
-  enumerable: true,
-  get: function get() {
-    return broadcastChannel.enforceOptions;
-  }
-});
-Object.defineProperty(exports, "createLeaderElection", {
-  enumerable: true,
-  get: function get() {
-    return leaderElection.createLeaderElection;
-  }
-});
-});
 
 var RxStoragePouchDbClass = /*#__PURE__*/function () {
   function RxStoragePouchDbClass(adapter) {
@@ -20919,7 +20617,7 @@ function _removeAllOfCollection(rxDatabase, collectionName) {
 
 function _prepareBroadcastChannel(rxDatabase) {
   // broadcastChannel
-  rxDatabase.broadcastChannel = new es$1.BroadcastChannel('RxDB:' + rxDatabase.name + ':' + 'socket');
+  rxDatabase.broadcastChannel = new BroadcastChannel$1('RxDB:' + rxDatabase.name + ':' + 'socket');
   rxDatabase.broadcastChannel$ = new Subject();
 
   rxDatabase.broadcastChannel.onmessage = function (msg) {
@@ -22268,7 +21966,7 @@ function formatError(value) {
 function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
   var output = [];
   for (var i = 0, l = value.length; i < l; ++i) {
-    if (hasOwnProperty$1(value, String(i))) {
+    if (hasOwnProperty(value, String(i))) {
       output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
           String(i), true));
     } else {
@@ -22299,7 +21997,7 @@ function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
       str = ctx.stylize('[Setter]', 'special');
     }
   }
-  if (!hasOwnProperty$1(visibleKeys, key)) {
+  if (!hasOwnProperty(visibleKeys, key)) {
     name = '[' + key + ']';
   }
   if (!str) {
@@ -22470,7 +22168,7 @@ function _extend(origin, add) {
   }
   return origin;
 }
-function hasOwnProperty$1(obj, prop) {
+function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
@@ -22810,7 +22508,7 @@ var jsonpointer = {
 
 var immutable = extend;
 
-var hasOwnProperty$2 = Object.prototype.hasOwnProperty;
+var hasOwnProperty$1 = Object.prototype.hasOwnProperty;
 
 function extend() {
     var target = {};
@@ -22819,7 +22517,7 @@ function extend() {
         var source = arguments[i];
 
         for (var key in source) {
-            if (hasOwnProperty$2.call(source, key)) {
+            if (hasOwnProperty$1.call(source, key)) {
                 target[key] = source[key];
             }
         }
@@ -24010,13 +23708,13 @@ var KeyCompressor = /*#__PURE__*/function () {
 
   return KeyCompressor;
 }();
-function create$1(schema) {
+function create$5(schema) {
   return new KeyCompressor(schema);
 }
 var rxdb$1 = true;
 var prototypes$1 = {};
 var overwritable$1 = {
-  createKeyCompressor: create$1
+  createKeyCompressor: create$5
 };
 var RxDBKeyCompressionPlugin = {
   name: 'key-compression',
@@ -24383,7 +24081,7 @@ var LeaderElector = /*#__PURE__*/function () {
     this.isLeader = false;
     this.isDead = false;
     this.database = database;
-    this.elector = es$1.createLeaderElection(database.broadcastChannel);
+    this.elector = createLeaderElection(database.broadcastChannel);
   }
 
   var _proto = LeaderElector.prototype;
@@ -27398,7 +27096,7 @@ var every = (function (arrayToIterate, cb) {
   });
 });
 
-var has$2 = (function (objectWithKeys, key) {
+var has$3 = (function (objectWithKeys, key) {
   return objectWithKeys.hasOwnProperty(key);
 });
 
@@ -27486,7 +27184,7 @@ var ModifyJsError = function (message) {
   return e;
 };
 
-var _ = { all: every, each: each, keys: keys, has: has$2, isObject: isObject$2 };
+var _ = { all: every, each: each, keys: keys, has: has$3, isObject: isObject$2 };
 // XXX need a strategy for passing the binding of $ into this
 // function, from the compiled selector
 //

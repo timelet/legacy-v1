@@ -1,7 +1,7 @@
 import { _ as _extends } from './common/extends-7477639a.js';
-import './common/index-4bda1d4e.js';
-import { r as react } from './common/index-8f144fe1.js';
-import './common/_commonjsHelpers-f5d70792.js';
+import './common/index-c103191b.js';
+import { r as react } from './common/index-45809189.js';
+import './common/_commonjsHelpers-37fa8da4.js';
 
 var m,x=m||(m={});x.Pop="POP";x.Push="PUSH";x.Replace="REPLACE";var y=function(a){return a};function A(a){a.preventDefault();a.returnValue="";}
 function B(){var a=[];return {get length(){return a.length},push:function(b){a.push(b);return function(){a=a.filter(function(a){return a!==b});}},call:function(b){a.forEach(function(a){return a&&a(b)});}}}function D(){return Math.random().toString(36).substr(2,8)}function E(a){var b=a.pathname,g=a.search;a=a.hash;return (void 0===b?"/":b)+(void 0===g?"":g)+(void 0===a?"":a)}
@@ -15,8 +15,7 @@ function f(){f=Object.assign||function(a){for(var b=1;b<arguments.length;b++){va
 function x$1(a){var b=a.children;b=void 0===b?null:b;var c=a.action;c=void 0===c?m.Pop:c;var d=a.location,e=a.navigator;a=a.static;a=void 0===a?!1:a;z()?l(!1):void 0;return react.createElement(r.Provider,{children:b,value:{action:c,location:d,navigator:e,static:a}})}
 function E$1(a){var b=a.basename;b=void 0===b?"":b;a=F$1(a.children);return G(a,b)}
 function z(){return null!=react.useContext(r).location}function H(){z()?void 0:l(!1);return react.useContext(r).location}
-function A$1(){z()?void 0:l(!1);var a=react.useContext(r).navigator,b=react.useContext(v).pathname,c=react.useRef(!1);react.useEffect(function(){c.current=!0;});return react.useCallback(function(d,e){void 0===e&&(e={});c.current?"number"===typeof d?a.go(d):(d=J(d,b),(e.replace?a.replace:a.push)(d,e.state)):
-void 0;},[a,b])}function C(){return react.useContext(v).outlet}function K(a){var b=react.useContext(v).pathname;return react.useMemo(function(){return J(a,b)},[a,b])}
+function A$1(){z()?void 0:l(!1);var a=react.useContext(r).navigator,b=react.useContext(v).pathname,c=react.useRef(!1);react.useEffect(function(){c.current=!0;});return react.useCallback(function(d,e){void 0===e&&(e={});c.current?"number"===typeof d?a.go(d):(d=J(d,b),(e.replace?a.replace:a.push)(d,e.state)):void 0;},[a,b])}function C(){return react.useContext(v).outlet}function K(a){var b=react.useContext(v).pathname;return react.useMemo(function(){return J(a,b)},[a,b])}
 function G(a,b){void 0===b&&(b="");var c=react.useContext(v),d=c.route,e=c.pathname,g=c.params;b=b?L([e,b]):e;var h=H();return (d=react.useMemo(function(){return M(a,h,b)},[h,a,b]))?d.reduceRight(function(a,c){var d=c.pathname,e=c.route;return react.createElement(v.Provider,{children:e.element,value:{outlet:a,params:k(f({},g,{},c.params)),pathname:L([b,d]),route:e}})},null):null}function F$1(a){var b=[];react.Children.forEach(a,function(a){if(react.isValidElement(a))if(a.type===react.Fragment)b.push.apply(b,F$1(a.props.children));else {var c={path:a.props.path||"/",caseSensitive:!0===a.props.caseSensitive,element:a};a.props.children&&(a=F$1(a.props.children),a.length&&(c.children=a));b.push(c);}});return b}
 function M(a,b,c){void 0===c&&(c="");"string"===typeof b&&(b=F(b));b=b.pathname||"/";if(c)if(c=c.replace(/^\/*/,"/").replace(/\/+$/,""),b.startsWith(c))b=b===c?"/":b.slice(c.length);else return null;a=O(a);P(a);var d=null;for(c=0;null==d&&c<a.length;++c)a:{d=b;for(var e=a[c][1],g="/",h={},I=[],n=0;n<e.length;++n){var t=e[n],u="/"===g?d:d.slice(g.length)||"/";u=Q({path:t.path,caseSensitive:t.caseSensitive,end:n===e.length-1},u);if(!u){d=null;break a}g=L([g,u.pathname]);h=f({},h,{},u.params);
 I.push({route:t,pathname:g,params:k(h)});}d=I;}return d}function O(a,b,c,d,e){void 0===b&&(b=[]);void 0===c&&(c="");void 0===d&&(d=[]);void 0===e&&(e=[]);a.forEach(function(a,h){var g=L([c,a.path]),n=d.concat(a);h=e.concat(h);a.children&&O(a.children,b,g,n,h);b.push([g,n,h]);});return b}function P(a){var b=a.reduce(function(a,b){b=b[0];a[b]=R(b);return a},{});S(a,function(a,d){var c=a[2];a=b[a[0]];var g=d[2];d=b[d[0]];return a!==d?d-a:T(c,g)});}var U=/^:\w+$/,V=2,W=1,X=10,Y=-2;

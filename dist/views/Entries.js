@@ -17,6 +17,7 @@ const EntryDisplayContainer = styled(ContentElement)`
 export default function Entries() {
   const database = useDatabase();
   const [categories, setCategories] = React.useState([]);
+  const [tags, setTags] = React.useState([]);
   const [entries, setEntries] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const createEntry = (entry) => {
@@ -30,6 +31,12 @@ export default function Entries() {
     const query = database?.entries.findOne({selector: {entryId}});
     await query?.update({$set: {endedAt: new Date().toISOString()}});
   };
+  const copyEntry = async (entryId) => {
+    const entry = await database?.entries.findOne({selector: {entryId}}).exec();
+    if (entry) {
+      await database?.entries.insert({...entry.toJSON(), entryId: void 0, startedAt: new Date().toISOString(), endedAt: void 0});
+    }
+  };
   const removeEntry = async (entryId) => {
     const query = database?.entries.findOne({selector: {entryId}});
     await query?.remove();
@@ -42,6 +49,7 @@ export default function Entries() {
     const settings = await database?.getLocal(SETTINGS_DOCUMENT_ID);
     return database?.profiles.findOne({selector: {profileId: settings?.profile}}).$.subscribe((doc) => {
       setCategories(doc?.categories || []);
+      setTags(doc?.tags || []);
       setLoading(false);
     });
   }), [database]);
@@ -52,12 +60,16 @@ export default function Entries() {
     defaultMessage: "Entries"
   })), /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(EntryInlineForm, {
     categories,
+    tags,
     create: createEntry
   })), /* @__PURE__ */ React.createElement(EntryDisplayContainer, null, /* @__PURE__ */ React.createElement(EntryDisplay, {
     entries,
+    categories,
+    tags,
     loading,
     stop: stopEntry,
     update: updateEntry,
-    remove: removeEntry
+    remove: removeEntry,
+    copy: copyEntry
   })));
 }

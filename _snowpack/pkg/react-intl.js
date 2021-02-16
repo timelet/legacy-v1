@@ -1,7 +1,7 @@
 import { _ as __assign, a as __extends, h as __spreadArrays, i as invariant, j as __rest } from './common/utils-5ac521d3.js';
-import { r as react, R as React } from './common/index-8f144fe1.js';
-import './common/hoist-non-react-statics.cjs-fd576625.js';
-import './common/_commonjsHelpers-f5d70792.js';
+import { r as react, R as React } from './common/index-45809189.js';
+import './common/hoist-non-react-statics.cjs-fec7e822.js';
+import './common/_commonjsHelpers-37fa8da4.js';
 
 var TYPE;
 (function (TYPE) {
@@ -4204,28 +4204,28 @@ var IntlError = /** @class */ (function (_super) {
 var UnsupportedFormatterError = /** @class */ (function (_super) {
     __extends(UnsupportedFormatterError, _super);
     function UnsupportedFormatterError(message, exception) {
-        return _super.call(this, "UNSUPPORTED_FORMATTER" /* UNSUPPORTED_FORMATTER */, message, exception) || this;
+        return _super.call(this, IntlErrorCode.UNSUPPORTED_FORMATTER, message, exception) || this;
     }
     return UnsupportedFormatterError;
 }(IntlError));
 var InvalidConfigError = /** @class */ (function (_super) {
     __extends(InvalidConfigError, _super);
     function InvalidConfigError(message, exception) {
-        return _super.call(this, "INVALID_CONFIG" /* INVALID_CONFIG */, message, exception) || this;
+        return _super.call(this, IntlErrorCode.INVALID_CONFIG, message, exception) || this;
     }
     return InvalidConfigError;
 }(IntlError));
 var MissingDataError = /** @class */ (function (_super) {
     __extends(MissingDataError, _super);
     function MissingDataError(message, exception) {
-        return _super.call(this, "MISSING_DATA" /* MISSING_DATA */, message, exception) || this;
+        return _super.call(this, IntlErrorCode.MISSING_DATA, message, exception) || this;
     }
     return MissingDataError;
 }(IntlError));
 var MessageFormatError = /** @class */ (function (_super) {
     __extends(MessageFormatError, _super);
     function MessageFormatError(message, locale, descriptor, exception) {
-        var _this = _super.call(this, "FORMAT_ERROR" /* FORMAT_ERROR */, message + " \nLocale: " + locale + "\nMessageID: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.id) + "\nDefault Message: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.defaultMessage) + "\nDescription: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.description) + " \n", exception) || this;
+        var _this = _super.call(this, IntlErrorCode.FORMAT_ERROR, message + " \nLocale: " + locale + "\nMessageID: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.id) + "\nDefault Message: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.defaultMessage) + "\nDescription: " + (descriptor === null || descriptor === void 0 ? void 0 : descriptor.description) + " \n", exception) || this;
         _this.descriptor = descriptor;
         return _this;
     }
@@ -4234,7 +4234,7 @@ var MessageFormatError = /** @class */ (function (_super) {
 var MissingTranslationError = /** @class */ (function (_super) {
     __extends(MissingTranslationError, _super);
     function MissingTranslationError(descriptor, locale) {
-        var _this = _super.call(this, "MISSING_TRANSLATION" /* MISSING_TRANSLATION */, "Missing message: \"" + descriptor.id + "\" for locale \"" + locale + "\", using " + (descriptor.defaultMessage ? 'default message' : 'id') + " as fallback.") || this;
+        var _this = _super.call(this, IntlErrorCode.MISSING_TRANSLATION, "Missing message: \"" + descriptor.id + "\" for locale \"" + locale + "\", using " + (descriptor.defaultMessage ? 'default message' : 'id') + " as fallback.") || this;
         _this.descriptor = descriptor;
         return _this;
     }
@@ -4540,7 +4540,7 @@ function formatDate(config, getDateTimeFormat) {
         return getFormatter(config, 'date', getDateTimeFormat, options).format(date);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting date.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting date.', e));
     }
     return String(date);
 }
@@ -4555,7 +4555,7 @@ function formatTime(config, getDateTimeFormat) {
         return getFormatter(config, 'time', getDateTimeFormat, options).format(date);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting time.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting time.', e));
     }
     return String(date);
 }
@@ -4571,7 +4571,7 @@ function formatDateTimeRange(config, getDateTimeFormat) {
         return getDateTimeFormat(locale, filteredOptions).formatRange(from, to);
     }
     catch (e) {
-        onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting date time range.', e));
+        onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting date time range.', e));
     }
     return String(from);
 }
@@ -4586,7 +4586,7 @@ function formatDateToParts(config, getDateTimeFormat) {
         return getFormatter(config, 'date', getDateTimeFormat, options).formatToParts(date);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting date.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting date.', e));
     }
     return [];
 }
@@ -4601,7 +4601,7 @@ function formatTimeToParts(config, getDateTimeFormat) {
         return getFormatter(config, 'time', getDateTimeFormat, options).formatToParts(date);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting time.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting time.', e));
     }
     return [];
 }
@@ -4623,7 +4623,7 @@ function formatDisplayName(_a, getDisplayNames, value, options) {
         return getDisplayNames(locale, filteredOptions).of(value);
     }
     catch (e) {
-        onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting display name.', e));
+        onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting display name.', e));
     }
 }
 
@@ -4673,7 +4673,7 @@ function formatList(_a, getListFormat, values, options) {
         }, []);
     }
     catch (e) {
-        onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting list.', e));
+        onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting list.', e));
     }
     // @ts-ignore
     return values;
@@ -4764,7 +4764,7 @@ function formatNumber(config, getNumberFormat, value, options) {
         return getFormatter$2(config, getNumberFormat, options).format(value);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting number.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting number.', e));
     }
     return String(value);
 }
@@ -4774,7 +4774,7 @@ function formatNumberToParts(config, getNumberFormat, value, options) {
         return getFormatter$2(config, getNumberFormat, options).formatToParts(value);
     }
     catch (e) {
-        config.onError(new IntlError("FORMAT_ERROR" /* FORMAT_ERROR */, 'Error formatting number.', e));
+        config.onError(new IntlError(IntlErrorCode.FORMAT_ERROR, 'Error formatting number.', e));
     }
     return [];
 }

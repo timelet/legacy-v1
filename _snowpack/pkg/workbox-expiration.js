@@ -1,5 +1,5 @@
 import './common/_version-d16c6209.js';
-import { W as WorkboxError } from './common/WorkboxError-257cfda9.js';
+import { W as WorkboxError } from './common/WorkboxError-8042740c.js';
 import { q as quotaErrorCallbacks, c as cacheNames } from './common/quotaErrorCallbacks-a2ecdbb9.js';
 
 /*

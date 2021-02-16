@@ -14,8 +14,7 @@ const fallback = (code, ...args) => {
     }
     return msg;
 };
-const messageGenerator = 
-    fallback ;
+const messageGenerator = fallback ;
 
 /*
   Copyright 2018 Google LLC

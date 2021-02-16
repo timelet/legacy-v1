@@ -2,7 +2,7 @@ const DEFAULT_PROFILE = "default";
 export const profileSchema = {
   title: "profile schema",
   description: "describes profiles",
-  version: 3,
+  version: 4,
   type: "object",
   properties: {
     profileId: {
@@ -30,6 +30,24 @@ export const profileSchema = {
         },
         required: ["name"]
       }
+    },
+    tags: {
+      type: "array",
+      uniqueItems: true,
+      description: "Tags in this profile",
+      default: [],
+      items: {
+        type: "object",
+        properties: {
+          name: {
+            type: "string"
+          },
+          description: {
+            type: "string"
+          }
+        },
+        required: ["name"]
+      }
     }
   },
   required: []
@@ -37,7 +55,7 @@ export const profileSchema = {
 export function configureProfileCollection(collection) {
   collection.findOne({selector: {profileId: DEFAULT_PROFILE}}).exec().then((doc) => {
     if (!doc) {
-      collection.insert({profileId: DEFAULT_PROFILE, categories: []});
+      collection.insert({profileId: DEFAULT_PROFILE, categories: [], tags: []});
     }
   });
 }
@@ -56,6 +74,12 @@ export const profileCreatorBase = {
       return {
         ...previous,
         categories: previous.categories ?? []
+      };
+    },
+    4(previous) {
+      return {
+        ...previous,
+        tags: previous.tags ?? []
       };
     }
   }

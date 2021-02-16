@@ -1,4 +1,4 @@
-import { r as react } from './index-8f144fe1.js';
+import { r as react } from './index-45809189.js';
 
 /**
  * Private module reserved for @material-ui/x packages.

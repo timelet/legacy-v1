@@ -2,7 +2,7 @@ import {v4} from "../../../_snowpack/pkg/uuid.js";
 export const entrySchema = {
   title: "entry schema",
   description: "describes time entries",
-  version: 5,
+  version: 7,
   type: "object",
   properties: {
     entryId: {
@@ -23,9 +23,13 @@ export const entrySchema = {
     category: {
       type: "string",
       description: "Category of this entry"
+    },
+    tag: {
+      type: "string",
+      description: "Tags of this entry"
     }
   },
-  required: ["description", "startedAt"]
+  required: ["category", "startedAt"]
 };
 export function configureEntryCollection(collection) {
   collection.preInsert((data) => {
@@ -59,6 +63,16 @@ export const entryCreatorBase = {
       };
     },
     5(previous) {
+      return {
+        ...previous
+      };
+    },
+    6(previous) {
+      return {
+        ...previous
+      };
+    },
+    7(previous) {
       return {
         ...previous
       };

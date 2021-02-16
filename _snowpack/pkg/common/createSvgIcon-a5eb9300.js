@@ -1,8 +1,8 @@
-import { c as createCommonjsModule } from './_commonjsHelpers-f5d70792.js';
-import { a as capitalize, q as createSvgIcon$1 } from './createSvgIcon-62eb273b.js';
-import { c as createChainedFunction, s as setRef, d as useControlled, b as useEventCallback, u as useForkRef, a as useIsFocusVisible } from './useIsFocusVisible-2abbdd38.js';
-import { d as debounce, i as isMuiElement, o as ownerDocument, a as ownerWindow } from './ownerWindow-e2d6e813.js';
-import { u as useId } from './unstable_useId-cb546235.js';
+import { c as createCommonjsModule } from './_commonjsHelpers-37fa8da4.js';
+import { a as capitalize, q as createSvgIcon$1 } from './createSvgIcon-81306b7b.js';
+import { c as createChainedFunction, s as setRef, d as useControlled, b as useEventCallback, u as useForkRef, a as useIsFocusVisible } from './useIsFocusVisible-b5278cab.js';
+import { d as debounce, i as isMuiElement, o as ownerDocument, a as ownerWindow } from './ownerWindow-af75b35f.js';
+import { u as useId } from './unstable_useId-9eb2bab3.js';
 
 function deprecatedPropType(validator, reason) {
   {
@@ -44,6 +44,16 @@ var utils = /*#__PURE__*/Object.freeze({
   useForkRef: useForkRef,
   unstable_useId: useId,
   useIsFocusVisible: useIsFocusVisible
+});
+
+var interopRequireDefault = createCommonjsModule(function (module) {
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    "default": obj
+  };
+}
+
+module.exports = _interopRequireDefault;
 });
 
 var _typeof_1 = createCommonjsModule(function (module) {
@@ -135,4 +145,4 @@ Object.defineProperty(exports, "default", {
 });
 });
 
-export { createSvgIcon as c, interopRequireWildcard as i };
+export { interopRequireDefault as a, createSvgIcon as c, interopRequireWildcard as i };

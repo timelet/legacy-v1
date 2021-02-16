@@ -1,10 +1,10 @@
-import { r as react } from '../common/index-8f144fe1.js';
-import { q as createSvgIcon } from '../common/createSvgIcon-62eb273b.js';
-import '../common/_commonjsHelpers-f5d70792.js';
+import { r as react } from '../common/index-45809189.js';
+import { q as createSvgIcon } from '../common/createSvgIcon-81306b7b.js';
+import '../common/_commonjsHelpers-37fa8da4.js';
 import '../common/extends-7477639a.js';
-import '../common/index-4bda1d4e.js';
+import '../common/index-c103191b.js';
 import '../common/red-359464ee.js';
-import '../common/hoist-non-react-statics.cjs-fd576625.js';
+import '../common/hoist-non-react-statics.cjs-fec7e822.js';
 
 var Add = createSvgIcon( /*#__PURE__*/react.createElement("path", {
   d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
@@ -26,4 +26,8 @@ var Stop = createSvgIcon( /*#__PURE__*/react.createElement("path", {
   d: "M6 6h12v12H6z"
 }));
 
-export { Add, Delete, Edit, PlayArrow, Stop };
+var Timer = createSvgIcon( /*#__PURE__*/react.createElement("path", {
+  d: "M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"
+}));
+
+export { Add, Delete, Edit, PlayArrow, Stop, Timer };
