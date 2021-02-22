@@ -7,7 +7,6 @@ import StorageManagement from "../components/settings/StorageManagement.js";
 import ProfileForm from "../components/settings/ProfileForm.js";
 import {useDatabase} from "../contexts/DatabaseContext.js";
 import {SETTINGS_DOCUMENT_ID} from "../domain/documents/settingsDocument.js";
-import ContentContainer from "../layout/default/ContentContainer.js";
 import ContentElement from "../layout/default/ContentElement.js";
 import {createSubscriptionEffect} from "../utils/rxdb.js";
 export default function Settings() {
@@ -15,10 +14,12 @@ export default function Settings() {
   const database = useDatabase();
   const [profiles, setProfiles] = React.useState([]);
   const [currentProfile, setCurrentProfile] = React.useState();
-  React.useEffect(createSubscriptionEffect(() => database?.profiles.find().$.subscribe((docs) => {
+  const getProfiles = React.useCallback(() => createSubscriptionEffect(() => database?.profiles.find().$.subscribe((docs) => {
     setProfiles(docs);
   })), [database]);
-  React.useEffect(createSubscriptionEffect(() => database?.getLocal$(SETTINGS_DOCUMENT_ID).subscribe((doc) => setCurrentProfile(profiles.find((p) => p.profileId === doc?.get("profile"))))), [profiles]);
+  const getCurrentProfile = React.useCallback(() => createSubscriptionEffect(() => profiles ? database?.getLocal$(SETTINGS_DOCUMENT_ID).subscribe((doc) => setCurrentProfile(profiles.find((p) => p.profileId === doc?.get("profile")))) : void 0), [database, profiles]);
+  React.useEffect(() => getProfiles(), [getProfiles]);
+  React.useEffect(() => getCurrentProfile(), [getCurrentProfile]);
   const selectProfile = async (profile) => {
     const currentSettings = await database?.getLocal(SETTINGS_DOCUMENT_ID);
     database?.upsertLocal(SETTINGS_DOCUMENT_ID, {...currentSettings, profile: profile.profileId});
@@ -36,12 +37,7 @@ export default function Settings() {
       saveFile(file, filename);
     }
   };
-  return /* @__PURE__ */ React.createElement(ContentContainer, null, /* @__PURE__ */ React.createElement(Typography, {
-    variant: "h2"
-  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
-    id: "title.settings",
-    defaultMessage: "Settings"
-  })), /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(Typography, {
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(Typography, {
     variant: "h3"
   }, /* @__PURE__ */ React.createElement(FormattedMessage, {
     id: "title.profiles",

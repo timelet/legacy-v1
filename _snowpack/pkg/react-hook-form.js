@@ -1003,14 +1003,23 @@ function useForm({ mode = VALIDATION_MODE.onSubmit, reValidateMode = VALIDATION_
         return setFieldArrayDefaultValues(getFieldsValues(fieldsRef, cloneObject(shallowFieldsStateRef.current), shouldUnregister));
     }
     const validateResolver = react.useCallback(async (values = {}) => {
-        const { errors } = await resolverRef.current(Object.assign(Object.assign({}, getValues()), values), contextRef.current, isValidateAllFieldCriteria);
+        const newDefaultValues = isEmptyObject(fieldsRef.current)
+            ? defaultValuesRef.current
+            : {};
+        const { errors } = (await resolverRef.current(Object.assign(Object.assign(Object.assign({}, newDefaultValues), getValues()), values), contextRef.current, isValidateAllFieldCriteria)) || {};
         const isValid = isEmptyObject(errors);
         formStateRef.current.isValid !== isValid &&
             updateFormState({
                 isValid,
             });
     }, [isValidateAllFieldCriteria]);
-    const removeFieldEventListener = react.useCallback((field, forceDelete) => findRemovedFieldAndRemoveListener(fieldsRef, handleChangeRef.current, field, shallowFieldsStateRef, shouldUnregister, forceDelete), [shouldUnregister]);
+    const removeFieldEventListener = react.useCallback((field, forceDelete) => {
+        findRemovedFieldAndRemoveListener(fieldsRef, handleChangeRef.current, field, shallowFieldsStateRef, shouldUnregister, forceDelete);
+        if (shouldUnregister) {
+            unset(validFieldsRef.current, field.ref.name);
+            unset(fieldsWithValidationRef.current, field.ref.name);
+        }
+    }, [shouldUnregister]);
     const updateWatchedValue = react.useCallback((name) => {
         if (isWatchAllRef.current) {
             updateFormState();
@@ -1029,8 +1038,6 @@ function useForm({ mode = VALIDATION_MODE.onSubmit, reValidateMode = VALIDATION_
         if (field) {
             removeFieldEventListener(field, forceDelete);
             if (shouldUnregister && !compact(field.options || []).length) {
-                unset(validFieldsRef.current, field.ref.name);
-                unset(fieldsWithValidationRef.current, field.ref.name);
                 unset(formStateRef.current.errors, field.ref.name);
                 set(formStateRef.current.dirtyFields, field.ref.name, true);
                 updateFormState({

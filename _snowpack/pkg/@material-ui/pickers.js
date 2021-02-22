@@ -1,13 +1,11 @@
-import { k as _inheritsLoose, l as _objectWithoutPropertiesLoose, w as withStyles, _ as _objectWithoutProperties, c as clsx, M as _setPrototypeOf, r as _typeof, v as _assertThisInitialized, b as _defineProperty, a as capitalize, N as SvgIcon, m as _createClass, f as fade } from '../common/createSvgIcon-81306b7b.js';
+import { m as _inheritsLoose, o as _objectWithoutPropertiesLoose, w as withStyles, _ as _objectWithoutProperties, c as clsx, M as _setPrototypeOf, t as _typeof, y as _assertThisInitialized, b as _defineProperty, a as capitalize, N as SvgIcon, p as _createClass, f as fade } from '../common/createSvgIcon-d7ea2643.js';
 import { r as react } from '../common/index-45809189.js';
 import { p as propTypes } from '../common/index-c103191b.js';
 import { _ as _extends } from '../common/extends-7477639a.js';
-import { a as KeyboardArrowLeft, K as KeyboardArrowRight, m as makeStyles, c as createStyles } from '../common/KeyboardArrowRight-201738b6.js';
-import { D as Dialog, a as DialogContent, b as DialogActions } from '../common/DialogContent-9275f414.js';
-import { a as Transition, h as useFormControl, i as FormControlContext, T as Typography, u as useTheme, B as Button, P as Popover, _ as _classCallCheck, C as CircularProgress, d as Toolbar, b as TextField } from '../common/TextField-3a90b499.js';
-import { B as ButtonBase, I as IconButton, b as TransitionGroup, _ as _slicedToArray, P as Paper } from '../common/Portal-2e7ae8c5.js';
-import { d as debounce, a as ownerWindow } from '../common/ownerWindow-af75b35f.js';
-import { b as useEventCallback } from '../common/useIsFocusVisible-b5278cab.js';
+import { a as KeyboardArrowLeft, K as KeyboardArrowRight, m as makeStyles, c as createStyles } from '../common/KeyboardArrowRight-c2400df3.js';
+import { D as Dialog, a as DialogContent, b as DialogActions } from '../common/DialogContent-875cd566.js';
+import { a as Transition, k as useFormControl, l as FormControlContext, T as Typography, d as debounce, u as useTheme, j as ownerWindow, B as Button, P as Popover, _ as _classCallCheck, C as CircularProgress, e as Toolbar, b as TextField } from '../common/TextField-66653f18.js';
+import { B as ButtonBase, b as useEventCallback, I as IconButton, f as TransitionGroup, _ as _slicedToArray, P as Paper } from '../common/Portal-4295522f.js';
 import '../common/red-359464ee.js';
 import '../common/hoist-non-react-statics.cjs-fec7e822.js';
 import '../common/_commonjsHelpers-37fa8da4.js';
@@ -2066,6 +2064,23 @@ var findClosestEnabledDate = function findClosestEnabledDate(_ref) {
 
 
   return utils.date();
+};
+var isYearOnlyView = function isYearOnlyView(views) {
+  return views.length === 1 && views[0] === 'year';
+};
+var isYearAndMonthViews = function isYearAndMonthViews(views) {
+  return views.length === 2 && arrayIncludes(views, 'month') && arrayIncludes(views, 'year');
+};
+var getFormatByViews = function getFormatByViews(views, utils) {
+  if (isYearOnlyView(views)) {
+    return utils.yearFormat;
+  }
+
+  if (isYearAndMonthViews(views)) {
+    return utils.yearMonthFormat;
+  }
+
+  return utils.dateFormat;
 };
 
 var DayWrapper = function DayWrapper(_ref) {
@@ -4262,6 +4277,96 @@ function makePickerWithState(_ref) {
   return PickerWithState;
 }
 
+var useStyles$6 = makeStyles({
+  toolbar: {
+    flexDirection: 'column',
+    alignItems: 'flex-start'
+  },
+  toolbarLandscape: {
+    padding: 16
+  },
+  dateLandscape: {
+    marginRight: 16
+  }
+}, {
+  name: 'MuiPickersDatePickerRoot'
+});
+var DatePickerToolbar = function DatePickerToolbar(_ref) {
+  var date = _ref.date,
+      views = _ref.views,
+      setOpenView = _ref.setOpenView,
+      isLandscape = _ref.isLandscape,
+      openView = _ref.openView;
+  var utils = useUtils();
+  var classes = useStyles$6();
+  var isYearOnly = react.useMemo(function () {
+    return isYearOnlyView(views);
+  }, [views]);
+  var isYearAndMonth = react.useMemo(function () {
+    return isYearAndMonthViews(views);
+  }, [views]);
+  return react.createElement(PickerToolbar, {
+    isLandscape: isLandscape,
+    className: clsx(!isYearOnly && classes.toolbar, isLandscape && classes.toolbarLandscape)
+  }, react.createElement(ToolbarButton$1, {
+    variant: isYearOnly ? 'h3' : 'subtitle1',
+    onClick: function onClick() {
+      return setOpenView('year');
+    },
+    selected: openView === 'year',
+    label: utils.getYearText(date)
+  }), !isYearOnly && !isYearAndMonth && react.createElement(ToolbarButton$1, {
+    variant: "h4",
+    selected: openView === 'date',
+    onClick: function onClick() {
+      return setOpenView('date');
+    },
+    align: isLandscape ? 'left' : 'center',
+    label: utils.getDatePickerHeaderText(date),
+    className: clsx(isLandscape && classes.dateLandscape)
+  }), isYearAndMonth && react.createElement(ToolbarButton$1, {
+    variant: "h4",
+    onClick: function onClick() {
+      return setOpenView('month');
+    },
+    selected: openView === 'month',
+    label: utils.getMonthText(date)
+  }));
+};
+
+function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$3(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+var defaultProps = _objectSpread$3({}, datePickerDefaultProps, {
+  openTo: 'date',
+  views: ['year', 'date']
+});
+
+function useOptions(props) {
+  var utils = useUtils();
+  return {
+    getDefaultFormat: function getDefaultFormat() {
+      return getFormatByViews(props.views, utils);
+    }
+  };
+}
+
+var DatePicker = makePickerWithState({
+  useOptions: useOptions,
+  Input: PureDateInput,
+  useState: usePickerState,
+  DefaultToolbarComponent: DatePickerToolbar
+});
+var KeyboardDatePicker = makePickerWithState({
+  useOptions: useOptions,
+  Input: KeyboardDateInput,
+  useState: useKeyboardPickerState,
+  DefaultToolbarComponent: DatePickerToolbar
+});
+DatePicker.defaultProps = defaultProps;
+KeyboardDatePicker.defaultProps = defaultProps;
+
 makeStyles({
   toolbarLandscape: {
     flexWrap: 'wrap'
@@ -4355,7 +4460,7 @@ var tabIndexToView = function tabIndexToView(tab) {
   return 'hours';
 };
 
-var useStyles$6 = makeStyles(function (theme) {
+var useStyles$7 = makeStyles(function (theme) {
   // prettier-ignore
   var tabsBackground = theme.palette.type === 'light' ? theme.palette.primary.main : theme.palette.background["default"];
   return {
@@ -4372,7 +4477,7 @@ var DateTimePickerTabs = function DateTimePickerTabs(_ref) {
       onChange = _ref.onChange,
       dateRangeIcon = _ref.dateRangeIcon,
       timeIcon = _ref.timeIcon;
-  var classes = useStyles$6();
+  var classes = useStyles$7();
   var theme = useTheme();
   var indicatorColor = theme.palette.type === 'light' ? 'secondary' : 'primary';
 
@@ -4515,18 +4620,18 @@ var DateTimePickerToolbar = function DateTimePickerToolbar(_ref) {
   }));
 };
 
-function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$3(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$4(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$4(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-var defaultProps = _objectSpread$3({}, dateTimePickerDefaultProps, {
+var defaultProps$1 = _objectSpread$4({}, dateTimePickerDefaultProps, {
   wider: true,
   orientation: 'portrait',
   openTo: 'date',
   views: ['year', 'date', 'hours', 'minutes']
 });
 
-function useOptions(props) {
+function useOptions$1(props) {
   var utils = useUtils();
 
   if (props.orientation !== 'portrait') {
@@ -4544,13 +4649,13 @@ function useOptions(props) {
 }
 
 var DateTimePicker = makePickerWithState({
-  useOptions: useOptions,
+  useOptions: useOptions$1,
   Input: PureDateInput,
   useState: usePickerState,
   DefaultToolbarComponent: DateTimePickerToolbar
 });
 var KeyboardDateTimePicker = makePickerWithState({
-  useOptions: useOptions,
+  useOptions: useOptions$1,
   Input: KeyboardDateInput,
   useState: useKeyboardPickerState,
   DefaultToolbarComponent: DateTimePickerToolbar,
@@ -4560,7 +4665,7 @@ var KeyboardDateTimePicker = makePickerWithState({
     };
   }
 });
-DateTimePicker.defaultProps = defaultProps;
-KeyboardDateTimePicker.defaultProps = defaultProps;
+DateTimePicker.defaultProps = defaultProps$1;
+KeyboardDateTimePicker.defaultProps = defaultProps$1;
 
-export { KeyboardDateTimePicker, MuiPickersUtilsProvider };
+export { KeyboardDatePicker, KeyboardDateTimePicker, MuiPickersUtilsProvider };

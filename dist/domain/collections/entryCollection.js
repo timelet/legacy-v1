@@ -2,7 +2,7 @@ import {v4} from "../../../_snowpack/pkg/uuid.js";
 export const entrySchema = {
   title: "entry schema",
   description: "describes time entries",
-  version: 7,
+  version: 8,
   type: "object",
   properties: {
     entryId: {
@@ -13,12 +13,12 @@ export const entrySchema = {
       type: "string"
     },
     startedAt: {
-      type: "string",
-      description: "ISO date string of an activities starting point"
+      type: "number",
+      description: "UNIX timestamp of an activities starting point"
     },
     endedAt: {
-      type: "string",
-      description: "ISO date string of an activities ending point"
+      type: "number",
+      description: "UNIX timestamp of an activities ending point"
     },
     category: {
       type: "string",
@@ -75,6 +75,13 @@ export const entryCreatorBase = {
     7(previous) {
       return {
         ...previous
+      };
+    },
+    8(previous) {
+      return {
+        ...previous,
+        startedAt: new Date(previous.startedAt).getTime(),
+        endedAt: previous.endedAt ? new Date(previous.endedAt).getTime() : void 0
       };
     }
   }

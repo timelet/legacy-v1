@@ -1,5 +1,6 @@
-import { _ as __assign, a as __extends, h as __spreadArrays, i as invariant, j as __rest } from './common/utils-5ac521d3.js';
+import { _ as __assign, a as __extends, b as __spreadArrays, c as __rest } from './common/tslib.es6-1350866e.js';
 import { r as react, R as React } from './common/index-45809189.js';
+import { i as invariant } from './common/utils-363d1b2b.js';
 import './common/hoist-non-react-statics.cjs-fec7e822.js';
 import './common/_commonjsHelpers-37fa8da4.js';
 
@@ -4779,15 +4780,15 @@ function formatNumberToParts(config, getNumberFormat, value, options) {
     return [];
 }
 
-function messagesContainAst(messages) {
+function messagesContainString(messages) {
     var firstMessage = messages
         ? messages[Object.keys(messages)[0]]
         : undefined;
-    return typeof firstMessage === 'object' && !!firstMessage;
+    return typeof firstMessage === 'string';
 }
 function verifyConfigMessages(config) {
     if (config.defaultRichTextElements &&
-        !messagesContainAst(config.messages || {})) {
+        messagesContainString(config.messages || {})) {
         console.warn("[@formatjs/intl] \"defaultRichTextElements\" was specified but \"message\" was not pre-compiled. \nPlease consider using \"@formatjs/cli\" to pre-compile your messages for performance.\nFor more details see https://formatjs.io/docs/getting-started/message-distribution");
     }
 }
@@ -4819,18 +4820,7 @@ function createIntl(config, cache) {
         onError(new MissingDataError("Missing locale data for locale: \"" + locale + "\" in Intl.DateTimeFormat. Using default locale: \"" + defaultLocale + "\" as fallback. See https://formatjs.io/docs/react-intl#runtime-requirements for more details"));
     }
     verifyConfigMessages(resolvedConfig);
-    return __assign(__assign({}, resolvedConfig), { formatters: formatters, formatNumber: formatNumber.bind(null, resolvedConfig, formatters.getNumberFormat), formatNumberToParts: formatNumberToParts.bind(null, resolvedConfig, formatters.getNumberFormat), formatRelativeTime: formatRelativeTime.bind(null, resolvedConfig, formatters.getRelativeTimeFormat), formatDate: formatDate.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatDateToParts: formatDateToParts.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatTime: formatTime.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatDateTimeRange: formatDateTimeRange.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatTimeToParts: formatTimeToParts.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatPlural: formatPlural.bind(null, resolvedConfig, formatters.getPluralRules), formatMessage: formatMessage.bind(null, resolvedConfig, formatters), formatList: formatList.bind(null, resolvedConfig, formatters.getListFormat), formatDisplayName: formatDisplayName.bind(null, resolvedConfig, formatters.getDisplayNames), __addMessages: function (messages) {
-            var existingMessagesContainAst = messagesContainAst(resolvedConfig.messages);
-            var mergingMessagesContainAst = messagesContainAst(messages);
-            if (config.onError &&
-                ((existingMessagesContainAst && !mergingMessagesContainAst) ||
-                    (!existingMessagesContainAst && mergingMessagesContainAst))) {
-                config.onError(new InvalidConfigError("Cannot mix AST & non-AST messages for locale " + resolvedConfig.locale));
-            }
-            Object.keys(messages).forEach(function (k) {
-                resolvedConfig.messages[k] = messages[k];
-            });
-        } });
+    return __assign(__assign({}, resolvedConfig), { formatters: formatters, formatNumber: formatNumber.bind(null, resolvedConfig, formatters.getNumberFormat), formatNumberToParts: formatNumberToParts.bind(null, resolvedConfig, formatters.getNumberFormat), formatRelativeTime: formatRelativeTime.bind(null, resolvedConfig, formatters.getRelativeTimeFormat), formatDate: formatDate.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatDateToParts: formatDateToParts.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatTime: formatTime.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatDateTimeRange: formatDateTimeRange.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatTimeToParts: formatTimeToParts.bind(null, resolvedConfig, formatters.getDateTimeFormat), formatPlural: formatPlural.bind(null, resolvedConfig, formatters.getPluralRules), formatMessage: formatMessage.bind(null, resolvedConfig, formatters), formatList: formatList.bind(null, resolvedConfig, formatters.getListFormat), formatDisplayName: formatDisplayName.bind(null, resolvedConfig, formatters.getDisplayNames) });
 }
 
 function invariantIntlContext(intl) {
@@ -5087,12 +5077,12 @@ var FormattedMessage = /** @class */ (function (_super) {
 }(react.Component));
 
 // IMPORTANT: Explicit here to prevent api-extractor from outputing `import('./src/types').CustomFormatConfig`
-createFormattedComponent('formatDate');
-createFormattedComponent('formatTime');
+var FormattedDate = createFormattedComponent('formatDate');
+var FormattedTime = createFormattedComponent('formatTime');
 createFormattedComponent('formatNumber');
 createFormattedComponent('formatList');
 var FormattedDisplayName = createFormattedComponent('formatDisplayName');
 createFormattedDateTimePartsComponent('formatDate');
 createFormattedDateTimePartsComponent('formatTime');
 
-export { FormattedDisplayName, FormattedMessage, IntlProvider$1 as IntlProvider, useIntl };
+export { FormattedDate, FormattedDisplayName, FormattedMessage, FormattedTime, IntlProvider$1 as IntlProvider, useIntl };

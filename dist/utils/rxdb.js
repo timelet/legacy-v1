@@ -1,12 +1,9 @@
-export const createSubscriptionEffect = (subscribe) => () => {
-  const subscription = subscribe();
+export const createSubscriptionEffect = (subscribe) => {
+  let subscription;
+  Promise.resolve(subscribe()).then((sub) => {
+    subscription = sub;
+  });
   return function cleanUp() {
     subscription?.unsubscribe();
-  };
-};
-export const createAsyncSubscriptionEffect = (subscribe) => () => {
-  const subscription = subscribe();
-  return function cleanUp() {
-    subscription.then((sub) => sub?.unsubscribe());
   };
 };

@@ -6,7 +6,6 @@ import {FormattedMessage, useIntl} from "../../_snowpack/pkg/react-intl.js";
 import {Workbox, messageSW} from "../../_snowpack/pkg/workbox-window.js";
 export default function ServiceWorkerIntegration() {
   const intl = useIntl();
-  const workbox = new Workbox(__SNOWPACK_ENV__.SNOWPACK_PUBLIC_SERVICE_WORKER);
   const [updateNotificationOpen, setUpdateNotificationOpen] = React.useState(false);
   const [registration, setRegistration] = React.useState();
   const showSkipWaitingPrompt = () => {
@@ -21,6 +20,7 @@ export default function ServiceWorkerIntegration() {
   };
   React.useEffect(() => {
     if ("serviceWorker" in navigator) {
+      const workbox = new Workbox(__SNOWPACK_ENV__.SNOWPACK_PUBLIC_SERVICE_WORKER);
       workbox.addEventListener("waiting", showSkipWaitingPrompt);
       workbox.register().then((r) => {
         setRegistration(r);

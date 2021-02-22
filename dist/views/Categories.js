@@ -1,14 +1,11 @@
 import styled from "../../_snowpack/pkg/@emotion/styled.js";
-import {Typography} from "../../_snowpack/pkg/@material-ui/core.js";
 import React from "../../_snowpack/pkg/react.js";
-import {FormattedMessage} from "../../_snowpack/pkg/react-intl.js";
 import CategoryDisplay from "../components/categories/CategoryDisplay.js";
 import CategoryInlineForm from "../components/categories/CategoryInlineForm.js";
 import {useDatabase} from "../contexts/DatabaseContext.js";
 import {SETTINGS_DOCUMENT_ID} from "../domain/documents/settingsDocument.js";
-import ContentContainer from "../layout/default/ContentContainer.js";
 import ContentElement from "../layout/default/ContentElement.js";
-import {createAsyncSubscriptionEffect} from "../utils/rxdb.js";
+import {createSubscriptionEffect} from "../utils/rxdb.js";
 const CategoryDisplayContainer = styled(ContentElement)`
   flex-grow: 1;
   display: flex;
@@ -28,7 +25,7 @@ export default function Categories() {
   const removeCategory = (category) => {
     profile?.update({$pullAll: {categories: [category]}});
   };
-  React.useEffect(createAsyncSubscriptionEffect(async () => {
+  const getCategories = React.useCallback(() => createSubscriptionEffect(async () => {
     const settings = await database?.getLocal(SETTINGS_DOCUMENT_ID);
     return database?.profiles.findOne({selector: {profileId: settings?.profile}}).$.subscribe((doc) => {
       if (doc) {
@@ -38,12 +35,8 @@ export default function Categories() {
       setLoading(false);
     });
   }), [database]);
-  return /* @__PURE__ */ React.createElement(ContentContainer, null, /* @__PURE__ */ React.createElement(Typography, {
-    variant: "h2"
-  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
-    id: "title.categories",
-    defaultMessage: "Categories"
-  })), /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(CategoryInlineForm, {
+  React.useEffect(() => getCategories(), [getCategories]);
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(ContentElement, null, /* @__PURE__ */ React.createElement(CategoryInlineForm, {
     create: createCategory
   })), /* @__PURE__ */ React.createElement(CategoryDisplayContainer, null, /* @__PURE__ */ React.createElement(CategoryDisplay, {
     categories,

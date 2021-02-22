@@ -91,8 +91,8 @@ export default function EntryDisplay({entries, categories, tags, loading, update
         color: "primary",
         fontSize: "small"
       }), /* @__PURE__ */ React.createElement(InteractiveDuration, {
-        from: params.getValue("startedAt")?.toString() || "",
-        to: params.getValue("endedAt")?.toString()
+        from: params.getValue("startedAt")?.valueOf(),
+        to: params.getValue("endedAt")?.valueOf()
       }))
     },
     {

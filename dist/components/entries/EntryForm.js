@@ -34,15 +34,15 @@ export default function EntryForm({entry, categories, tags, update}) {
     reset(entry);
     setStartedAt(new Date(entry.startedAt));
     setEndedAt(entry.endedAt ? new Date(entry.endedAt) : null);
-  }, [entry]);
+  }, [reset, entry]);
   const onSubmit = (data) => {
     const updatedEntry = {
       entryId: entry.entryId,
       category: category?.name || data.category,
       tag: tag?.name || data.tag,
       description: data.description,
-      startedAt: startedAt.toISOString(),
-      endedAt: endedAt?.toISOString() ?? void 0
+      startedAt: startedAt.getTime(),
+      endedAt: endedAt?.getTime() ?? void 0
     };
     update(updatedEntry);
     toggleDialog();

@@ -21,7 +21,7 @@ export default function CategoryForm({category, update}) {
   const toggleDialog = () => setOpen(!open);
   React.useEffect(() => {
     reset(category);
-  }, [category]);
+  }, [reset, category]);
   const onSubmit = (data) => {
     update(category, data);
     toggleDialog();

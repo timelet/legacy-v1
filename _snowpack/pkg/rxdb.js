@@ -5375,6 +5375,17 @@ function toPromise(maybePromise) {
     return Promise.resolve(maybePromise);
   }
 }
+function requestIdlePromise() {
+  var timeout = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+  if (typeof window === 'object' && window['requestIdleCallback']) {
+    return new Promise(function (res) {
+      return window['requestIdleCallback'](res, {
+        timeout: timeout
+      });
+    });
+  } else return Promise.resolve();
+}
 /**
  * like Promise.all() but runs in series instead of parallel
  * @link https://github.com/egoist/promise.series/blob/master/index.js
@@ -12210,7 +12221,6 @@ function countRxQuerySubscribers(rxQuery) {
 }
 var DEFAULT_TRY_TO_KEEP_MAX = 100;
 var DEFAULT_UNEXECUTED_LIFETME = 30 * 1000;
-var DEFAULT_CACHE_REPLACEMENT_WAIT_TIME = 20 * 1000;
 /**
  * The default cache replacement policy
  * See docs-src/query-cache.md to learn how it should work.
@@ -12259,10 +12269,8 @@ var defaultCacheReplacementPolicyMonad = function defaultCacheReplacementPolicyM
     });
   };
 };
-var defaultCacheReplacementPolicy = defaultCacheReplacementPolicyMonad(DEFAULT_TRY_TO_KEEP_MAX, DEFAULT_UNEXECUTED_LIFETME); // @link https://stackoverflow.com/a/56239226/3443137
-
-var CACHE_REPLACEMENT_STATE_BY_COLLECTION = new WeakMap();
-var COLLECTIONS_WITH_DESTROY_HOOK = new WeakSet();
+var defaultCacheReplacementPolicy = defaultCacheReplacementPolicyMonad(DEFAULT_TRY_TO_KEEP_MAX, DEFAULT_UNEXECUTED_LIFETME);
+var COLLECTIONS_WITH_RUNNING_CLEANUP = new WeakSet();
 /**
  * Triggers the cache replacement policy after waitTime has passed.
  * We do not run this directly because at exactly the time a query is created,
@@ -12271,30 +12279,27 @@ var COLLECTIONS_WITH_DESTROY_HOOK = new WeakSet();
  */
 
 function triggerCacheReplacement(rxCollection) {
-  var waitTime = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : DEFAULT_CACHE_REPLACEMENT_WAIT_TIME;
-
-  if (CACHE_REPLACEMENT_STATE_BY_COLLECTION.has(rxCollection)) {
+  if (COLLECTIONS_WITH_RUNNING_CLEANUP.has(rxCollection)) {
     // already started
     return;
-  } // ensure we clean up the runnung timeouts when the collection is destroyed
-
-
-  if (!COLLECTIONS_WITH_DESTROY_HOOK.has(rxCollection)) {
-    rxCollection.onDestroy.then(function () {
-      var timeout = CACHE_REPLACEMENT_STATE_BY_COLLECTION.get(rxCollection);
-
-      if (timeout) {
-        clearTimeout(timeout);
-      }
-    });
-    COLLECTIONS_WITH_DESTROY_HOOK.add(rxCollection);
   }
 
-  var val = setTimeout(function () {
-    CACHE_REPLACEMENT_STATE_BY_COLLECTION["delete"](rxCollection);
-    rxCollection.cacheReplacementPolicy(rxCollection, rxCollection._queryCache);
-  }, waitTime);
-  CACHE_REPLACEMENT_STATE_BY_COLLECTION.set(rxCollection, val);
+  COLLECTIONS_WITH_RUNNING_CLEANUP.add(rxCollection);
+  /**
+   * Do not run directly to not reduce result latency of a new query
+   */
+
+  nextTick() // wait at least one tick
+  .then(function () {
+    return requestIdlePromise();
+  }) // and then wait for the CPU to be idle
+  .then(function () {
+    if (!rxCollection.destroyed) {
+      rxCollection.cacheReplacementPolicy(rxCollection, rxCollection._queryCache);
+    }
+
+    COLLECTIONS_WITH_RUNNING_CLEANUP["delete"](rxCollection);
+  });
 }
 
 var _queryCount = 0;
@@ -20916,6 +20921,8 @@ var ERROR_MESSAGES = {
   RC1: 'Replication: already added',
   RC2: 'RxCollection.sync() query must be from the same RxCollection',
   RC3: 'RxCollection.sync() Do not use a collection\'s pouchdb as remote, use the collection instead',
+  RC4: 'RxReplicationState.awaitInitialReplication() cannot await inital replication when live: true',
+  RC5: 'RxReplicationState.awaitInitialReplication() cannot await inital replication if multiInstance because the replication might run on another instance',
   // plugins/dev-mode/check-schema.js
   SC1: 'fieldnames do not match the regex',
   SC2: 'SchemaCheck: name \'item\' reserved for array-fields',
@@ -29043,7 +29050,7 @@ addRxPlugin(replication); // add the watch-for-changes-plugin
 addRxPlugin(RxDBWatchForChangesPlugin);
 var INTERNAL_POUCHDBS = new WeakSet();
 var RxReplicationStateBase = /*#__PURE__*/function () {
-  function RxReplicationStateBase(collection) {
+  function RxReplicationStateBase(collection, syncOptions) {
     var _this = this;
 
     this._subs = [];
@@ -29057,6 +29064,7 @@ var RxReplicationStateBase = /*#__PURE__*/function () {
       error: new Subject()
     };
     this.collection = collection;
+    this.syncOptions = syncOptions;
     // create getters
     Object.keys(this._subjects).forEach(function (key) {
       Object.defineProperty(_this, key + '$', {
@@ -29068,6 +29076,27 @@ var RxReplicationStateBase = /*#__PURE__*/function () {
   }
 
   var _proto = RxReplicationStateBase.prototype;
+
+  _proto.awaitInitialReplication = function awaitInitialReplication() {
+    if (this.syncOptions.options && this.syncOptions.options.live) {
+      throw newRxError('RC4', {
+        database: this.collection.database.name,
+        collection: this.collection.name
+      });
+    }
+
+    if (this.collection.database.multiInstance && this.syncOptions.waitForLeadership) {
+      throw newRxError('RC5', {
+        database: this.collection.database.name,
+        collection: this.collection.name
+      });
+    }
+
+    var that = this;
+    return that.complete$.pipe(filter(function (x) {
+      return !!x;
+    }), first()).toPromise();
+  };
 
   _proto.cancel = function cancel() {
     if (this._pouchEventEmitterObject) this._pouchEventEmitterObject.cancel();
@@ -29163,8 +29192,8 @@ function setPouchEventEmitter(rxRepState, evEmitter) {
     });
   }));
 }
-function createRxReplicationState(collection) {
-  return new RxReplicationStateBase(collection);
+function createRxReplicationState(collection, syncOptions) {
+  return new RxReplicationStateBase(collection, syncOptions);
 }
 function sync$1(_ref) {
   var _this2 = this;
@@ -29206,9 +29235,16 @@ function sync$1(_ref) {
 
   var syncFun = pouchReplicationFunction(this.pouch, direction);
   if (query) useOptions.selector = query.keyCompress().selector;
-  var repState = createRxReplicationState(this); // run internal so .sync() does not have to be async
+  var repState = createRxReplicationState(this, {
+    remote: remote,
+    waitForLeadership: waitForLeadership,
+    direction: direction,
+    options: options,
+    query: query
+  }); // run internal so .sync() does not have to be async
 
-  var waitTillRun = waitForLeadership ? this.database.waitForLeadership() : promiseWait(0);
+  var waitTillRun = waitForLeadership && this.database.multiInstance // do not await leadership if not multiInstance
+  ? this.database.waitForLeadership() : promiseWait(0);
   waitTillRun.then(function () {
     var pouchSync = syncFun(remote, useOptions);
 

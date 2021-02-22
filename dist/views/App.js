@@ -26,7 +26,16 @@ const messages = {
 export default function App() {
   const [database, setDatabase] = useState();
   const [userInterfaceLanguage, setUserInterfaceLanguage] = useState(matchLanguage(getUserLocale(), userInterfaceLanguages));
-  const [settings, setSettings] = useState();
+  const getLanguage = React.useCallback(() => createSubscriptionEffect(async () => {
+    const settings = await database?.getLocal(SETTINGS_DOCUMENT_ID);
+    return database?.profiles.findOne({selector: {profileId: settings?.profile}}).$.subscribe((doc) => {
+      if (doc?.userInterfaceLanguage) {
+        setUserInterfaceLanguage(doc.userInterfaceLanguage);
+      } else {
+        setUserInterfaceLanguage(matchLanguage(getUserLocale(), userInterfaceLanguages));
+      }
+    });
+  }), [database]);
   useEffect(() => {
     async function initialize() {
       const initializedDatabase = await initializeDatabase();
@@ -34,18 +43,7 @@ export default function App() {
     }
     initialize();
   }, []);
-  useEffect(() => {
-    database?.getLocal(SETTINGS_DOCUMENT_ID).then((doc) => {
-      setSettings(doc);
-    });
-  }, [database]);
-  useEffect(createSubscriptionEffect(() => database?.profiles.findOne({selector: {profileId: settings?.profile}}).$.subscribe((doc) => {
-    if (doc?.userInterfaceLanguage) {
-      setUserInterfaceLanguage(doc.userInterfaceLanguage);
-    } else {
-      setUserInterfaceLanguage(matchLanguage(getUserLocale(), userInterfaceLanguages));
-    }
-  })), [settings]);
+  useEffect(() => getLanguage(), [getLanguage]);
   return /* @__PURE__ */ React.createElement(DatabaseProvider, {
     database
   }, /* @__PURE__ */ React.createElement(IntlProvider, {
