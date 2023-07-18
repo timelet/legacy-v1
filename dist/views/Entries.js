@@ -1,5 +1,7 @@
 import styled from "../../_snowpack/pkg/@emotion/styled.js";
 import React from "../../_snowpack/pkg/react.js";
+import {Typography} from "../../_snowpack/pkg/@material-ui/core.js";
+import {FormattedMessage} from "../../_snowpack/pkg/react-intl.js";
 import EntryDisplay from "../components/entries/EntryDisplay.js";
 import EntryInlineForm from "../components/entries/EntryInlineForm.js";
 import {useDatabase} from "../contexts/DatabaseContext.js";
@@ -56,6 +58,11 @@ export default function Entries({entries: externalEntries}) {
     categories,
     tags,
     create: createEntry
+  })), /* @__PURE__ */ React.createElement(Typography, {
+    variant: "h3"
+  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
+    id: "title.recentEntries",
+    defaultMessage: "Recent entries"
   })), /* @__PURE__ */ React.createElement(EntryDisplayContainer, null, /* @__PURE__ */ React.createElement(EntryDisplay, {
     entries,
     categories,

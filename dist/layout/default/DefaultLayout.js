@@ -17,7 +17,7 @@ const NativeMain = withTheme(styled.main`
     flex-grow: 1;
     margin: ${({theme}) => theme.spacing(4)}px 0;
   `);
-export default function DefaultLayout({children}) {
+export default function DefaultLayout({children, status}) {
   const location = useLocation();
   let titleKey = location.pathname || "/";
   titleKey = titleKey.substring(1).replaceAll("/", ".") || "dashboard";
@@ -25,7 +25,9 @@ export default function DefaultLayout({children}) {
   const title = intl.formatMessage({id: `title.${titleKey}`});
   return /* @__PURE__ */ React.createElement(LayoutContainer, {
     maxWidth: false
-  }, /* @__PURE__ */ React.createElement("header", null, /* @__PURE__ */ React.createElement(Header, null)), /* @__PURE__ */ React.createElement(NativeMain, null, /* @__PURE__ */ React.createElement(ContentContainer, {
+  }, /* @__PURE__ */ React.createElement("header", null, /* @__PURE__ */ React.createElement(Header, {
+    status
+  })), /* @__PURE__ */ React.createElement(NativeMain, null, /* @__PURE__ */ React.createElement(ContentContainer, {
     title
   }, children)), /* @__PURE__ */ React.createElement("footer", null));
 }

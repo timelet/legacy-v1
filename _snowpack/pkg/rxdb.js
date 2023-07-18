@@ -1,8 +1,12 @@
-import { c as createCommonjsModule, a as commonjsGlobal } from './common/_commonjsHelpers-37fa8da4.js';
+import { c as createCommonjsModule, g as getDefaultExportFromCjs, a as commonjsGlobal } from './common/_commonjsHelpers-37fa8da4.js';
 import { p as process } from './common/process-2545f00a.js';
-import { k as require$$0, s as sparkMd5, n as clone$2, o as normalizeDesignDocFunctionName, p as isRemote, c as createError, q as BAD_REQUEST, v as parseDesignDocFunctionName, x as generateErrorFromResponse, M as MISSING_DOC, y as scopeEval, z as inherits_browser, E as EventEmitter, A as once, F as guardedConsole, G as argsarray, H as adapterFun, J as assign$1, K as listenerCount, L as collectLeaves, N as isDeleted, j as collectConflicts, i as invalidIdError, O as isLocalId, r as rev, P as ExportedMap, Q as bulkGet, t as traverseRevTree, S as upsert, U as UNKNOWN_ERROR, T as rootToLeaf, V as QUERY_PARSE_ERROR, W as hasLocalStorage, X as pick$1, Y as lib, Z as NOT_AN_OBJECT, R as REV_CONFLICT, _ as INVALID_ID, I as INVALID_REV, $ as MISSING_BULK_DOCS, a0 as ExportedSet, a1 as stringMd5, a2 as flatten$1, a3 as b64ToBluffer, a4 as toPromise$1, h as binaryMd5, a5 as explainError, u as uuid, a6 as defaultBackOff, f as filterChange } from './common/index.es-11f6800c.js';
+import { y as require$$0, z as sparkMd5, r as rev, A as stringMd5, c as clone$2, E as normalizeDesignDocFunctionName, F as isRemote, d as createError, G as BAD_REQUEST, H as parseDesignDocFunctionName, g as generateErrorFromResponse, M as MISSING_DOC, J as scopeEval, K as inherits_browser, L as EventEmitter, N as once, O as guardedConsole, b as argsarray, a as adapterFun, P as assign$1, Q as listenerCount, q as invalidIdError, S as ExportedMap, m as bulkGet, T as upsert, U as UNKNOWN_ERROR, V as QUERY_PARSE_ERROR, W as hasLocalStorage, k as pick$1, l as lib, X as NOT_AN_OBJECT, R as REV_CONFLICT, Y as INVALID_ID, I as INVALID_REV, Z as MISSING_BULK_DOCS, _ as ExportedSet, o as flatten$1, f as b64ToBluffer, $ as toPromise$1, x as binaryMd5, j as explainError, u as uuid, a0 as defaultBackOff, n as filterChange } from './common/index-browser.es-dd5e9a3a.js';
 import { g as global } from './common/polyfill-node:global-21e5c503.js';
+import { a as collectLeaves, i as isDeleted, c as collectConflicts, b as isLocalId, t as traverseRevTree, r as rootToLeaf } from './common/index.es-3a1f883d.js';
+import { f, h } from './common/index-browser.es-20413429.js';
+import './common/v4-c5ee5148.js';
 
+var createClass = createCommonjsModule(function (module) {
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
@@ -19,7 +23,11 @@ function _createClass(Constructor, protoProps, staticProps) {
   return Constructor;
 }
 
-var createClass = _createClass;
+module.exports = _createClass;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
+
+var _createClass = /*@__PURE__*/getDefaultExportFromCjs(createClass);
 
 var objectPath = createCommonjsModule(function (module) {
 (function (root, factory){
@@ -5556,6 +5564,23 @@ function getHeightOfRevision(revString) {
   return parseInt(first, 10);
 }
 /**
+ * Creates a revision string that does NOT include the revision height
+ * Copied and adapted from pouchdb-utils/src/rev.js
+ * TODO not longer needed when this PR is merged: https://github.com/pouchdb/pouchdb/pull/8274
+ */
+
+function createRevision(docData, deterministic_revs) {
+  if (!deterministic_revs) {
+    return rev(docData, false);
+  }
+
+  var docWithoutRev = Object.assign({}, docData, {
+    _rev: undefined,
+    _rev_tree: undefined
+  });
+  return stringMd5(JSON.stringify(docWithoutRev));
+}
+/**
  * prefix of local pouchdb documents
  */
 
@@ -5595,56 +5620,72 @@ function _setPrototypeOf(o, p) {
     return o;
   };
 
+  module.exports["default"] = module.exports, module.exports.__esModule = true;
   return _setPrototypeOf(o, p);
 }
 
 module.exports = _setPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
 });
 
+var inheritsLoose = createCommonjsModule(function (module) {
 function _inheritsLoose(subClass, superClass) {
   subClass.prototype = Object.create(superClass.prototype);
   subClass.prototype.constructor = subClass;
   setPrototypeOf(subClass, superClass);
 }
 
-var inheritsLoose = _inheritsLoose;
+module.exports = _inheritsLoose;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
+
+var _inheritsLoose = /*@__PURE__*/getDefaultExportFromCjs(inheritsLoose);
 
 var getPrototypeOf$2 = createCommonjsModule(function (module) {
 function _getPrototypeOf(o) {
   module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
     return o.__proto__ || Object.getPrototypeOf(o);
   };
+  module.exports["default"] = module.exports, module.exports.__esModule = true;
   return _getPrototypeOf(o);
 }
 
 module.exports = _getPrototypeOf;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
 });
 
+var isNativeFunction = createCommonjsModule(function (module) {
 function _isNativeFunction(fn) {
   return Function.toString.call(fn).indexOf("[native code]") !== -1;
 }
 
-var isNativeFunction = _isNativeFunction;
+module.exports = _isNativeFunction;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
 
+var isNativeReflectConstruct = createCommonjsModule(function (module) {
 function _isNativeReflectConstruct() {
   if (typeof Reflect === "undefined" || !Reflect.construct) return false;
   if (Reflect.construct.sham) return false;
   if (typeof Proxy === "function") return true;
 
   try {
-    Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
     return true;
   } catch (e) {
     return false;
   }
 }
 
-var isNativeReflectConstruct = _isNativeReflectConstruct;
+module.exports = _isNativeReflectConstruct;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
 
 var construct = createCommonjsModule(function (module) {
 function _construct(Parent, args, Class) {
   if (isNativeReflectConstruct()) {
     module.exports = _construct = Reflect.construct;
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
   } else {
     module.exports = _construct = function _construct(Parent, args, Class) {
       var a = [null];
@@ -5654,12 +5695,15 @@ function _construct(Parent, args, Class) {
       if (Class) setPrototypeOf(instance, Class.prototype);
       return instance;
     };
+
+    module.exports["default"] = module.exports, module.exports.__esModule = true;
   }
 
   return _construct.apply(null, arguments);
 }
 
 module.exports = _construct;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
 });
 
 var wrapNativeSuper = createCommonjsModule(function (module) {
@@ -5694,11 +5738,15 @@ function _wrapNativeSuper(Class) {
     return setPrototypeOf(Wrapper, Class);
   };
 
+  module.exports["default"] = module.exports, module.exports.__esModule = true;
   return _wrapNativeSuper(Class);
 }
 
 module.exports = _wrapNativeSuper;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
 });
+
+var _wrapNativeSuper = /*@__PURE__*/getDefaultExportFromCjs(wrapNativeSuper);
 
 /**
  * functions that can or should be overwritten by plugins
@@ -5771,7 +5819,7 @@ function messageForError(message, code, parameters) {
 }
 
 var RxError = /*#__PURE__*/function (_Error) {
-  inheritsLoose(RxError, _Error);
+  _inheritsLoose(RxError, _Error);
 
   function RxError(code, message) {
     var _this;
@@ -5793,7 +5841,7 @@ var RxError = /*#__PURE__*/function (_Error) {
     return this.message;
   };
 
-  createClass(RxError, [{
+  _createClass(RxError, [{
     key: "name",
     get: function get() {
       return 'RxError (' + this.code + ')';
@@ -5806,9 +5854,9 @@ var RxError = /*#__PURE__*/function (_Error) {
   }]);
 
   return RxError;
-}( /*#__PURE__*/wrapNativeSuper(Error));
+}( /*#__PURE__*/_wrapNativeSuper(Error));
 var RxTypeError = /*#__PURE__*/function (_TypeError) {
-  inheritsLoose(RxTypeError, _TypeError);
+  _inheritsLoose(RxTypeError, _TypeError);
 
   function RxTypeError(code, message) {
     var _this2;
@@ -5830,7 +5878,7 @@ var RxTypeError = /*#__PURE__*/function (_TypeError) {
     return this.message;
   };
 
-  createClass(RxTypeError, [{
+  _createClass(RxTypeError, [{
     key: "name",
     get: function get() {
       return 'RxTypeError (' + this.code + ')';
@@ -5843,7 +5891,7 @@ var RxTypeError = /*#__PURE__*/function (_TypeError) {
   }]);
 
   return RxTypeError;
-}( /*#__PURE__*/wrapNativeSuper(TypeError));
+}( /*#__PURE__*/_wrapNativeSuper(TypeError));
 function newRxError(code, parameters) {
   return new RxError(code, overwritable.tunnelErrorMessage(code), parameters);
 }
@@ -5947,6 +5995,49 @@ function runAsyncPluginHooks(hookKey, obj) {
     return fun(obj);
   }));
 }
+
+var asyncToGenerator = createCommonjsModule(function (module) {
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+module.exports = _asyncToGenerator;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
+
+var _asyncToGenerator = /*@__PURE__*/getDefaultExportFromCjs(asyncToGenerator);
 
 var runtime_1 = createCommonjsModule(function (module) {
 /**
@@ -6699,44 +6790,6 @@ try {
 });
 
 var regenerator = runtime_1;
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
-  }
-
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
-}
-
-function _asyncToGenerator(fn) {
-  return function () {
-    var self = this,
-        args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
-
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-      }
-
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-
-      _next(undefined);
-    });
-  };
-}
-
-var asyncToGenerator = _asyncToGenerator;
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -9002,7 +9055,7 @@ function shareReplay(configOrBufferSize, windowTime, scheduler) {
             bufferSize: configOrBufferSize,
             windowTime: windowTime,
             refCount: false,
-            scheduler: scheduler
+            scheduler: scheduler,
         };
     }
     return function (source) { return source.lift(shareReplayOperator(config)); };
@@ -9022,7 +9075,9 @@ function shareReplayOperator(_a) {
             subject = new ReplaySubject(bufferSize, windowTime, scheduler);
             innerSub = subject.subscribe(this);
             subscription = source.subscribe({
-                next: function (value) { subject.next(value); },
+                next: function (value) {
+                    subject.next(value);
+                },
                 error: function (err) {
                     hasError = true;
                     subject.error(err);
@@ -9033,6 +9088,9 @@ function shareReplayOperator(_a) {
                     subject.complete();
                 },
             });
+            if (isComplete) {
+                subscription = undefined;
+            }
         }
         else {
             innerSub = subject.subscribe(this);
@@ -9040,6 +9098,7 @@ function shareReplayOperator(_a) {
         this.add(function () {
             refCount--;
             innerSub.unsubscribe();
+            innerSub = undefined;
             if (subscription && !isComplete && useRefCount && refCount === 0) {
                 subscription.unsubscribe();
                 subscription = undefined;
@@ -9185,7 +9244,14 @@ var TapSubscriber = /*@__PURE__*/ (function (_super) {
  * they can be grabbed by the observables of database, collection and document
  */
 var RxChangeEvent = /*#__PURE__*/function () {
-  function RxChangeEvent(operation, documentId, documentData, databaseToken, collectionName, isLocal, startTime, endTime, previousData, rxDocument) {
+  function RxChangeEvent(operation, documentId, documentData, databaseToken, collectionName, isLocal,
+  /**
+   * timestam on when the operation was triggered
+   * and when it was finished
+   * This is optional because we do not have this time
+   * for events that come from pouchdbs changestream.
+   */
+  startTime, endTime, previousData, rxDocument) {
     this.operation = operation;
     this.documentId = documentId;
     this.documentData = documentData;
@@ -9564,7 +9630,7 @@ var basePrototype = {
     var _this2 = this;
 
     return new Promise(function (res, rej) {
-      _this2._atomicQueue = _this2._atomicQueue.then( /*#__PURE__*/asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
+      _this2._atomicQueue = _this2._atomicQueue.then( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
         var done, oldData, newData;
         return regenerator.wrap(function _callee$(_context) {
           while (1) {
@@ -9993,7 +10059,7 @@ var RxSchema = /*#__PURE__*/function () {
     return proto;
   };
 
-  createClass(RxSchema, [{
+  _createClass(RxSchema, [{
     key: "version",
     get: function get() {
       return this.jsonSchema.version;
@@ -12565,7 +12631,7 @@ var RxQueryBase = /*#__PURE__*/function () {
     throw pluginMissing('query-builder');
   };
 
-  createClass(RxQueryBase, [{
+  _createClass(RxQueryBase, [{
     key: "$",
     get: function get() {
       var _this3 = this;
@@ -12573,7 +12639,7 @@ var RxQueryBase = /*#__PURE__*/function () {
       if (!this._$) {
         /**
          * We use _resultsDocs$ to emit new results
-         * This also ensure that there is a reemit on subscribe
+         * This also ensures that there is a reemit on subscribe
          */
         var results$ = this._resultsDocs$.pipe(mergeMap(function (docs) {
           return _ensureEqual(_this3).then(function (hasChanged) {
@@ -12594,7 +12660,7 @@ var RxQueryBase = /*#__PURE__*/function () {
           // copy the array so it wont matter if the user modifies it
           var ret = Array.isArray(docs) ? docs.slice() : docs;
           return ret;
-        }))['asObservable']();
+        })).asObservable();
         /**
          * subscribe to the changeEvent-stream so it detects changes if it has subscribers
          */
@@ -12782,11 +12848,6 @@ function __ensureEqual(rxQuery) {
 
   return ret; // true if results have changed
 }
-
-// AbortController was introduced quite a while after fetch and
-
-var f = fetch;
-var h = Headers;
 
 function evalFilter(input) {
   return scopeEval('"use strict";\nreturn ' + input + ';', {});
@@ -17553,7 +17614,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
   };
 
   _proto.bulkRemove = /*#__PURE__*/function () {
-    var _bulkRemove = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(ids) {
+    var _bulkRemove = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(ids) {
       var _this7 = this;
 
       var rxDocumentMap, docsData, docsMap, removeDocs, startTime, results, endTime, okResults, rxDocuments;
@@ -17587,7 +17648,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
                 return _this7._handleToPouch(doc);
               });
               _context2.next = 12;
-              return this.database.lockedRun( /*#__PURE__*/asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
+              return this.database.lockedRun( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
                 var bulkResults;
                 return regenerator.wrap(function _callee$(_context) {
                   while (1) {
@@ -17779,7 +17840,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
   _proto.findByIds =
   /*#__PURE__*/
   function () {
-    var _findByIds = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(ids) {
+    var _findByIds = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee3(ids) {
       var _this10 = this;
 
       var ret, mustBeQueried, result;
@@ -18075,7 +18136,7 @@ var RxCollectionBase = /*#__PURE__*/function () {
     return this.database.removeCollection(this.name);
   };
 
-  createClass(RxCollectionBase, [{
+  _createClass(RxCollectionBase, [{
     key: "$",
     get: function get() {
       return this._observable$;
@@ -20232,7 +20293,7 @@ var RxDatabaseBase = /*#__PURE__*/function () {
   _proto.addCollections =
   /*#__PURE__*/
   function () {
-    var _addCollections = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(collectionCreators) {
+    var _addCollections = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(collectionCreators) {
       var _this3 = this;
 
       var pouch, result, internalDocByCollectionName, schemaHashByName, collections, bulkPutDocs, ret;
@@ -20512,7 +20573,7 @@ var RxDatabaseBase = /*#__PURE__*/function () {
     });
   };
 
-  createClass(RxDatabaseBase, [{
+  _createClass(RxDatabaseBase, [{
     key: "$",
     get: function get() {
       return this.observable$;
@@ -23704,7 +23765,7 @@ var KeyCompressor = /*#__PURE__*/function () {
     }
   };
 
-  createClass(KeyCompressor, [{
+  _createClass(KeyCompressor, [{
     key: "table",
     get: function get() {
       var jsonSchema = this.schema.normalized;
@@ -23924,10 +23985,10 @@ function getBatchOfOldCollection(oldCollection, batchSize) {
  */
 
 function migrateDocumentData(oldCollection, docData) {
-  docData = clone(docData);
+  var mutateableDocData = clone(docData);
   var nextVersion = oldCollection.version + 1; // run the document throught migrationStrategies
 
-  var currentPromise = Promise.resolve(docData);
+  var currentPromise = Promise.resolve(mutateableDocData);
 
   var _loop2 = function _loop2() {
     var version = nextVersion;
@@ -23946,47 +24007,101 @@ function migrateDocumentData(oldCollection, docData) {
 
     try {
       oldCollection.newestCollection.schema.validate(doc);
-    } catch (e) {
+    } catch (err) {
+      var asRxError = err;
       throw newRxError('DM2', {
         fromVersion: oldCollection.version,
         toVersion: oldCollection.newestCollection.schema.version,
-        finalDoc: doc
+        originalDoc: docData,
+        finalDoc: doc,
+
+        /**
+         * pass down data from parent error,
+         * to make it better understandable what did not work
+         */
+        errors: asRxError.parameters.errors,
+        schema: asRxError.parameters.schema
       });
     }
 
     return doc;
   });
 }
+function isDocumentDataWithoutRevisionEqual(doc1, doc2) {
+  var doc1NoRev = Object.assign({}, doc1, {
+    _rev: undefined
+  });
+  var doc2NoRev = Object.assign({}, doc2, {
+    _rev: undefined
+  });
+  return deepEqual(doc1NoRev, doc2NoRev);
+}
 /**
  * transform docdata and save to new collection
  * @return status-action with status and migrated document
  */
 
-function _migrateDocument(oldCollection, doc) {
+function _migrateDocument(oldCollection, docData) {
   var action = {
     res: null,
     type: '',
     migrated: null,
-    doc: doc,
+    doc: docData,
     oldCollection: oldCollection,
     newestCollection: oldCollection.newestCollection
   };
-  return migrateDocumentData(oldCollection, doc).then(function (migrated) {
+  return migrateDocumentData(oldCollection, docData).then(function (migrated) {
+    /**
+     * Determiniticly handle the revision
+     * so migrating the same data on multiple instances
+     * will result in the same output.
+     */
+    if (isDocumentDataWithoutRevisionEqual(docData, migrated)) {
+      /**
+       * Data not changed by migration strategies, keep the same revision.
+       * This ensures that other replicated instances that did not migrate already
+       * will still have the same document.
+       */
+      migrated._rev = docData._rev;
+    } else if (migrated !== null) {
+      /**
+       * data changed, increase revision height
+       * so replicating instances use our new document data
+       */
+      var newHeight = getHeightOfRevision(docData._rev) + 1;
+      var newRevision = newHeight + '-' + createRevision(migrated, true);
+      migrated._rev = newRevision;
+    }
+
     action.migrated = migrated;
 
     if (migrated) {
       runPluginHooks('preMigrateDocument', action); // save to newest collection
 
-      delete migrated._rev;
-      return oldCollection.newestCollection._pouchPut(migrated, true).then(function (res) {
-        action.res = res;
+      var saveData = oldCollection.newestCollection._handleToPouch(migrated);
+
+      return oldCollection.newestCollection.pouch.bulkDocs([saveData], {
+        /**
+         * We need new_edits: false
+         * because we provide the _rev by our own
+         */
+        new_edits: false
+      }).then(function () {
+        action.res = saveData;
         action.type = 'success';
         return runAsyncPluginHooks('postMigrateDocument', action);
       });
-    } else action.type = 'deleted';
+    } else {
+      /**
+       * Migration strategy returned null
+       * which means we should not migrate this document,
+       * just drop it.
+       */
+      action.type = 'deleted';
+    }
   }).then(function () {
     // remove from old collection
-    return oldCollection.pouchdb.remove(_handleToPouch(oldCollection, doc))["catch"](function () {});
+    return oldCollection.pouchdb.remove(_handleToPouch(oldCollection, docData))["catch"](function () {});
   }).then(function () {
     return action;
   });
@@ -29499,6 +29614,7 @@ var RxDBJsonDumpPlugin = {
   overwritable: overwritable$4
 };
 
+var assertThisInitialized = createCommonjsModule(function (module) {
 function _assertThisInitialized(self) {
   if (self === void 0) {
     throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -29507,7 +29623,11 @@ function _assertThisInitialized(self) {
   return self;
 }
 
-var assertThisInitialized = _assertThisInitialized;
+module.exports = _assertThisInitialized;
+module.exports["default"] = module.exports, module.exports.__esModule = true;
+});
+
+var _assertThisInitialized = /*@__PURE__*/getDefaultExportFromCjs(assertThisInitialized);
 
 addRxPlugin(RxDBWatchForChangesPlugin);
 var collectionCacheMap = new WeakMap();
@@ -29519,7 +29639,7 @@ var BULK_DOC_OPTIONS_FALSE = {
   new_edits: false
 };
 var InMemoryRxCollection = /*#__PURE__*/function (_RxCollectionBase) {
-  inheritsLoose(InMemoryRxCollection, _RxCollectionBase);
+  _inheritsLoose(InMemoryRxCollection, _RxCollectionBase);
 
   function InMemoryRxCollection(parentCollection) {
     var _this;
@@ -29555,18 +29675,18 @@ var InMemoryRxCollection = /*#__PURE__*/function (_RxCollectionBase) {
     Object.entries(parentCollection.statics).forEach(function (_ref) {
       var funName = _ref[0],
           fun = _ref[1];
-      Object.defineProperty(assertThisInitialized(_this), funName, {
+      Object.defineProperty(_assertThisInitialized(_this), funName, {
         get: function get() {
-          return fun.bind(assertThisInitialized(_this));
+          return fun.bind(_assertThisInitialized(_this));
         }
       });
     });
     var storage = getRxStoragePouchDb('memory');
     _this.pouch = storage.createStorageInstance('rxdb-in-memory', randomCouchString(10), 0);
     _this._observable$ = new Subject();
-    _this._changeEventBuffer = createChangeEventBuffer(assertThisInitialized(_this));
+    _this._changeEventBuffer = createChangeEventBuffer(_assertThisInitialized(_this));
     var parentProto = Object.getPrototypeOf(parentCollection);
-    _this._oldPouchPut = parentProto._pouchPut.bind(assertThisInitialized(_this));
+    _this._oldPouchPut = parentProto._pouchPut.bind(_assertThisInitialized(_this));
     _this._nonPersistentRevisions = new Set();
     _this._nonPersistentRevisionsSubject = new Subject(); // emits Set.size() when Set is changed
 
@@ -30042,7 +30162,7 @@ function putAttachment(_x) {
  */
 
 function _putAttachment() {
-  _putAttachment = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_ref3) {
+  _putAttachment = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(_ref3) {
     var _this5 = this;
 
     var id,
@@ -30066,7 +30186,7 @@ function _putAttachment() {
             }
 
             blobBuffer = blobBufferUtil.createBlobBuffer(data, type);
-            this._atomicQueue = this._atomicQueue.then( /*#__PURE__*/asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
+            this._atomicQueue = this._atomicQueue.then( /*#__PURE__*/_asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee() {
               var currentMeta, newHash;
               return regenerator.wrap(function _callee$(_context) {
                 while (1) {
@@ -30167,9 +30287,14 @@ function postMigrateDocument(action) {
     }).then(function (data) {
       return blobBufferUtil.toString(data);
     }).then(function (data) {
-      return action.newestCollection.pouch.putAttachment(primary, id, action.res.rev, blobBufferUtil.createBlobBuffer(data, stubData.content_type), stubData.content_type);
+      return action.newestCollection.pouch.putAttachment(primary, id, action.res._rev, blobBufferUtil.createBlobBuffer(data, stubData.content_type), stubData.content_type);
     }).then(function (res) {
-      return action.res = res;
+      /**
+       * Update revision so the next run
+       * does not cause a 403 conflict
+       */
+      action.res = flatClone(action.res);
+      action.res._rev = res.rev;
     });
   });
   return currentPromise;
@@ -30246,7 +30371,7 @@ var _getChangeSub = function _getChangeSub(parent) {
 
 var RxDocumentParent = createRxDocumentConstructor();
 var RxLocalDocument = /*#__PURE__*/function (_RxDocumentParent) {
-  inheritsLoose(RxLocalDocument, _RxDocumentParent);
+  _inheritsLoose(RxLocalDocument, _RxDocumentParent);
 
   function RxLocalDocument(id, jsonData, parent) {
     var _this;
@@ -30545,7 +30670,7 @@ function getLocal$(id) {
   var _this7 = this;
 
   return this.$.pipe(startWith(null), mergeMap( /*#__PURE__*/function () {
-    var _ref = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(cE) {
+    var _ref = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee(cE) {
       var doc;
       return regenerator.wrap(function _callee$(_context) {
         while (1) {
@@ -30582,7 +30707,7 @@ function getLocal$(id) {
       return _ref.apply(this, arguments);
     };
   }()), mergeMap( /*#__PURE__*/function () {
-    var _ref2 = asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(changeEventOrDoc) {
+    var _ref2 = _asyncToGenerator( /*#__PURE__*/regenerator.mark(function _callee2(changeEventOrDoc) {
       var cE, doc;
       return regenerator.wrap(function _callee2$(_context2) {
         while (1) {

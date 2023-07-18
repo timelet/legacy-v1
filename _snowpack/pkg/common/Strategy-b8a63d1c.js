@@ -1,6 +1,6 @@
-import { q as quotaErrorCallbacks, c as cacheNames } from './quotaErrorCallbacks-a2ecdbb9.js';
-import { W as WorkboxError } from './WorkboxError-8042740c.js';
-import './_version-d16c6209.js';
+import { q as quotaErrorCallbacks, c as cacheNames } from './quotaErrorCallbacks-66a2e0ed.js';
+import { W as WorkboxError } from './WorkboxError-153569aa.js';
+import './_version-93902cd1.js';
 
 /*
   Copyright 2018 Google LLC
@@ -134,7 +134,7 @@ function timeout(ms) {
 
 // @ts-ignore
 try {
-    self['workbox:strategies:6.1.0'] && _();
+    self['workbox:strategies:6.1.1'] && _();
 }
 catch (e) { }
 
@@ -193,8 +193,8 @@ class StrategyHandler {
     }
     /**
      * Fetches a given request (and invokes any applicable plugin callback
-     * methods) using the `fetchOptions` and `plugins` defined on the strategy
-     * object.
+     * methods) using the `fetchOptions` (for non-navigation requests) and
+     * `plugins` defined on the `Strategy` object.
      *
      * The following plugin lifecycle methods are invoked when using this method:
      * - `requestWillFetch()`
@@ -562,8 +562,9 @@ class Strategy {
      * @param {Array<Object>} [options.plugins] [Plugins]{@link https://developers.google.com/web/tools/workbox/guides/using-plugins}
      * to use in conjunction with this caching strategy.
      * @param {Object} [options.fetchOptions] Values passed along to the
-     * [`init`]{@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters}
-     * of all fetch() requests made by this strategy.
+     * [`init`](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters)
+     * of [non-navigation](https://github.com/GoogleChrome/workbox/issues/1796)
+     * `fetch()` requests made by this strategy.
      * @param {Object} [options.matchOptions] The
      * [`CacheQueryOptions`]{@link https://w3c.github.io/ServiceWorker/#dictdef-cachequeryoptions}
      * for any `cache.match()` or `cache.put()` calls made by this strategy.

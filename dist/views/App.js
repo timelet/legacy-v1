@@ -19,6 +19,7 @@ import {createSubscriptionEffect} from "../utils/rxdb.js";
 import {SETTINGS_DOCUMENT_ID} from "../domain/documents/settingsDocument.js";
 import {defaultUserInterfaceLanguage, userInterfaceLanguages} from "../domain/models/languageModel.js";
 import {matchLanguage} from "../utils/i18n.js";
+import Status from "./Status.js";
 const messages = {
   de: deMessages,
   en: enMessages
@@ -56,5 +57,7 @@ export default function App() {
     theme
   }, /* @__PURE__ */ React.createElement(MuiPickersUtilsProvider, {
     utils: DateFnsUtils
-  }, /* @__PURE__ */ React.createElement(BrowserRouter, null, /* @__PURE__ */ React.createElement(ServiceWorkerIntegration, null), /* @__PURE__ */ React.createElement(DefaultLayout, null, /* @__PURE__ */ React.createElement(Router, null))))))));
+  }, /* @__PURE__ */ React.createElement(BrowserRouter, null, /* @__PURE__ */ React.createElement(ServiceWorkerIntegration, null), /* @__PURE__ */ React.createElement(DefaultLayout, {
+    status: /* @__PURE__ */ React.createElement(Status, null)
+  }, /* @__PURE__ */ React.createElement(Router, null))))))));
 }

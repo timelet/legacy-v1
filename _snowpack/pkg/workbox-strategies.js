@@ -1,7 +1,7 @@
-import { W as WorkboxError } from './common/WorkboxError-8042740c.js';
-import './common/_version-d16c6209.js';
-import { S as Strategy } from './common/Strategy-f29cc884.js';
-import './common/quotaErrorCallbacks-a2ecdbb9.js';
+import { W as WorkboxError } from './common/WorkboxError-153569aa.js';
+import './common/_version-93902cd1.js';
+import { S as Strategy } from './common/Strategy-b8a63d1c.js';
+import './common/quotaErrorCallbacks-66a2e0ed.js';
 
 /*
   Copyright 2018 Google LLC
@@ -106,16 +106,17 @@ const cacheOkAndOpaquePlugin = {
  */
 class StaleWhileRevalidate extends Strategy {
     /**
-     * @param {Object} options
-     * @param {string} options.cacheName Cache name to store and retrieve
+     * @param {Object} [options]
+     * @param {string} [options.cacheName] Cache name to store and retrieve
      * requests. Defaults to cache names provided by
      * [workbox-core]{@link module:workbox-core.cacheNames}.
-     * @param {Array<Object>} options.plugins [Plugins]{@link https://developers.google.com/web/tools/workbox/guides/using-plugins}
+     * @param {Array<Object>} [options.plugins] [Plugins]{@link https://developers.google.com/web/tools/workbox/guides/using-plugins}
      * to use in conjunction with this caching strategy.
-     * @param {Object} options.fetchOptions Values passed along to the
+     * @param {Object} [options.fetchOptions] Values passed along to the
      * [`init`](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch#Parameters)
-     * of all fetch() requests made by this strategy.
-     * @param {Object} options.matchOptions [`CacheQueryOptions`](https://w3c.github.io/ServiceWorker/#dictdef-cachequeryoptions)
+     * of [non-navigation](https://github.com/GoogleChrome/workbox/issues/1796)
+     * `fetch()` requests made by this strategy.
+     * @param {Object} [options.matchOptions] [`CacheQueryOptions`](https://w3c.github.io/ServiceWorker/#dictdef-cachequeryoptions)
      */
     constructor(options) {
         super(options);

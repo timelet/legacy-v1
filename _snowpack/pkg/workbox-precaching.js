@@ -1,8 +1,8 @@
-import './common/_version-d16c6209.js';
-import { c as cacheNames } from './common/quotaErrorCallbacks-a2ecdbb9.js';
-import { W as WorkboxError } from './common/WorkboxError-8042740c.js';
-import { S as Strategy } from './common/Strategy-f29cc884.js';
-import { R as Route, r as registerRoute } from './common/registerRoute-ec85e4c6.js';
+import './common/_version-93902cd1.js';
+import { c as cacheNames } from './common/quotaErrorCallbacks-66a2e0ed.js';
+import { W as WorkboxError } from './common/WorkboxError-153569aa.js';
+import { S as Strategy } from './common/Strategy-b8a63d1c.js';
+import { R as Route, r as registerRoute } from './common/registerRoute-eb5001d3.js';
 
 /*
   Copyright 2020 Google LLC
@@ -27,7 +27,7 @@ function waitUntil(event, asyncFn) {
 
 // @ts-ignore
 try {
-    self['workbox:precaching:6.1.0'] && _();
+    self['workbox:precaching:6.1.1'] && _();
 }
 catch (e) { }
 

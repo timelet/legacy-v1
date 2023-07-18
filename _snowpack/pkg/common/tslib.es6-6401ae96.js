@@ -263,4 +263,4 @@ var tslib_es6 = /*#__PURE__*/Object.freeze({
     __classPrivateFieldSet: __classPrivateFieldSet
 });
 
-export { __assign as _, __extends as a, __spreadArrays as b, __rest as c, tslib_es6 as t };
+export { __assign as _, __extends as a, __spreadArray as b, __rest as c, tslib_es6 as t };

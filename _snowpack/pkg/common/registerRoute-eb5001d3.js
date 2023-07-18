@@ -1,9 +1,9 @@
-import './_version-d16c6209.js';
-import { W as WorkboxError } from './WorkboxError-8042740c.js';
+import './_version-93902cd1.js';
+import { W as WorkboxError } from './WorkboxError-153569aa.js';
 
 // @ts-ignore
 try {
-    self['workbox:routing:6.1.0'] && _();
+    self['workbox:routing:6.1.1'] && _();
 }
 catch (e) { }
 

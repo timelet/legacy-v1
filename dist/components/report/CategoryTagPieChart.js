@@ -27,7 +27,7 @@ export default function CategoryTagPieChart({entries}) {
   const tagDurationSeries = [
     ...entries.reduce((map, curr) => {
       if (curr.endedAt) {
-        const name = curr.tag || intl.formatMessage({id: "label.noSelection"});
+        const name = curr.tag || intl.formatMessage({id: "label.noSelection", defaultMessage: "No selection"});
         const value = curr.endedAt - curr.startedAt;
         const prev = map.get(name);
         if (prev) {
@@ -44,7 +44,7 @@ export default function CategoryTagPieChart({entries}) {
     radius: "50%",
     label: {
       formatter: ({name, value, percent}) => {
-        let duration = intl.formatMessage({id: "label.undefined"});
+        let duration = intl.formatMessage({id: "label.undefined", defaultMessage: "Undefined", description: "An undefined value"});
         if (typeof value === "number") {
           duration = intl.formatMessage({id: "format.duration", defaultMessage: "{minutes}min {seconds}s"}, {minutes: Math.floor(value / 1e3 / 60), seconds: Math.floor(value / 1e3 % 60)});
         }

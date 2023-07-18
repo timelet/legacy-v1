@@ -1,98 +1,5 @@
 import { c as createCommonjsModule, a as commonjsGlobal, b as getDefaultExportFromNamespaceIfNotNamed } from './_commonjsHelpers-37fa8da4.js';
-
-var thisAtob = function (str) {
-  return atob(str);
-};
-
-var thisBtoa = function (str) {
-  return btoa(str);
-};
-
-// Abstracts constructing a Blob object, so it also works in older
-// browsers that don't support the native Blob constructor (e.g.
-// old QtWebKit versions, Android < 4.4).
-function createBlob(parts, properties) {
-  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
-  parts = parts || [];
-  properties = properties || {};
-  try {
-    return new Blob(parts, properties);
-  } catch (e) {
-    if (e.name !== "TypeError") {
-      throw e;
-    }
-    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
-                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
-                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
-                  WebKitBlobBuilder;
-    var builder = new Builder();
-    for (var i = 0; i < parts.length; i += 1) {
-      builder.append(parts[i]);
-    }
-    return builder.getBlob(properties.type);
-  }
-}
-
-// From http://stackoverflow.com/questions/14967647/ (continues on next line)
-// encode-decode-image-with-base64-breaks-image (2013-04-21)
-function binaryStringToArrayBuffer(bin) {
-  var length = bin.length;
-  var buf = new ArrayBuffer(length);
-  var arr = new Uint8Array(buf);
-  for (var i = 0; i < length; i++) {
-    arr[i] = bin.charCodeAt(i);
-  }
-  return buf;
-}
-
-function binStringToBluffer(binString, type) {
-  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
-}
-
-function b64ToBluffer(b64, type) {
-  return binStringToBluffer(thisAtob(b64), type);
-}
-
-//Can't find original post, but this is close
-//http://stackoverflow.com/questions/6965107/ (continues on next line)
-//converting-between-strings-and-arraybuffers
-function arrayBufferToBinaryString(buffer) {
-  var binary = '';
-  var bytes = new Uint8Array(buffer);
-  var length = bytes.byteLength;
-  for (var i = 0; i < length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return binary;
-}
-
-// shim for browsers that don't support it
-function readAsBinaryString(blob, callback) {
-  var reader = new FileReader();
-  var hasBinaryString = typeof reader.readAsBinaryString === 'function';
-  reader.onloadend = function (e) {
-    var result = e.target.result || '';
-    if (hasBinaryString) {
-      return callback(result);
-    }
-    callback(arrayBufferToBinaryString(result));
-  };
-  if (hasBinaryString) {
-    reader.readAsBinaryString(blob);
-  } else {
-    reader.readAsArrayBuffer(blob);
-  }
-}
-
-// simplified API. universal browser support is assumed
-function readAsArrayBuffer(blob, callback) {
-  var reader = new FileReader();
-  reader.onloadend = function (e) {
-    var result = e.target.result || new ArrayBuffer(0);
-    callback(result);
-  };
-  reader.readAsArrayBuffer(blob);
-}
+import { v as v4 } from './v4-c5ee5148.js';
 
 var argsarray = argsArray;
 
@@ -110,6 +17,128 @@ function argsArray(fun) {
       return fun.call(this, []);
     }
   };
+}
+
+var inherits_browser = createCommonjsModule(function (module) {
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      });
+    }
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor;
+      var TempCtor = function () {};
+      TempCtor.prototype = superCtor.prototype;
+      ctor.prototype = new TempCtor();
+      ctor.prototype.constructor = ctor;
+    }
+  };
+}
+});
+
+inherits_browser(PouchError, Error);
+
+function PouchError(status, error, reason) {
+  Error.call(this, reason);
+  this.status = status;
+  this.name = error;
+  this.message = reason;
+  this.error = true;
+}
+
+PouchError.prototype.toString = function () {
+  return JSON.stringify({
+    status: this.status,
+    name: this.name,
+    message: this.message,
+    reason: this.reason
+  });
+};
+
+new PouchError(401, 'unauthorized', "Name or password is incorrect.");
+var MISSING_BULK_DOCS = new PouchError(400, 'bad_request', "Missing JSON list of 'docs'");
+var MISSING_DOC = new PouchError(404, 'not_found', 'missing');
+var REV_CONFLICT = new PouchError(409, 'conflict', 'Document update conflict');
+var INVALID_ID = new PouchError(400, 'bad_request', '_id field must contain a string');
+var MISSING_ID = new PouchError(412, 'missing_id', '_id is required for puts');
+var RESERVED_ID = new PouchError(400, 'bad_request', 'Only reserved document ids may start with underscore.');
+new PouchError(412, 'precondition_failed', 'Database not open');
+var UNKNOWN_ERROR = new PouchError(500, 'unknown_error', 'Database encountered an unknown error');
+var BAD_ARG = new PouchError(500, 'badarg', 'Some query argument is invalid');
+new PouchError(400, 'invalid_request', 'Request was invalid');
+var QUERY_PARSE_ERROR = new PouchError(400, 'query_parse_error', 'Some query parameter is invalid');
+var DOC_VALIDATION = new PouchError(500, 'doc_validation', 'Bad special document member');
+var BAD_REQUEST = new PouchError(400, 'bad_request', 'Something wrong with the request');
+var NOT_AN_OBJECT = new PouchError(400, 'bad_request', 'Document must be a JSON object');
+new PouchError(404, 'not_found', 'Database not found');
+var IDB_ERROR = new PouchError(500, 'indexed_db_went_bad', 'unknown');
+new PouchError(500, 'web_sql_went_bad', 'unknown');
+new PouchError(500, 'levelDB_went_went_bad', 'unknown');
+new PouchError(403, 'forbidden', 'Forbidden by design doc validate_doc_update function');
+var INVALID_REV = new PouchError(400, 'bad_request', 'Invalid rev format');
+new PouchError(412, 'file_exists', 'The database could not be created, the file already exists.');
+var MISSING_STUB = new PouchError(412, 'missing_stub', 'A pre-existing attachment stub wasn\'t found');
+new PouchError(413, 'invalid_url', 'Provided URL is invalid');
+
+function createError(error, reason) {
+  function CustomPouchError(reason) {
+    // inherit error properties from our parent error manually
+    // so as to allow proper JSON parsing.
+    /* jshint ignore:start */
+    var names = Object.getOwnPropertyNames(error);
+    for (var i = 0, len = names.length; i < len; i++) {
+      if (typeof error[names[i]] !== 'function') {
+        this[names[i]] = error[names[i]];
+      }
+    }
+    /* jshint ignore:end */
+    if (reason !== undefined) {
+      this.reason = reason;
+    }
+  }
+  CustomPouchError.prototype = PouchError.prototype;
+  return new CustomPouchError(reason);
+}
+
+function generateErrorFromResponse(err) {
+
+  if (typeof err !== 'object') {
+    var data = err;
+    err = UNKNOWN_ERROR;
+    err.data = data;
+  }
+
+  if ('error' in err && err.error === 'conflict') {
+    err.name = 'conflict';
+    err.status = 409;
+  }
+
+  if (!('name' in err)) {
+    err.name = err.error || 'unknown';
+  }
+
+  if (!('status' in err)) {
+    err.status = 500;
+  }
+
+  if (!('message' in err)) {
+    err.message = err.message || err.reason;
+  }
+
+  return err;
 }
 
 function mangle(key) {
@@ -208,36 +237,6 @@ var ExportedMap;
     ExportedMap = Map$1;
   }
 }
-
-var inherits_browser = createCommonjsModule(function (module) {
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor;
-      ctor.prototype = Object.create(superCtor.prototype, {
-        constructor: {
-          value: ctor,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      });
-    }
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor;
-      var TempCtor = function () {};
-      TempCtor.prototype = superCtor.prototype;
-      ctor.prototype = new TempCtor();
-      ctor.prototype.constructor = ctor;
-    }
-  };
-}
-});
 
 var NodeMethod = {};
 
@@ -450,98 +449,6 @@ function immediate(task) {
     scheduled = true;
     scheduleDrain();
   }
-}
-
-inherits_browser(PouchError, Error);
-
-function PouchError(status, error, reason) {
-  Error.call(this, reason);
-  this.status = status;
-  this.name = error;
-  this.message = reason;
-  this.error = true;
-}
-
-PouchError.prototype.toString = function () {
-  return JSON.stringify({
-    status: this.status,
-    name: this.name,
-    message: this.message,
-    reason: this.reason
-  });
-};
-
-new PouchError(401, 'unauthorized', "Name or password is incorrect.");
-var MISSING_BULK_DOCS = new PouchError(400, 'bad_request', "Missing JSON list of 'docs'");
-var MISSING_DOC = new PouchError(404, 'not_found', 'missing');
-var REV_CONFLICT = new PouchError(409, 'conflict', 'Document update conflict');
-var INVALID_ID = new PouchError(400, 'bad_request', '_id field must contain a string');
-var MISSING_ID = new PouchError(412, 'missing_id', '_id is required for puts');
-var RESERVED_ID = new PouchError(400, 'bad_request', 'Only reserved document ids may start with underscore.');
-new PouchError(412, 'precondition_failed', 'Database not open');
-var UNKNOWN_ERROR = new PouchError(500, 'unknown_error', 'Database encountered an unknown error');
-var BAD_ARG = new PouchError(500, 'badarg', 'Some query argument is invalid');
-new PouchError(400, 'invalid_request', 'Request was invalid');
-var QUERY_PARSE_ERROR = new PouchError(400, 'query_parse_error', 'Some query parameter is invalid');
-var DOC_VALIDATION = new PouchError(500, 'doc_validation', 'Bad special document member');
-var BAD_REQUEST = new PouchError(400, 'bad_request', 'Something wrong with the request');
-var NOT_AN_OBJECT = new PouchError(400, 'bad_request', 'Document must be a JSON object');
-new PouchError(404, 'not_found', 'Database not found');
-var IDB_ERROR = new PouchError(500, 'indexed_db_went_bad', 'unknown');
-new PouchError(500, 'web_sql_went_bad', 'unknown');
-new PouchError(500, 'levelDB_went_went_bad', 'unknown');
-new PouchError(403, 'forbidden', 'Forbidden by design doc validate_doc_update function');
-var INVALID_REV = new PouchError(400, 'bad_request', 'Invalid rev format');
-new PouchError(412, 'file_exists', 'The database could not be created, the file already exists.');
-var MISSING_STUB = new PouchError(412, 'missing_stub', 'A pre-existing attachment stub wasn\'t found');
-new PouchError(413, 'invalid_url', 'Provided URL is invalid');
-
-function createError(error, reason) {
-  function CustomPouchError(reason) {
-    // inherit error properties from our parent error manually
-    // so as to allow proper JSON parsing.
-    /* jshint ignore:start */
-    var names = Object.getOwnPropertyNames(error);
-    for (var i = 0, len = names.length; i < len; i++) {
-      if (typeof error[names[i]] !== 'function') {
-        this[names[i]] = error[names[i]];
-      }
-    }
-    /* jshint ignore:end */
-    if (reason !== undefined) {
-      this.reason = reason;
-    }
-  }
-  CustomPouchError.prototype = PouchError.prototype;
-  return new CustomPouchError(reason);
-}
-
-function generateErrorFromResponse(err) {
-
-  if (typeof err !== 'object') {
-    var data = err;
-    err = UNKNOWN_ERROR;
-    err.data = data;
-  }
-
-  if ('error' in err && err.error === 'conflict') {
-    err.name = 'conflict';
-    err.status = 409;
-  }
-
-  if (!('name' in err)) {
-    err.name = err.error || 'unknown';
-  }
-
-  if (!('status' in err)) {
-    err.status = 500;
-  }
-
-  if (!('message' in err)) {
-    err.message = err.message || err.reason;
-  }
-
-  return err;
 }
 
 var domain;
@@ -1010,62 +917,110 @@ function unwrapListeners(arr) {
   return ret;
 }
 
-// Unique ID creation requires a high quality random # generator. In the browser we therefore
-// require the crypto API and do not support built-in fallback to lower quality random number
-// generators (like Math.random()).
-// getRandomValues needs to be invoked in a context where "this" is a Crypto implementation. Also,
-// find the complete implementation of crypto (msCrypto) on IE11.
-var getRandomValues = typeof crypto !== 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto !== 'undefined' && typeof msCrypto.getRandomValues === 'function' && msCrypto.getRandomValues.bind(msCrypto);
-var rnds8 = new Uint8Array(16);
-function rng() {
-  if (!getRandomValues) {
-    throw new Error('crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported');
-  }
+var thisAtob = function (str) {
+  return atob(str);
+};
 
-  return getRandomValues(rnds8);
-}
+var thisBtoa = function (str) {
+  return btoa(str);
+};
 
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-
-for (var i$1 = 0; i$1 < 256; ++i$1) {
-  byteToHex.push((i$1 + 0x100).toString(16).substr(1));
-}
-
-function bytesToUuid(buf, offset) {
-  var i = offset || 0;
-  var bth = byteToHex; // Note: Be careful editing this code!  It's been tuned for performance
-  // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
-
-  return (bth[buf[i + 0]] + bth[buf[i + 1]] + bth[buf[i + 2]] + bth[buf[i + 3]] + '-' + bth[buf[i + 4]] + bth[buf[i + 5]] + '-' + bth[buf[i + 6]] + bth[buf[i + 7]] + '-' + bth[buf[i + 8]] + bth[buf[i + 9]] + '-' + bth[buf[i + 10]] + bth[buf[i + 11]] + bth[buf[i + 12]] + bth[buf[i + 13]] + bth[buf[i + 14]] + bth[buf[i + 15]]).toLowerCase();
-}
-
-function v4(options, buf, offset) {
-  if (typeof options === 'string') {
-    buf = options === 'binary' ? new Uint8Array(16) : null;
-    options = null;
-  }
-
-  options = options || {};
-  var rnds = options.random || (options.rng || rng)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-
-  rnds[6] = rnds[6] & 0x0f | 0x40;
-  rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
-
-  if (buf) {
-    var start = offset || 0;
-
-    for (var i = 0; i < 16; ++i) {
-      buf[start + i] = rnds[i];
+// Abstracts constructing a Blob object, so it also works in older
+// browsers that don't support the native Blob constructor (e.g.
+// old QtWebKit versions, Android < 4.4).
+function createBlob(parts, properties) {
+  /* global BlobBuilder,MSBlobBuilder,MozBlobBuilder,WebKitBlobBuilder */
+  parts = parts || [];
+  properties = properties || {};
+  try {
+    return new Blob(parts, properties);
+  } catch (e) {
+    if (e.name !== "TypeError") {
+      throw e;
     }
-
-    return buf;
+    var Builder = typeof BlobBuilder !== 'undefined' ? BlobBuilder :
+                  typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder :
+                  typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder :
+                  WebKitBlobBuilder;
+    var builder = new Builder();
+    for (var i = 0; i < parts.length; i += 1) {
+      builder.append(parts[i]);
+    }
+    return builder.getBlob(properties.type);
   }
+}
 
-  return bytesToUuid(rnds);
+// From http://stackoverflow.com/questions/14967647/ (continues on next line)
+// encode-decode-image-with-base64-breaks-image (2013-04-21)
+function binaryStringToArrayBuffer(bin) {
+  var length = bin.length;
+  var buf = new ArrayBuffer(length);
+  var arr = new Uint8Array(buf);
+  for (var i = 0; i < length; i++) {
+    arr[i] = bin.charCodeAt(i);
+  }
+  return buf;
+}
+
+function binStringToBluffer(binString, type) {
+  return createBlob([binaryStringToArrayBuffer(binString)], {type: type});
+}
+
+function b64ToBluffer(b64, type) {
+  return binStringToBluffer(thisAtob(b64), type);
+}
+
+//Can't find original post, but this is close
+//http://stackoverflow.com/questions/6965107/ (continues on next line)
+//converting-between-strings-and-arraybuffers
+function arrayBufferToBinaryString(buffer) {
+  var binary = '';
+  var bytes = new Uint8Array(buffer);
+  var length = bytes.byteLength;
+  for (var i = 0; i < length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return binary;
+}
+
+// shim for browsers that don't support it
+function readAsBinaryString(blob, callback) {
+  var reader = new FileReader();
+  var hasBinaryString = typeof reader.readAsBinaryString === 'function';
+  reader.onloadend = function (e) {
+    var result = e.target.result || '';
+    if (hasBinaryString) {
+      return callback(result);
+    }
+    callback(arrayBufferToBinaryString(result));
+  };
+  if (hasBinaryString) {
+    reader.readAsBinaryString(blob);
+  } else {
+    reader.readAsArrayBuffer(blob);
+  }
+}
+
+function blobToBinaryString(blobOrBuffer, callback) {
+  readAsBinaryString(blobOrBuffer, function (bin) {
+    callback(bin);
+  });
+}
+
+function blobToBase64(blobOrBuffer, callback) {
+  blobToBinaryString(blobOrBuffer, function (base64) {
+    callback(thisBtoa(base64));
+  });
+}
+
+// simplified API. universal browser support is assumed
+function readAsArrayBuffer(blob, callback) {
+  var reader = new FileReader();
+  reader.onloadend = function (e) {
+    var result = e.target.result || new ArrayBuffer(0);
+    callback(result);
+  };
+  reader.readAsArrayBuffer(blob);
 }
 
 var sparkMd5 = createCommonjsModule(function (module, exports) {
@@ -2483,6 +2438,40 @@ function normalizeDesignDocFunctionName(s) {
   return normalized ? normalized.join('/') : null;
 }
 
+// originally parseUri 1.2.2, now patched by us
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+var keys = ["source", "protocol", "authority", "userInfo", "user", "password",
+    "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
+var qName ="queryKey";
+var qParser = /(?:^|&)([^&=]*)=?([^&]*)/g;
+
+// use the "loose" parser
+/* eslint maxlen: 0, no-useless-escape: 0 */
+var parser = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+
+function parseUri(str) {
+  var m = parser.exec(str);
+  var uri = {};
+  var i = 14;
+
+  while (i--) {
+    var key = keys[i];
+    var value = m[i] || "";
+    var encoded = ['user', 'password'].indexOf(key) !== -1;
+    uri[key] = encoded ? decodeURIComponent(value) : value;
+  }
+
+  uri[qName] = {};
+  uri[keys[12]].replace(qParser, function ($0, $1, $2) {
+    if ($1) {
+      uri[qName][$1] = $2;
+    }
+  });
+
+  return uri;
+}
+
 // Based on https://github.com/alexdavid/scope-eval v0.0.3
 // (source: https://unpkg.com/scope-eval@0.0.3/scope_eval.js)
 // This is basically just a wrapper around new Function()
@@ -2560,421 +2549,4 @@ function rev(doc, deterministic_revs) {
 
 var uuid = v4; // mimic old import, only v4 is ever used elsewhere
 
-// We fetch all leafs of the revision tree, and sort them based on tree length
-// and whether they were deleted, undeleted documents with the longest revision
-// tree (most edits) win
-// The final sort algorithm is slightly documented in a sidebar here:
-// http://guide.couchdb.org/draft/conflicts.html
-function winningRev(metadata) {
-  var winningId;
-  var winningPos;
-  var winningDeleted;
-  var toVisit = metadata.rev_tree.slice();
-  var node;
-  while ((node = toVisit.pop())) {
-    var tree = node.ids;
-    var branches = tree[2];
-    var pos = node.pos;
-    if (branches.length) { // non-leaf
-      for (var i = 0, len = branches.length; i < len; i++) {
-        toVisit.push({pos: pos + 1, ids: branches[i]});
-      }
-      continue;
-    }
-    var deleted = !!tree[1].deleted;
-    var id = tree[0];
-    // sort by deleted, then pos, then id
-    if (!winningId || (winningDeleted !== deleted ? winningDeleted :
-        winningPos !== pos ? winningPos < pos : winningId < id)) {
-      winningId = id;
-      winningPos = pos;
-      winningDeleted = deleted;
-    }
-  }
-
-  return winningPos + '-' + winningId;
-}
-
-// Pretty much all below can be combined into a higher order function to
-// traverse revisions
-// The return value from the callback will be passed as context to all
-// children of that node
-function traverseRevTree(revs, callback) {
-  var toVisit = revs.slice();
-
-  var node;
-  while ((node = toVisit.pop())) {
-    var pos = node.pos;
-    var tree = node.ids;
-    var branches = tree[2];
-    var newCtx =
-      callback(branches.length === 0, pos, tree[0], node.ctx, tree[1]);
-    for (var i = 0, len = branches.length; i < len; i++) {
-      toVisit.push({pos: pos + 1, ids: branches[i], ctx: newCtx});
-    }
-  }
-}
-
-function sortByPos(a, b) {
-  return a.pos - b.pos;
-}
-
-function collectLeaves(revs) {
-  var leaves = [];
-  traverseRevTree(revs, function (isLeaf, pos, id, acc, opts) {
-    if (isLeaf) {
-      leaves.push({rev: pos + "-" + id, pos: pos, opts: opts});
-    }
-  });
-  leaves.sort(sortByPos).reverse();
-  for (var i = 0, len = leaves.length; i < len; i++) {
-    delete leaves[i].pos;
-  }
-  return leaves;
-}
-
-// returns revs of all conflicts that is leaves such that
-// 1. are not deleted and
-// 2. are different than winning revision
-function collectConflicts(metadata) {
-  var win = winningRev(metadata);
-  var leaves = collectLeaves(metadata.rev_tree);
-  var conflicts = [];
-  for (var i = 0, len = leaves.length; i < len; i++) {
-    var leaf = leaves[i];
-    if (leaf.rev !== win && !leaf.opts.deleted) {
-      conflicts.push(leaf.rev);
-    }
-  }
-  return conflicts;
-}
-
-// build up a list of all the paths to the leafs in this revision tree
-function rootToLeaf(revs) {
-  var paths = [];
-  var toVisit = revs.slice();
-  var node;
-  while ((node = toVisit.pop())) {
-    var pos = node.pos;
-    var tree = node.ids;
-    var id = tree[0];
-    var opts = tree[1];
-    var branches = tree[2];
-    var isLeaf = branches.length === 0;
-
-    var history = node.history ? node.history.slice() : [];
-    history.push({id: id, opts: opts});
-    if (isLeaf) {
-      paths.push({pos: (pos + 1 - history.length), ids: history});
-    }
-    for (var i = 0, len = branches.length; i < len; i++) {
-      toVisit.push({pos: pos + 1, ids: branches[i], history: history});
-    }
-  }
-  return paths.reverse();
-}
-
-// for a better overview of what this is doing, read:
-
-function sortByPos$1(a, b) {
-  return a.pos - b.pos;
-}
-
-// classic binary search
-function binarySearch(arr, item, comparator) {
-  var low = 0;
-  var high = arr.length;
-  var mid;
-  while (low < high) {
-    mid = (low + high) >>> 1;
-    if (comparator(arr[mid], item) < 0) {
-      low = mid + 1;
-    } else {
-      high = mid;
-    }
-  }
-  return low;
-}
-
-// assuming the arr is sorted, insert the item in the proper place
-function insertSorted(arr, item, comparator) {
-  var idx = binarySearch(arr, item, comparator);
-  arr.splice(idx, 0, item);
-}
-
-// Turn a path as a flat array into a tree with a single branch.
-// If any should be stemmed from the beginning of the array, that's passed
-// in as the second argument
-function pathToTree(path, numStemmed) {
-  var root;
-  var leaf;
-  for (var i = numStemmed, len = path.length; i < len; i++) {
-    var node = path[i];
-    var currentLeaf = [node.id, node.opts, []];
-    if (leaf) {
-      leaf[2].push(currentLeaf);
-      leaf = currentLeaf;
-    } else {
-      root = leaf = currentLeaf;
-    }
-  }
-  return root;
-}
-
-// compare the IDs of two trees
-function compareTree(a, b) {
-  return a[0] < b[0] ? -1 : 1;
-}
-
-// Merge two trees together
-// The roots of tree1 and tree2 must be the same revision
-function mergeTree(in_tree1, in_tree2) {
-  var queue = [{tree1: in_tree1, tree2: in_tree2}];
-  var conflicts = false;
-  while (queue.length > 0) {
-    var item = queue.pop();
-    var tree1 = item.tree1;
-    var tree2 = item.tree2;
-
-    if (tree1[1].status || tree2[1].status) {
-      tree1[1].status =
-        (tree1[1].status ===  'available' ||
-        tree2[1].status === 'available') ? 'available' : 'missing';
-    }
-
-    for (var i = 0; i < tree2[2].length; i++) {
-      if (!tree1[2][0]) {
-        conflicts = 'new_leaf';
-        tree1[2][0] = tree2[2][i];
-        continue;
-      }
-
-      var merged = false;
-      for (var j = 0; j < tree1[2].length; j++) {
-        if (tree1[2][j][0] === tree2[2][i][0]) {
-          queue.push({tree1: tree1[2][j], tree2: tree2[2][i]});
-          merged = true;
-        }
-      }
-      if (!merged) {
-        conflicts = 'new_branch';
-        insertSorted(tree1[2], tree2[2][i], compareTree);
-      }
-    }
-  }
-  return {conflicts: conflicts, tree: in_tree1};
-}
-
-function doMerge(tree, path, dontExpand) {
-  var restree = [];
-  var conflicts = false;
-  var merged = false;
-  var res;
-
-  if (!tree.length) {
-    return {tree: [path], conflicts: 'new_leaf'};
-  }
-
-  for (var i = 0, len = tree.length; i < len; i++) {
-    var branch = tree[i];
-    if (branch.pos === path.pos && branch.ids[0] === path.ids[0]) {
-      // Paths start at the same position and have the same root, so they need
-      // merged
-      res = mergeTree(branch.ids, path.ids);
-      restree.push({pos: branch.pos, ids: res.tree});
-      conflicts = conflicts || res.conflicts;
-      merged = true;
-    } else if (dontExpand !== true) {
-      // The paths start at a different position, take the earliest path and
-      // traverse up until it as at the same point from root as the path we
-      // want to merge.  If the keys match we return the longer path with the
-      // other merged After stemming we dont want to expand the trees
-
-      var t1 = branch.pos < path.pos ? branch : path;
-      var t2 = branch.pos < path.pos ? path : branch;
-      var diff = t2.pos - t1.pos;
-
-      var candidateParents = [];
-
-      var trees = [];
-      trees.push({ids: t1.ids, diff: diff, parent: null, parentIdx: null});
-      while (trees.length > 0) {
-        var item = trees.pop();
-        if (item.diff === 0) {
-          if (item.ids[0] === t2.ids[0]) {
-            candidateParents.push(item);
-          }
-          continue;
-        }
-        var elements = item.ids[2];
-        for (var j = 0, elementsLen = elements.length; j < elementsLen; j++) {
-          trees.push({
-            ids: elements[j],
-            diff: item.diff - 1,
-            parent: item.ids,
-            parentIdx: j
-          });
-        }
-      }
-
-      var el = candidateParents[0];
-
-      if (!el) {
-        restree.push(branch);
-      } else {
-        res = mergeTree(el.ids, t2.ids);
-        el.parent[2][el.parentIdx] = res.tree;
-        restree.push({pos: t1.pos, ids: t1.ids});
-        conflicts = conflicts || res.conflicts;
-        merged = true;
-      }
-    } else {
-      restree.push(branch);
-    }
-  }
-
-  // We didnt find
-  if (!merged) {
-    restree.push(path);
-  }
-
-  restree.sort(sortByPos$1);
-
-  return {
-    tree: restree,
-    conflicts: conflicts || 'internal_node'
-  };
-}
-
-// To ensure we dont grow the revision tree infinitely, we stem old revisions
-function stem(tree, depth) {
-  // First we break out the tree into a complete list of root to leaf paths
-  var paths = rootToLeaf(tree);
-  var stemmedRevs;
-
-  var result;
-  for (var i = 0, len = paths.length; i < len; i++) {
-    // Then for each path, we cut off the start of the path based on the
-    // `depth` to stem to, and generate a new set of flat trees
-    var path = paths[i];
-    var stemmed = path.ids;
-    var node;
-    if (stemmed.length > depth) {
-      // only do the stemming work if we actually need to stem
-      if (!stemmedRevs) {
-        stemmedRevs = {}; // avoid allocating this object unnecessarily
-      }
-      var numStemmed = stemmed.length - depth;
-      node = {
-        pos: path.pos + numStemmed,
-        ids: pathToTree(stemmed, numStemmed)
-      };
-
-      for (var s = 0; s < numStemmed; s++) {
-        var rev = (path.pos + s) + '-' + stemmed[s].id;
-        stemmedRevs[rev] = true;
-      }
-    } else { // no need to actually stem
-      node = {
-        pos: path.pos,
-        ids: pathToTree(stemmed, 0)
-      };
-    }
-
-    // Then we remerge all those flat trees together, ensuring that we dont
-    // connect trees that would go beyond the depth limit
-    if (result) {
-      result = doMerge(result, node, true).tree;
-    } else {
-      result = [node];
-    }
-  }
-
-  // this is memory-heavy per Chrome profiler, avoid unless we actually stemmed
-  if (stemmedRevs) {
-    traverseRevTree(result, function (isLeaf, pos, revHash) {
-      // some revisions may have been removed in a branch but not in another
-      delete stemmedRevs[pos + '-' + revHash];
-    });
-  }
-
-  return {
-    tree: result,
-    revs: stemmedRevs ? Object.keys(stemmedRevs) : []
-  };
-}
-
-function merge(tree, path, depth) {
-  var newTree = doMerge(tree, path);
-  var stemmed = stem(newTree.tree, depth);
-  return {
-    tree: stemmed.tree,
-    stemmedRevs: stemmed.revs,
-    conflicts: newTree.conflicts
-  };
-}
-
-function getTrees(node) {
-  return node.ids;
-}
-
-// check if a specific revision of a doc has been deleted
-//  - metadata: the metadata object from the doc store
-//  - rev: (optional) the revision to check. defaults to winning revision
-function isDeleted(metadata, rev) {
-  if (!rev) {
-    rev = winningRev(metadata);
-  }
-  var id = rev.substring(rev.indexOf('-') + 1);
-  var toVisit = metadata.rev_tree.map(getTrees);
-
-  var tree;
-  while ((tree = toVisit.pop())) {
-    if (tree[0] === id) {
-      return !!tree[1].deleted;
-    }
-    toVisit = toVisit.concat(tree[2]);
-  }
-}
-
-function isLocalId(id) {
-  return (/^_local/).test(id);
-}
-
-// returns the current leaf node for a given revision
-function latest(rev, metadata) {
-  var toVisit = metadata.rev_tree.slice();
-  var node;
-  while ((node = toVisit.pop())) {
-    var pos = node.pos;
-    var tree = node.ids;
-    var id = tree[0];
-    var opts = tree[1];
-    var branches = tree[2];
-    var isLeaf = branches.length === 0;
-
-    var history = node.history ? node.history.slice() : [];
-    history.push({id: id, pos: pos, opts: opts});
-
-    if (isLeaf) {
-      for (var i = 0, len = history.length; i < len; i++) {
-        var historyNode = history[i];
-        var historyRev = historyNode.pos + '-' + historyNode.id;
-
-        if (historyRev === rev) {
-          // return the rev of this leaf
-          return pos + '-' + id;
-        }
-      }
-    }
-
-    for (var j = 0, l = branches.length; j < l; j++) {
-      toVisit.push({pos: pos + 1, ids: branches[j], history: history});
-    }
-  }
-
-  /* istanbul ignore next */
-  throw new Error('Unable to resolve latest revision for id ' + metadata.id + ', rev ' + rev);
-}
-
-export { MISSING_BULK_DOCS as $, once as A, BAD_ARG as B, Changes as C, DOC_VALIDATION as D, EventEmitter as E, guardedConsole as F, argsarray as G, adapterFun as H, INVALID_REV as I, assign$1 as J, listenerCount$1 as K, collectLeaves as L, MISSING_DOC as M, isDeleted as N, isLocalId as O, ExportedMap as P, bulkGet as Q, REV_CONFLICT as R, upsert as S, rootToLeaf as T, UNKNOWN_ERROR as U, QUERY_PARSE_ERROR as V, hasLocalStorage as W, pick as X, lib as Y, NOT_AN_OBJECT as Z, INVALID_ID as _, IDB_ERROR as a, ExportedSet as a0, stringMd5 as a1, flatten as a2, b64ToBluffer as a3, toPromise as a4, explainError as a5, defaultBackOff as a6, readAsBinaryString as b, createError as c, thisBtoa as d, MISSING_STUB as e, filterChange as f, binStringToBluffer as g, binaryMd5 as h, invalidIdError as i, collectConflicts as j, require$$0 as k, latest as l, merge as m, clone as n, normalizeDesignDocFunctionName as o, isRemote as p, BAD_REQUEST as q, rev as r, sparkMd5 as s, traverseRevTree as t, uuid as u, parseDesignDocFunctionName as v, winningRev as w, generateErrorFromResponse as x, scopeEval as y, inherits_browser as z };
+export { toPromise as $, stringMd5 as A, BAD_ARG as B, Changes as C, DOC_VALIDATION as D, normalizeDesignDocFunctionName as E, isRemote as F, BAD_REQUEST as G, parseDesignDocFunctionName as H, INVALID_REV as I, scopeEval as J, inherits_browser as K, EventEmitter as L, MISSING_DOC as M, once as N, guardedConsole as O, assign$1 as P, listenerCount$1 as Q, REV_CONFLICT as R, ExportedMap as S, upsert as T, UNKNOWN_ERROR as U, QUERY_PARSE_ERROR as V, hasLocalStorage as W, NOT_AN_OBJECT as X, INVALID_ID as Y, MISSING_BULK_DOCS as Z, ExportedSet as _, adapterFun as a, defaultBackOff as a0, argsarray as b, clone as c, createError as d, binStringToBluffer as e, b64ToBluffer as f, generateErrorFromResponse as g, blobToBase64 as h, thisBtoa as i, explainError as j, pick as k, lib as l, bulkGet as m, filterChange as n, flatten as o, parseUri as p, invalidIdError as q, rev as r, IDB_ERROR as s, thisAtob as t, uuid as u, readAsBinaryString as v, MISSING_STUB as w, binaryMd5 as x, require$$0 as y, sparkMd5 as z };

@@ -2,7 +2,7 @@ const DEFAULT_PROFILE = "default";
 export const profileSchema = {
   title: "profile schema",
   description: "describes profiles",
-  version: 4,
+  version: 6,
   type: "object",
   properties: {
     profileId: {
@@ -81,6 +81,12 @@ export const profileCreatorBase = {
         ...previous,
         tags: previous.tags ?? []
       };
+    },
+    5(previous) {
+      return previous;
+    },
+    6(previous) {
+      return previous;
     }
   }
 };

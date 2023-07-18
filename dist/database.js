@@ -1,10 +1,12 @@
 import {addRxPlugin, createRxDatabase} from "../_snowpack/pkg/rxdb.js";
 import indexeddb from "../_snowpack/pkg/pouchdb-adapter-indexeddb.js";
+import http from "../_snowpack/pkg/pouchdb-adapter-http.js";
 import {configureEntryCollection, entryCreatorBase} from "./domain/collections/entryCollection.js";
 import {configureProfileCollection, profileCreatorBase} from "./domain/collections/profileCollection.js";
 import {defaultSettings, SETTINGS_DOCUMENT_ID} from "./domain/documents/settingsDocument.js";
 export const DATABASE_NAME = "timelet";
 addRxPlugin(indexeddb);
+addRxPlugin(http);
 export async function initializeDatabase() {
   const database = await createRxDatabase({
     name: DATABASE_NAME,

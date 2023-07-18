@@ -9,10 +9,9 @@ import {useIntl} from "../../../_snowpack/pkg/react-intl.js";
 const StyledForm = withTheme(styled.form`
     display: grid;
     grid-template-areas:
-      'category tags submit'
-      'description description submit'
-      'startedAt endedAt submit';
-    grid-template-columns: 1fr 1fr 60px;
+      'description description description description submit'
+      'category tags startedAt endedAt submit';
+    grid-template-columns: 1fr 1fr 1fr 1fr 60px;
 
     & > *:last-child {
       grid-area: submit;
@@ -48,7 +47,15 @@ export default function EntryInlineForm({categories, tags, create}) {
   return /* @__PURE__ */ React.createElement(StyledForm, {
     onSubmit: handleSubmit(onSubmit),
     key: formId
-  }, /* @__PURE__ */ React.createElement(Autocomplete, {
+  }, /* @__PURE__ */ React.createElement(DescriptionTextField, {
+    name: "description",
+    inputRef: register,
+    label: intl.formatMessage({
+      id: "label.description",
+      defaultMessage: "Description"
+    }),
+    multiline: true
+  }), /* @__PURE__ */ React.createElement(Autocomplete, {
     autoComplete: true,
     options: [...categories],
     getOptionLabel: (option) => option.name,
@@ -75,14 +82,6 @@ export default function EntryInlineForm({categories, tags, create}) {
         defaultMessage: "Tag"
       })
     })
-  }), /* @__PURE__ */ React.createElement(DescriptionTextField, {
-    name: "description",
-    inputRef: register,
-    label: intl.formatMessage({
-      id: "label.description",
-      defaultMessage: "Description"
-    }),
-    multiline: true
   }), /* @__PURE__ */ React.createElement(KeyboardDateTimePicker, {
     name: "startedAt",
     inputRef: register,

@@ -1,5 +1,5 @@
 import { c as createCommonjsModule, g as getDefaultExportFromCjs } from '../../common/_commonjsHelpers-37fa8da4.js';
-import { _ as __assign, a as __extends, t as tslib_es6 } from '../../common/tslib.es6-1350866e.js';
+import { _ as __assign, a as __extends, t as tslib_es6 } from '../../common/tslib.es6-6401ae96.js';
 import { i as invariant, U as UNICODE_EXTENSION_SEQUENCE_REGEX, r as repeat, g as getMagnitude, a as getInternalSlot, b as getMultiInternalSlots, c as isLiteralPart, s as setInternalSlot, d as setMultiInternalSlots, e as defineProperty } from '../../common/utils-363d1b2b.js';
 
 var DATE_TIME_PROPS = [
@@ -20,6 +20,13 @@ var longLessPenalty = 8;
 var longMorePenalty = 6;
 var shortLessPenalty = 6;
 var shortMorePenalty = 3;
+
+var RangePatternType;
+(function (RangePatternType) {
+    RangePatternType["startRange"] = "startRange";
+    RangePatternType["shared"] = "shared";
+    RangePatternType["endRange"] = "endRange";
+})(RangePatternType || (RangePatternType = {}));
 
 /**
  * https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
@@ -71,8 +78,8 @@ function matchSkeletonPattern(match, result) {
             return '{weekday}';
         case 'e':
             result.weekday = [
-                'numeric',
-                '2-digit',
+                undefined,
+                undefined,
                 'short',
                 'long',
                 'narrow',
@@ -81,7 +88,7 @@ function matchSkeletonPattern(match, result) {
             return '{weekday}';
         case 'c':
             result.weekday = [
-                'numeric',
+                undefined,
                 undefined,
                 'short',
                 'long',
@@ -263,17 +270,17 @@ function splitFallbackRangePattern(pattern) {
         switch (pattern) {
             case '{0}':
                 return {
-                    source: "startRange" /* startRange */,
+                    source: RangePatternType.startRange,
                     pattern: pattern,
                 };
             case '{1}':
                 return {
-                    source: "endRange" /* endRange */,
+                    source: RangePatternType.endRange,
                     pattern: pattern,
                 };
             default:
                 return {
-                    source: "shared" /* shared */,
+                    source: RangePatternType.shared,
                     pattern: pattern,
                 };
         }
@@ -297,18 +304,18 @@ function splitRangePattern(pattern) {
     if (!splitIndex) {
         return [
             {
-                source: "startRange" /* startRange */,
+                source: RangePatternType.startRange,
                 pattern: pattern,
             },
         ];
     }
     return [
         {
-            source: "startRange" /* startRange */,
+            source: RangePatternType.startRange,
             pattern: pattern.slice(0, splitIndex),
         },
         {
-            source: "endRange" /* endRange */,
+            source: RangePatternType.endRange,
             pattern: pattern.slice(splitIndex),
         },
     ];
@@ -865,6 +872,35 @@ function MinFromTime(t) {
 function SecFromTime(t) {
     return mod(Math.floor(t / MS_PER_SECOND), SECONDS_PER_MINUTE);
 }
+function IsCallable(fn) {
+    return typeof fn === 'function';
+}
+/**
+ * The abstract operation OrdinaryHasInstance implements
+ * the default algorithm for determining if an object O
+ * inherits from the instance object inheritance path
+ * provided by constructor C.
+ * @param C class
+ * @param O object
+ * @param internalSlots internalSlots
+ */
+function OrdinaryHasInstance(C, O, internalSlots) {
+    if (!IsCallable(C)) {
+        return false;
+    }
+    if (internalSlots === null || internalSlots === void 0 ? void 0 : internalSlots.boundTargetFunction) {
+        var BC = internalSlots === null || internalSlots === void 0 ? void 0 : internalSlots.boundTargetFunction;
+        return O instanceof BC;
+    }
+    if (typeof O !== 'object') {
+        return false;
+    }
+    var P = C.prototype;
+    if (typeof P !== 'object') {
+        throw new TypeError('OrdinaryHasInstance called on an object with an invalid prototype property.');
+    }
+    return Object.prototype.isPrototypeOf.call(P, O);
+}
 
 function getApplicableZoneData(t, timeZone, tzData) {
     var _a;
@@ -1214,7 +1250,7 @@ function PartitionDateTimeRangePattern(dtf, x, y, implDetails) {
         var result_2 = FormatDateTimePattern(dtf, PartitionPattern(pattern), x, implDetails);
         for (var _a = 0, result_1 = result_2; _a < result_1.length; _a++) {
             var r = result_1[_a];
-            r.source = "shared" /* shared */;
+            r.source = RangePatternType.shared;
         }
         return result_2;
     }
@@ -1234,8 +1270,8 @@ function PartitionDateTimeRangePattern(dtf, x, y, implDetails) {
         var rangePatternPart = _e[_d];
         var source = rangePatternPart.source, pattern_1 = rangePatternPart.pattern;
         var z = void 0;
-        if (source === "startRange" /* startRange */ ||
-            source === "shared" /* shared */) {
+        if (source === RangePatternType.startRange ||
+            source === RangePatternType.shared) {
             z = x;
         }
         else {
@@ -1712,14 +1748,14 @@ function InitializeDateTimeFormat(dtf, locales, opts, _a) {
     if (!formats) {
         throw new RangeError("Calendar \"" + calendar + "\" is not supported. Try setting \"calendar\" to 1 of the following: " + Object.keys(dataLocaleData.formats).join(', '));
     }
-    matcher = GetOption(options, 'formatMatcher', 'string', ['basic', 'best fit'], 'best fit');
+    var formatMatcher = GetOption(options, 'formatMatcher', 'string', ['basic', 'best fit'], 'best fit');
     var dateStyle = GetOption(options, 'dateStyle', 'string', ['full', 'long', 'medium', 'short'], undefined);
     internalSlots.dateStyle = dateStyle;
     var timeStyle = GetOption(options, 'timeStyle', 'string', ['full', 'long', 'medium', 'short'], undefined);
     internalSlots.timeStyle = timeStyle;
     var bestFormat;
     if (dateStyle === undefined && timeStyle === undefined) {
-        if (matcher === 'basic') {
+        if (formatMatcher === 'basic') {
             bestFormat = BasicFormatMatcher(opt, formats);
         }
         else {
@@ -1821,7 +1857,7 @@ function CanonicalCodeForDisplayNames(type, code) {
         if (!isUnicodeScriptSubtag(code)) {
             throw RangeError('invalid script');
         }
-        return "" + code[0].toUpperCase() + code.slice(1);
+        return "" + code[0].toUpperCase() + code.slice(1).toLowerCase();
     }
     invariant(type === 'currency', 'invalid type');
     if (!IsWellFormedCurrencyCode(code)) {
@@ -4078,13 +4114,6 @@ function isMissingLocaleDataError(e) {
     return e.type === 'MISSING_LOCALE_DATA';
 }
 
-var RangePatternType;
-(function (RangePatternType) {
-    RangePatternType["startRange"] = "startRange";
-    RangePatternType["shared"] = "shared";
-    RangePatternType["endRange"] = "endRange";
-})(RangePatternType || (RangePatternType = {}));
-
 var lib = /*#__PURE__*/Object.freeze({
     __proto__: null,
     BestFitFormatMatcher: BestFitFormatMatcher,
@@ -4165,7 +4194,8 @@ var lib = /*#__PURE__*/Object.freeze({
     DateFromTime: DateFromTime,
     HourFromTime: HourFromTime,
     MinFromTime: MinFromTime,
-    SecFromTime: SecFromTime
+    SecFromTime: SecFromTime,
+    OrdinaryHasInstance: OrdinaryHasInstance
 });
 
 var intlDisplaynames = createCommonjsModule(function (module, exports) {
@@ -4240,36 +4270,18 @@ var DisplayNames = /** @class */ (function () {
         }
         var _a = lib.getMultiInternalSlots(__INTERNAL_SLOT_MAP__, this, 'localeData', 'style', 'fallback'), localeData = _a.localeData, style = _a.style, fallback = _a.fallback;
         // Canonicalize the case.
-        var canonicalCode;
+        var canonicalCode = lib.CanonicalCodeForDisplayNames(type, codeAsString);
         // This is only used to store extracted language region.
         var regionSubTag;
-        switch (type) {
-            // Normalize the locale id and remove the region.
-            case 'language': {
-                canonicalCode = lib.CanonicalizeLocaleList(codeAsString)[0];
-                var regionMatch = /-([a-z]{2}|\d{3})\b/i.exec(canonicalCode);
-                if (regionMatch) {
-                    // Remove region subtag
-                    canonicalCode =
-                        canonicalCode.substring(0, regionMatch.index) +
-                            canonicalCode.substring(regionMatch.index + regionMatch[0].length);
-                    regionSubTag = regionMatch[1];
-                }
-                break;
-            }
-            // currency code should be all upper-case.
-            case 'currency':
-                canonicalCode = codeAsString.toUpperCase();
-                break;
-            // script code should be title case
-            case 'script':
+        if (type === 'language') {
+            var regionMatch = /-([a-z]{2}|\d{3})\b/i.exec(canonicalCode);
+            if (regionMatch) {
+                // Remove region subtag
                 canonicalCode =
-                    codeAsString[0] + codeAsString.substring(1).toLowerCase();
-                break;
-            // region shold be all upper-case
-            case 'region':
-                canonicalCode = codeAsString.toUpperCase();
-                break;
+                    canonicalCode.substring(0, regionMatch.index) +
+                        canonicalCode.substring(regionMatch.index + regionMatch[0].length);
+                regionSubTag = regionMatch[1];
+            }
         }
         var typesData = localeData.types[type];
         // If the style of choice does not exist, fallback to "long".
@@ -4372,16 +4384,28 @@ exports.shouldPolyfill = void 0;
  * https://bugs.chromium.org/p/chromium/issues/detail?id=1097432
  */
 function hasMissingICUBug() {
-    if (Intl.DisplayNames) {
-        var regionNames = new Intl.DisplayNames(['en'], {
+    var DisplayNames = Intl.DisplayNames;
+    if (DisplayNames && !DisplayNames.polyfilled) {
+        return (new DisplayNames(['en'], {
             type: 'region',
-        });
-        return regionNames.of('CA') === 'CA';
+        }).of('CA') === 'CA');
+    }
+    return false;
+}
+/**
+ * https://bugs.chromium.org/p/chromium/issues/detail?id=1176979
+ */
+function hasScriptBug() {
+    var DisplayNames = Intl.DisplayNames;
+    if (DisplayNames && !DisplayNames.polyfilled) {
+        return (new DisplayNames(['en'], {
+            type: 'script',
+        }).of('arab') !== 'Arabic');
     }
     return false;
 }
 function shouldPolyfill() {
-    return !Intl.DisplayNames || hasMissingICUBug();
+    return !Intl.DisplayNames || hasMissingICUBug() || hasScriptBug();
 }
 exports.shouldPolyfill = shouldPolyfill;
 });

@@ -1,7 +1,7 @@
-import { _ as __assign, a as __extends, b as __spreadArrays, c as __rest } from './common/tslib.es6-1350866e.js';
+import { _ as __assign, a as __extends, b as __spreadArray, c as __rest } from './common/tslib.es6-6401ae96.js';
 import { r as react, R as React } from './common/index-45809189.js';
-import { i as invariant } from './common/utils-363d1b2b.js';
 import './common/hoist-non-react-statics.cjs-fec7e822.js';
+import { i as invariant } from './common/utils-363d1b2b.js';
 import './common/_commonjsHelpers-37fa8da4.js';
 
 var TYPE;
@@ -80,10 +80,10 @@ function isTagElement(el) {
     return el.type === TYPE.tag;
 }
 function isNumberSkeleton(el) {
-    return !!(el && typeof el === 'object' && el.type === 0 /* number */);
+    return !!(el && typeof el === 'object' && el.type === SKELETON_TYPE.number);
 }
 function isDateTimeSkeleton(el) {
-    return !!(el && typeof el === 'object' && el.type === 1 /* dateTime */);
+    return !!(el && typeof el === 'object' && el.type === SKELETON_TYPE.dateTime);
 }
 
 /**
@@ -618,7 +618,7 @@ function peg$parse(input, options) {
         return { stem: stem, options: options };
     };
     var peg$c37 = function (tokens) {
-        return __assign({ type: 0 /* number */, tokens: tokens, parsedOptions: shouldParseSkeleton ? parseNumberSkeleton(tokens) : {} }, insertLocation());
+        return __assign({ type: SKELETON_TYPE.number, tokens: tokens, parsedOptions: shouldParseSkeleton ? parseNumberSkeleton(tokens) : {} }, insertLocation());
     };
     var peg$c38 = "::";
     var peg$c39 = peg$literalExpectation("::", false);
@@ -644,7 +644,7 @@ function peg$parse(input, options) {
     var peg$c54 = /^[a-zA-Z]/;
     var peg$c55 = peg$classExpectation([["a", "z"], ["A", "Z"]], false, false);
     var peg$c56 = function (pattern) {
-        return __assign({ type: 1 /* dateTime */, pattern: pattern, parsedOptions: shouldParseSkeleton ? parseDateTimeSkeleton(pattern) : {} }, insertLocation());
+        return __assign({ type: SKELETON_TYPE.dateTime, pattern: pattern, parsedOptions: shouldParseSkeleton ? parseDateTimeSkeleton(pattern) : {} }, insertLocation());
     };
     var peg$c57 = function () { messageCtx.push('dateOrTimeArgStyle'); return true; };
     var peg$c58 = "date";
@@ -3572,7 +3572,7 @@ function normalizeHashtagInPlural(els) {
             if (literalEl) {
                 var newValue = literalEl.value.replace(PLURAL_HASHTAG_REGEX, "$1{" + el.value + ", number}");
                 var newEls = pegParse(newValue);
-                (_a = opt.value).splice.apply(_a, __spreadArrays([matchingLiteralElIndex, 1], newEls));
+                (_a = opt.value).splice.apply(_a, __spreadArray([matchingLiteralElIndex, 1], newEls));
             }
             normalizeHashtagInPlural(opt.value);
         });
@@ -3764,21 +3764,21 @@ var FormatError = /** @class */ (function (_super) {
 var InvalidValueError = /** @class */ (function (_super) {
     __extends(InvalidValueError, _super);
     function InvalidValueError(variableId, value, options, originalMessage) {
-        return _super.call(this, "Invalid values for \"" + variableId + "\": \"" + value + "\". Options are \"" + Object.keys(options).join('", "') + "\"", "INVALID_VALUE" /* INVALID_VALUE */, originalMessage) || this;
+        return _super.call(this, "Invalid values for \"" + variableId + "\": \"" + value + "\". Options are \"" + Object.keys(options).join('", "') + "\"", ErrorCode.INVALID_VALUE, originalMessage) || this;
     }
     return InvalidValueError;
 }(FormatError));
 var InvalidValueTypeError = /** @class */ (function (_super) {
     __extends(InvalidValueTypeError, _super);
     function InvalidValueTypeError(value, type, originalMessage) {
-        return _super.call(this, "Value for \"" + value + "\" must be of type " + type, "INVALID_VALUE" /* INVALID_VALUE */, originalMessage) || this;
+        return _super.call(this, "Value for \"" + value + "\" must be of type " + type, ErrorCode.INVALID_VALUE, originalMessage) || this;
     }
     return InvalidValueTypeError;
 }(FormatError));
 var MissingValueError = /** @class */ (function (_super) {
     __extends(MissingValueError, _super);
     function MissingValueError(variableId, originalMessage) {
-        return _super.call(this, "The intl string context variable \"" + variableId + "\" was not provided to the string \"" + originalMessage + "\"", "MISSING_VALUE" /* MISSING_VALUE */, originalMessage) || this;
+        return _super.call(this, "The intl string context variable \"" + variableId + "\" was not provided to the string \"" + originalMessage + "\"", ErrorCode.MISSING_VALUE, originalMessage) || this;
     }
     return MissingValueError;
 }(FormatError));
@@ -3795,8 +3795,8 @@ function mergeLiteral(parts) {
     return parts.reduce(function (all, part) {
         var lastPart = all[all.length - 1];
         if (!lastPart ||
-            lastPart.type !== 0 /* literal */ ||
-            part.type !== 0 /* literal */) {
+            lastPart.type !== PART_TYPE.literal ||
+            part.type !== PART_TYPE.literal) {
             all.push(part);
         }
         else {
@@ -3816,7 +3816,7 @@ originalMessage) {
     if (els.length === 1 && isLiteralElement(els[0])) {
         return [
             {
-                type: 0 /* literal */,
+                type: PART_TYPE.literal,
                 value: els[0].value,
             },
         ];
@@ -3827,7 +3827,7 @@ originalMessage) {
         // Exit early for string parts.
         if (isLiteralElement(el)) {
             result.push({
-                type: 0 /* literal */,
+                type: PART_TYPE.literal,
                 value: el.value,
             });
             continue;
@@ -3837,7 +3837,7 @@ originalMessage) {
         if (isPoundElement(el)) {
             if (typeof currentPluralValue === 'number') {
                 result.push({
-                    type: 0 /* literal */,
+                    type: PART_TYPE.literal,
                     value: formatters.getNumberFormat(locales).format(currentPluralValue),
                 });
             }
@@ -3857,7 +3857,7 @@ originalMessage) {
                         : '';
             }
             result.push({
-                type: typeof value === 'string' ? 0 /* literal */ : 1 /* object */,
+                type: typeof value === 'string' ? PART_TYPE.literal : PART_TYPE.object,
                 value: value,
             });
             continue;
@@ -3872,7 +3872,7 @@ originalMessage) {
                     ? el.style.parsedOptions
                     : undefined;
             result.push({
-                type: 0 /* literal */,
+                type: PART_TYPE.literal,
                 value: formatters
                     .getDateTimeFormat(locales, style)
                     .format(value),
@@ -3886,7 +3886,7 @@ originalMessage) {
                     ? el.style.parsedOptions
                     : undefined;
             result.push({
-                type: 0 /* literal */,
+                type: PART_TYPE.literal,
                 value: formatters
                     .getDateTimeFormat(locales, style)
                     .format(value),
@@ -3905,7 +3905,7 @@ originalMessage) {
                         (style.scale || 1);
             }
             result.push({
-                type: 0 /* literal */,
+                type: PART_TYPE.literal,
                 value: formatters
                     .getNumberFormat(locales, style)
                     .format(value),
@@ -3925,7 +3925,7 @@ originalMessage) {
             }
             result.push.apply(result, chunks.map(function (c) {
                 return {
-                    type: typeof c === 'string' ? 0 /* literal */ : 1 /* object */,
+                    type: typeof c === 'string' ? PART_TYPE.literal : PART_TYPE.object,
                     value: c,
                 };
             }));
@@ -3942,7 +3942,7 @@ originalMessage) {
             var opt = el.options["=" + value];
             if (!opt) {
                 if (!Intl.PluralRules) {
-                    throw new FormatError("Intl.PluralRules is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-pluralrules\"\n", "MISSING_INTL_API" /* MISSING_INTL_API */, originalMessage);
+                    throw new FormatError("Intl.PluralRules is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-pluralrules\"\n", ErrorCode.MISSING_INTL_API, originalMessage);
                 }
                 var rule = formatters
                     .getPluralRules(locales, { type: el.pluralType })
@@ -4016,7 +4016,7 @@ function createDefaultFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new ((_a = Intl.NumberFormat).bind.apply(_a, __spreadArrays([void 0], args)))();
+            return new ((_a = Intl.NumberFormat).bind.apply(_a, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache(cache.number),
             strategy: memoizeIntl.strategies.variadic,
@@ -4027,7 +4027,7 @@ function createDefaultFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new ((_a = Intl.DateTimeFormat).bind.apply(_a, __spreadArrays([void 0], args)))();
+            return new ((_a = Intl.DateTimeFormat).bind.apply(_a, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache(cache.dateTime),
             strategy: memoizeIntl.strategies.variadic,
@@ -4038,7 +4038,7 @@ function createDefaultFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new ((_a = Intl.PluralRules).bind.apply(_a, __spreadArrays([void 0], args)))();
+            return new ((_a = Intl.PluralRules).bind.apply(_a, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache(cache.pluralRules),
             strategy: memoizeIntl.strategies.variadic,
@@ -4062,7 +4062,7 @@ var IntlMessageFormat = /** @class */ (function () {
             }
             var result = parts.reduce(function (all, part) {
                 if (!all.length ||
-                    part.type !== 0 /* literal */ ||
+                    part.type !== PART_TYPE.literal ||
                     typeof all[all.length - 1] !== 'string') {
                     all.push(part.value);
                 }
@@ -4310,7 +4310,7 @@ function createFormatters(cache) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return new ((_a = Intl.DateTimeFormat).bind.apply(_a, __spreadArrays([void 0], args)))();
+        return new ((_a = Intl.DateTimeFormat).bind.apply(_a, __spreadArray([void 0], args)))();
     }, {
         cache: createFastMemoizeCache$1(cache.dateTime),
         strategy: memoizeIntl$1.strategies.variadic,
@@ -4321,7 +4321,7 @@ function createFormatters(cache) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return new ((_a = Intl.NumberFormat).bind.apply(_a, __spreadArrays([void 0], args)))();
+        return new ((_a = Intl.NumberFormat).bind.apply(_a, __spreadArray([void 0], args)))();
     }, {
         cache: createFastMemoizeCache$1(cache.number),
         strategy: memoizeIntl$1.strategies.variadic,
@@ -4332,7 +4332,7 @@ function createFormatters(cache) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return new ((_a = Intl.PluralRules).bind.apply(_a, __spreadArrays([void 0], args)))();
+        return new ((_a = Intl.PluralRules).bind.apply(_a, __spreadArray([void 0], args)))();
     }, {
         cache: createFastMemoizeCache$1(cache.pluralRules),
         strategy: memoizeIntl$1.strategies.variadic,
@@ -4355,7 +4355,7 @@ function createFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new (RelativeTimeFormat.bind.apply(RelativeTimeFormat, __spreadArrays([void 0], args)))();
+            return new (RelativeTimeFormat.bind.apply(RelativeTimeFormat, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache$1(cache.relativeTime),
             strategy: memoizeIntl$1.strategies.variadic,
@@ -4366,7 +4366,7 @@ function createFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new (ListFormat.bind.apply(ListFormat, __spreadArrays([void 0], args)))();
+            return new (ListFormat.bind.apply(ListFormat, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache$1(cache.list),
             strategy: memoizeIntl$1.strategies.variadic,
@@ -4376,7 +4376,7 @@ function createFormatters(cache) {
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            return new (DisplayNames.bind.apply(DisplayNames, __spreadArrays([void 0], args)))();
+            return new (DisplayNames.bind.apply(DisplayNames, __spreadArray([void 0], args)))();
         }, {
             cache: createFastMemoizeCache$1(cache.displayNames),
             strategy: memoizeIntl$1.strategies.variadic,
@@ -4508,7 +4508,6 @@ var DATE_TIME_FORMAT_OPTIONS = [
     'hourCycle',
     'dateStyle',
     'timeStyle',
-    'fractionalSecondDigits',
     'calendar',
     // 'dayPeriod',
     'numberingSystem',
@@ -4518,7 +4517,9 @@ function getFormatter(_a, type, getDateTimeFormat, options) {
     if (options === void 0) { options = {}; }
     var format = options.format;
     var defaults = __assign(__assign({}, (timeZone && { timeZone: timeZone })), (format && getNamedFormat(formats, type, format, onError)));
-    var filteredOptions = filterProps(options, DATE_TIME_FORMAT_OPTIONS, defaults);
+    var filteredOptions = filterProps(options, DATE_TIME_FORMAT_OPTIONS, 
+    // @ts-expect-error es2020 has a lot stuff from es2021 bleed in
+    defaults);
     if (type === 'time' &&
         !filteredOptions.hour &&
         !filteredOptions.minute &&
@@ -4617,7 +4618,7 @@ function formatDisplayName(_a, getDisplayNames, value, options) {
     var locale = _a.locale, onError = _a.onError;
     var DisplayNames = Intl.DisplayNames;
     if (!DisplayNames) {
-        onError(new FormatError("Intl.DisplayNames is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-displaynames\"\n", "MISSING_INTL_API" /* MISSING_INTL_API */));
+        onError(new FormatError("Intl.DisplayNames is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-displaynames\"\n", ErrorCode.MISSING_INTL_API));
     }
     var filteredOptions = filterProps(options, DISPLAY_NAMES_OPTONS);
     try {
@@ -4642,7 +4643,7 @@ function formatList(_a, getListFormat, values, options) {
     if (options === void 0) { options = {}; }
     var ListFormat = Intl.ListFormat;
     if (!ListFormat) {
-        onError(new FormatError("Intl.ListFormat is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-listformat\"\n", "MISSING_INTL_API" /* MISSING_INTL_API */));
+        onError(new FormatError("Intl.ListFormat is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-listformat\"\n", ErrorCode.MISSING_INTL_API));
     }
     var filteredOptions = filterProps(options, LIST_FORMAT_OPTIONS);
     try {
@@ -4688,7 +4689,7 @@ function formatPlural(_a, getPluralRules, value, options) {
     var locale = _a.locale, onError = _a.onError;
     if (options === void 0) { options = {}; }
     if (!Intl.PluralRules) {
-        onError(new FormatError("Intl.PluralRules is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-pluralrules\"\n", "MISSING_INTL_API" /* MISSING_INTL_API */));
+        onError(new FormatError("Intl.PluralRules is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-pluralrules\"\n", ErrorCode.MISSING_INTL_API));
     }
     var filteredOptions = filterProps(options, PLURAL_FORMAT_OPTIONS);
     try {
@@ -4716,7 +4717,7 @@ function formatRelativeTime(config, getRelativeTimeFormat, value, unit, options)
     }
     var RelativeTimeFormat = Intl.RelativeTimeFormat;
     if (!RelativeTimeFormat) {
-        config.onError(new FormatError("Intl.RelativeTimeFormat is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-relativetimeformat\"\n", "MISSING_INTL_API" /* MISSING_INTL_API */));
+        config.onError(new FormatError("Intl.RelativeTimeFormat is not available in this environment.\nTry polyfilling it using \"@formatjs/intl-relativetimeformat\"\n", ErrorCode.MISSING_INTL_API));
     }
     try {
         return getFormatter$1(config, getRelativeTimeFormat, options).format(value, unit);
@@ -4840,12 +4841,40 @@ function assignUniqueKeysToParts(formatXMLElementFn) {
         return formatXMLElementFn(react.Children.toArray(parts));
     };
 }
+function shallowEqual(objA, objB) {
+    if (objA === objB) {
+        return true;
+    }
+    if (!objA || !objB) {
+        return false;
+    }
+    var aKeys = Object.keys(objA);
+    var bKeys = Object.keys(objB);
+    var len = aKeys.length;
+    if (bKeys.length !== len) {
+        return false;
+    }
+    for (var i = 0; i < len; i++) {
+        var key = aKeys[i];
+        if (objA[key] !== objB[key] ||
+            !Object.prototype.hasOwnProperty.call(objB, key)) {
+            return false;
+        }
+    }
+    return true;
+}
 
 // TODO: We should provide initial value here
 var IntlContext = react.createContext(null);
 IntlContext.Consumer; var IntlProvider = IntlContext.Provider;
 var Provider = IntlProvider;
 var Context = IntlContext;
+
+function useIntl() {
+    var intl = react.useContext(Context);
+    invariantIntlContext(intl);
+    return intl;
+}
 
 var DisplayName;
 (function (DisplayName) {
@@ -4865,21 +4894,21 @@ var DisplayNameParts;
     DisplayNameParts["formatList"] = "FormattedListParts";
 })(DisplayNameParts || (DisplayNameParts = {}));
 function createFormattedDateTimePartsComponent(name) {
-    var ComponentParts = function (props) { return (react.createElement(Context.Consumer, null, function (intl) {
-        invariantIntlContext(intl);
+    var ComponentParts = function (props) {
+        var intl = useIntl();
         var value = props.value, children = props.children, formatProps = __rest(props, ["value", "children"]);
         var date = typeof value === 'string' ? new Date(value || 0) : value;
         var formattedParts = name === 'formatDate'
             ? intl.formatDateToParts(date, formatProps)
             : intl.formatTimeToParts(date, formatProps);
         return children(formattedParts);
-    })); };
+    };
     ComponentParts.displayName = DisplayNameParts[name];
     return ComponentParts;
 }
 function createFormattedComponent(name) {
-    var Component = function (props) { return (react.createElement(Context.Consumer, null, function (intl) {
-        invariantIntlContext(intl);
+    var Component = function (props) {
+        var intl = useIntl();
         var value = props.value, children = props.children, formatProps = __rest(props, ["value", "children"]);
         // TODO: fix TS type definition for localeMatcher upstream
         var formattedValue = intl[name](value, formatProps);
@@ -4888,57 +4917,16 @@ function createFormattedComponent(name) {
         }
         var Text = intl.textComponent || react.Fragment;
         return react.createElement(Text, null, formattedValue);
-    })); };
+    };
     Component.displayName = DisplayName[name];
     return Component;
 }
-
-function useIntl() {
-    var intl = react.useContext(Context);
-    invariantIntlContext(intl);
-    return intl;
-}
-
-function shallowEqualObjects(objA, objB) {
-  if (objA === objB) {
-    return true;
-  }
-
-  if (!objA || !objB) {
-    return false;
-  }
-
-  var aKeys = Object.keys(objA);
-  var bKeys = Object.keys(objB);
-  var len = aKeys.length;
-
-  if (bKeys.length !== len) {
-    return false;
-  }
-
-  for (var i = 0; i < len; i++) {
-    var key = aKeys[i];
-
-    if (objA[key] !== objB[key] || !Object.prototype.hasOwnProperty.call(objB, key)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-var objects = shallowEqualObjects;
-
-var shallowEquals_ = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.assign(/*#__PURE__*/Object.create(null), objects, {
-    'default': objects
-}));
 
 /*
  * Copyright 2015, Yahoo Inc.
  * Copyrights licensed under the New BSD License.
  * See the accompanying LICENSE file for terms.
  */
-var shallowEquals = objects || shallowEquals_;
 function processIntlConfig(config) {
     return {
         locale: config.locale,
@@ -4971,7 +4959,7 @@ var formatMessage$1 = function (config, formatters, descriptor, rawValues) {
         rest[_i - 4] = arguments[_i];
     }
     var values = assignUniqueKeysToFormatXMLElementFnArgument(rawValues);
-    var chunks = formatMessage.apply(void 0, __spreadArrays([config,
+    var chunks = formatMessage.apply(void 0, __spreadArray([config,
         formatters,
         descriptor, values], rest));
     if (Array.isArray(chunks)) {
@@ -5014,7 +5002,7 @@ var IntlProvider$1 = /** @class */ (function (_super) {
     IntlProvider.getDerivedStateFromProps = function (props, _a) {
         var prevConfig = _a.prevConfig, cache = _a.cache;
         var config = processIntlConfig(props);
-        if (!shallowEquals(prevConfig, config)) {
+        if (!shallowEqual(prevConfig, config)) {
             return {
                 intl: createIntl$1(config, cache),
                 prevConfig: config,
@@ -5036,45 +5024,34 @@ var IntlProvider$1 = /** @class */ (function (_super) {
  * Copyrights licensed under the New BSD License.
  * See the accompanying LICENSE file for terms.
  */
-var shallowEquals$1 = objects || shallowEquals_;
-var FormattedMessage = /** @class */ (function (_super) {
-    __extends(FormattedMessage, _super);
-    function FormattedMessage() {
-        return _super !== null && _super.apply(this, arguments) || this;
+function areEqual(prevProps, nextProps) {
+    var values = prevProps.values, otherProps = __rest(prevProps, ["values"]);
+    var nextValues = nextProps.values, nextOtherProps = __rest(nextProps, ["values"]);
+    return (shallowEqual(nextValues, values) &&
+        shallowEqual(otherProps, nextOtherProps));
+}
+var FormattedMessage = react.memo(function (props) {
+    var intl = useIntl();
+    var formatMessage = intl.formatMessage, _a = intl.textComponent, Text = _a === void 0 ? react.Fragment : _a;
+    var id = props.id, description = props.description, defaultMessage = props.defaultMessage, values = props.values, children = props.children, _b = props.tagName, Component = _b === void 0 ? Text : _b, ignoreTag = props.ignoreTag;
+    var descriptor = { id: id, description: description, defaultMessage: defaultMessage };
+    var nodes = formatMessage(descriptor, values, {
+        ignoreTag: ignoreTag,
+    });
+    if (!Array.isArray(nodes)) {
+        nodes = [nodes];
     }
-    FormattedMessage.prototype.shouldComponentUpdate = function (nextProps) {
-        var _a = this.props, values = _a.values, otherProps = __rest(_a, ["values"]);
-        var nextValues = nextProps.values, nextOtherProps = __rest(nextProps, ["values"]);
-        return (!shallowEquals$1(nextValues, values) ||
-            !shallowEquals$1(otherProps, nextOtherProps));
-    };
-    FormattedMessage.prototype.render = function () {
-        var _this = this;
-        return (react.createElement(Context.Consumer, null, function (intl) {
-            invariantIntlContext(intl);
-            var formatMessage = intl.formatMessage, _a = intl.textComponent, Text = _a === void 0 ? react.Fragment : _a;
-            var _b = _this.props, id = _b.id, description = _b.description, defaultMessage = _b.defaultMessage, values = _b.values, children = _b.children, _c = _b.tagName, Component = _c === void 0 ? Text : _c, ignoreTag = _b.ignoreTag;
-            var descriptor = { id: id, description: description, defaultMessage: defaultMessage };
-            var nodes = formatMessage(descriptor, values, {
-                ignoreTag: ignoreTag,
-            });
-            if (!Array.isArray(nodes)) {
-                nodes = [nodes];
-            }
-            if (typeof children === 'function') {
-                return children(nodes);
-            }
-            if (Component) {
-                // Needs to use `createElement()` instead of JSX, otherwise React will
-                // warn about a missing `key` prop with rich-text message formatting.
-                return react.createElement.apply(React, __spreadArrays([Component, null], nodes));
-            }
-            return nodes;
-        }));
-    };
-    FormattedMessage.displayName = 'FormattedMessage';
-    return FormattedMessage;
-}(react.Component));
+    if (typeof children === 'function') {
+        return children(nodes);
+    }
+    if (Component) {
+        // Needs to use `createElement()` instead of JSX, otherwise React will
+        // warn about a missing `key` prop with rich-text message formatting.
+        return react.createElement.apply(React, __spreadArray([Component, null], nodes));
+    }
+    return react.createElement(react.Fragment, null, nodes);
+}, areEqual);
+FormattedMessage.displayName = 'FormattedMessage';
 
 // IMPORTANT: Explicit here to prevent api-extractor from outputing `import('./src/types').CustomFormatConfig`
 var FormattedDate = createFormattedComponent('formatDate');

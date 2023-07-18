@@ -1,5 +1,7 @@
-import { u as uuid, r as rev, i as invalidIdError, c as createError, D as DOC_VALIDATION, I as INVALID_REV, C as Changes, l as latest, M as MISSING_DOC, a as IDB_ERROR, f as filterChange, t as traverseRevTree, b as readAsBinaryString, d as thisBtoa, R as REV_CONFLICT, m as merge, w as winningRev, e as MISSING_STUB, g as binStringToBluffer, h as binaryMd5, j as collectConflicts, B as BAD_ARG } from './common/index.es-11f6800c.js';
+import { u as uuid, r as rev, q as invalidIdError, d as createError, D as DOC_VALIDATION, I as INVALID_REV, C as Changes, M as MISSING_DOC, s as IDB_ERROR, n as filterChange, v as readAsBinaryString, i as thisBtoa, R as REV_CONFLICT, w as MISSING_STUB, e as binStringToBluffer, x as binaryMd5, B as BAD_ARG } from './common/index-browser.es-dd5e9a3a.js';
+import { l as latest, t as traverseRevTree, m as merge, w as winningRev, c as collectConflicts } from './common/index.es-3a1f883d.js';
 import './common/_commonjsHelpers-37fa8da4.js';
+import './common/v4-c5ee5148.js';
 
 function toObject(array) {
   return array.reduce(function (obj, item) {

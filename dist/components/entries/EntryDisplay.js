@@ -10,12 +10,6 @@ import EntryForm from "./EntryForm.js";
 const StyledRecordIcon = styled(RecordIcon)`
   margin-right: 0.2rem;
 `;
-const defaultSortModel = [
-  {
-    field: "startedAt",
-    sort: "desc"
-  }
-];
 export default function EntryDisplay({entries, categories, tags, loading, update, remove, stop, copy}) {
   const intl = useIntl();
   const renderStopButton = (params) => /* @__PURE__ */ React.createElement(IconButton, {
@@ -108,7 +102,12 @@ export default function EntryDisplay({entries, categories, tags, loading, update
     columns,
     rows: entries,
     loading,
-    sortModel: defaultSortModel,
+    sortModel: [
+      {
+        field: "startedAt",
+        sort: "desc"
+      }
+    ],
     density: "compact"
   });
 }

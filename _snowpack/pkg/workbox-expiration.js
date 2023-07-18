@@ -1,6 +1,6 @@
-import './common/_version-d16c6209.js';
-import { W as WorkboxError } from './common/WorkboxError-8042740c.js';
-import { q as quotaErrorCallbacks, c as cacheNames } from './common/quotaErrorCallbacks-a2ecdbb9.js';
+import './common/_version-93902cd1.js';
+import { W as WorkboxError } from './common/WorkboxError-153569aa.js';
+import { q as quotaErrorCallbacks, c as cacheNames } from './common/quotaErrorCallbacks-66a2e0ed.js';
 
 /*
   Copyright 2019 Google LLC
@@ -302,7 +302,7 @@ const deleteDatabase = async (name) => {
 
 // @ts-ignore
 try {
-    self['workbox:expiration:6.1.0'] && _();
+    self['workbox:expiration:6.1.1'] && _();
 }
 catch (e) { }
 

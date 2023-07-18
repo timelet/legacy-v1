@@ -14,19 +14,19 @@ const CustomToolbar = styled(Toolbar)`
     color: inherit;
   }
 `;
-export default function Header() {
-  const titleElement = /* @__PURE__ */ React.createElement(Title, {
-    variant: "h6"
-  }, /* @__PURE__ */ React.createElement(Link, {
-    component: RouterLink,
-    to: RoutePaths.DASHBOARD
-  }, /* @__PURE__ */ React.createElement(FormattedMessage, {
-    id: "app.title",
-    defaultMessage: "Timelet"
-  })));
+const titleElement = /* @__PURE__ */ React.createElement(Title, {
+  variant: "h6"
+}, /* @__PURE__ */ React.createElement(Link, {
+  component: RouterLink,
+  to: RoutePaths.DASHBOARD
+}, /* @__PURE__ */ React.createElement(FormattedMessage, {
+  id: "app.title",
+  defaultMessage: "Timelet"
+})));
+export default function Header({status}) {
   return /* @__PURE__ */ React.createElement(AppBar, {
     position: "static"
   }, /* @__PURE__ */ React.createElement(CustomToolbar, null, /* @__PURE__ */ React.createElement(MenuDrawer, {
     title: titleElement
-  }), titleElement));
+  }), titleElement, status));
 }
