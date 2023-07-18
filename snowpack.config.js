@@ -5,8 +5,8 @@ process.env.SNOWPACK_PUBLIC_SERVICE_WORKER = 'sw.js';
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    public: {url: '/', static: true},
-    src: {url: '/dist'},
+    public: { url: '/', static: true },
+    src: { url: '/dist' },
   },
   plugins: [
     '@snowpack/plugin-react-refresh',
@@ -19,8 +19,8 @@ module.exports = {
           const { glob } = require("glob");
           const { InjectManifest } = require('workbox-webpack-plugin');
           const additionalManifestEntries = [
-            ...glob.sync("*.{png,html,json,txt}", {cwd: './build'})
-          ].map((e) => ({ url: e, revision: process.env.SNOWPACK_PUBLIC_PACKAGE_VERSION}));
+            ...glob.sync("*.{png,html,json,txt}", { cwd: './build' })
+          ].map((e) => ({ url: e, revision: process.env.SNOWPACK_PUBLIC_PACKAGE_VERSION }));
 
           config.plugins.push(
             new InjectManifest({
@@ -29,7 +29,7 @@ module.exports = {
               "swSrc": "./dist/serviceWorker.js",
               "swDest": process.env.SNOWPACK_PUBLIC_SERVICE_WORKER
             })
-        );
+          );
           return config;
         },
       },
@@ -37,7 +37,7 @@ module.exports = {
   ],
   routes: [
     /* Enable an SPA Fallback in development: */
-    {"match": "routes", "src": ".*", "dest": "/index.html"},
+    { "match": "routes", "src": ".*", "dest": "/index.html" },
   ],
   optimize: {
     /* Example: Bundle your final build: */
@@ -50,6 +50,7 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    sourcemap: false
+    sourcemap: false,
+    baseUrl: "./legacy-v1/"
   },
 };
