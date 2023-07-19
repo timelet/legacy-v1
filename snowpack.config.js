@@ -50,7 +50,6 @@ module.exports = {
     /* ... */
   },
   buildOptions: {
-    sourcemap: false,
-    baseUrl: "/legacy-v1/"
+    sourcemap: false
   },
 };
